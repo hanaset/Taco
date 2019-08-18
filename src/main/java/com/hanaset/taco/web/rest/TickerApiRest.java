@@ -17,6 +17,6 @@ public class TickerApiRest {
 
     @GetMapping()
     public void getTickerList() {
-        tickerService.getTicekrList("all");
+        tickerService.getTicekrList();
     }
 }

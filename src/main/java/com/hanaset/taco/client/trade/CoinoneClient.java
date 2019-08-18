@@ -13,7 +13,7 @@ import java.net.URI;
 
 @Slf4j
 @AllArgsConstructor
-public class UpbitClient implements AbstarctClient {
+public class CoinoneClient implements AbstarctClient {
 
     private String publicUrl;
     private RestTemplate restTemplate;
@@ -24,9 +24,9 @@ public class UpbitClient implements AbstarctClient {
             String response = restTemplate.getForObject(getUri(function), String.class);
             log.info(response);
         } catch (HttpClientErrorException e) {
-            log.error("[upbit] -> {}", e.getMessage());
+            log.error("[coinone] -> {}", e.getMessage());
         } catch (ResourceAccessException e) {
-            log.error("[upbit] -> {}", e.getMessage());
+            log.error("[coinone] -> {}", e.getMessage());
         }
     }
 
