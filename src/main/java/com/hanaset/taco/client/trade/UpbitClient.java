@@ -33,6 +33,8 @@ public class UpbitClient implements AbstarctClient {
     public URI getUri(String fuction) {
         String url = publicUrl + fuction;
         UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromUriString(url);
+
+        //System.out.println(url);
         return uriComponentsBuilder.build().encode().toUri();
     }
 
