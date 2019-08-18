@@ -2,6 +2,7 @@ package com.hanaset.taco.client;
 
 
 import com.hanaset.taco.client.trade.BithumbClient;
+import com.hanaset.taco.client.trade.CoinoneClient;
 import com.hanaset.taco.client.trade.UpbitClient;
 import com.hanaset.taco.properties.TradeUrlProperties;
 import lombok.Data;
@@ -30,6 +31,12 @@ public class ApiClient extends AbstractrestTemplate {
     @Bean
     public UpbitClient upbitClient() {
         return new UpbitClient(tradeUrlProperties.getUpbitPublicUrl(),
+                defaultRestTemplate());
+    }
+
+    @Bean
+    public CoinoneClient coinoneClient(){
+        return new CoinoneClient(tradeUrlProperties.getCoinonePublicUrl(),
                 defaultRestTemplate());
     }
 
