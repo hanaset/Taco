@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<included>
+
+    <!-- Register the shutdown hook to allow logback to cleanly stop appenders -->
+    <!-- this is strongly recommend when using AwsLogsAppender in async mode, -->
+    <!-- to allow the queue to flush on exit -->
+    <shutdownHook class="ch.qos.logback.core.hook.DelayingShutdownHook"/>
+
+    <!-- Timestamp used into the Log Stream Name -->
+    <!--<timestamp key="date" datePattern="yyyyMMdd"/>-->
+
+    <appender name="application_log" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <file>logs/application.log</file>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %p [%15.15t] [%c{1}] %M \(%L\): %m%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/archived/application.log.%d{yyyy-MM-dd}</fileNamePattern>
+            <maxHistory>7</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <appender name="slow_query_log" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <file>logs/slow_query.log</file>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %p [%15.15t] [%c{1}] %M \(%L\): %m%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/archived/slow_query.log.%d{yyyy-MM-dd}</fileNamePattern>
+            <maxHistory>7</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <appender name="reqRes_log" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <file>logs/reqRes.log</file>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %p [%15.15t] [%c{1}] %M \(%L\): %m%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/archived/reqRes.log.%d{yyyy-MM-dd}</fileNamePattern>
+            <maxHistory>7</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <appender name="info_log" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <file>logs/info.log</file>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %p [%15.15t] [%c{1}] %M \(%L\): %m%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/archived/info.log.%d{yyyy-MM-dd}</fileNamePattern>
+            <maxHistory>7</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <appender name="error_log" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+        <file>logs/error.log</file>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %p [%15.15t] [%c{1}] %M \(%L\): %m%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/archived/error.log.%d{yyyy-MM-dd}</fileNamePattern>
+            <maxHistory>7</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <appender name="debug_log" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+        <file>logs/debug.log</file>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %p [%15.15t] [%c{1}] %M \(%L\): %m%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/archived/debug.log.%d{yyyy-MM-dd}</fileNamePattern>
+            <maxHistory>7</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <appender name="query_log" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+        <file>logs/query.log</file>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %p [%15.15t] [%c{1}] %M \(%L\): %m%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/archived/query.log.%d{yyyy-MM-dd}</fileNamePattern>
+            <maxHistory>7</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) [%15.15t] [%c{1}] %M \(%L\): %m%n</pattern>
+            <!--<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) [%15.15t] %-40.40logger{39} : %msg %n</pattern>-->
+        </encoder>
+    </appender>
+
+    <appender name="cloudWatch_error_log" class="ca.pjer.logback.AwsLogsAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+        <layout>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %p [%15.15t] [%c{1}] %M \(%L\): %m%n</pattern>
+        </layout>
+        <logGroupName>taco_logs</logGroupName>
+        <logStreamName>${hostname}-taco-error_log</logStreamName>
+        <logRegion>ap-northeast-2</logRegion>
+        <maxBatchLogEvents>50</maxBatchLogEvents>
+        <maxFlushTimeMillis>30000</maxFlushTimeMillis>
+        <maxBlockTimeMillis>5000</maxBlockTimeMillis>
+    </appender>
+
+    <appender name="cloudWatch_application_log" class="ca.pjer.logback.AwsLogsAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <layout>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %p [%15.15t] [%c{1}] %M \(%L\): %m%n</pattern>
+        </layout>
+        <logGroupName>taco_logs</logGroupName>
+        <logStreamName>${hostname}-taco-application_log</logStreamName>
+        <logRegion>ap-northeast-2</logRegion>
+        <maxBatchLogEvents>50</maxBatchLogEvents>
+        <maxFlushTimeMillis>30000</maxFlushTimeMillis>
+        <maxBlockTimeMillis>5000</maxBlockTimeMillis>
+    </appender>
+
+    <appender name="cloudWatch_reqRes_log" class="ca.pjer.logback.AwsLogsAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <layout>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %p [%15.15t] [%c{1}] %M \(%L\): %m%n</pattern>
+        </layout>
+        <logGroupName>taco_logs</logGroupName>
+        <logStreamName>${hostname}-taco-reqRes_log</logStreamName>
+        <logRegion>ap-northeast-2</logRegion>
+        <maxBatchLogEvents>50</maxBatchLogEvents>
+        <maxFlushTimeMillis>30000</maxFlushTimeMillis>
+        <maxBlockTimeMillis>5000</maxBlockTimeMillis>
+    </appender>
+
+    <appender name="cloudWatch_info_log" class="ca.pjer.logback.AwsLogsAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <layout>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %p [%15.15t] [%c{1}] %M \(%L\): %m%n</pattern>
+        </layout>
+        <logGroupName>taco_logs</logGroupName>
+        <logStreamName>${hostname}-taco-info_log</logStreamName>
+        <logRegion>ap-northeast-2</logRegion>
+        <maxBatchLogEvents>50</maxBatchLogEvents>
+        <maxFlushTimeMillis>30000</maxFlushTimeMillis>
+        <maxBlockTimeMillis>5000</maxBlockTimeMillis>
+    </appender>
+
+    <appender name="test_log" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <file>logs/test.log</file>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %p [%15.15t] [%c{1}] %M \(%L\): %m%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/archived/test.log.%d{yyyy-MM-dd}</fileNamePattern>
+            <maxHistory>7</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+
+    <!-- Example -->
+    <appender name="ASYNC_AWS_LOGS" class="ca.pjer.logback.AwsLogsAppender">
+        <!-- The actual AwsLogsAppender (asynchronous mode because of maxFlushTimeMillis > 0) -->
+
+        <!-- Send only WARN and above -->
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>WARN</level>
+        </filter>
+
+        <!-- Nice layout pattern -->
+        <layout>
+            <pattern>%d{yyyyMMdd'T'HHmmss} %thread %level %logger{15} %msg%n</pattern>
+        </layout>
+
+        <!-- Hardcoded Log Group Name -->
+        <logGroupName>REPLACE IT!!</logGroupName>
+
+        <!-- Timestamped Log Stream Name -->
+        <logStreamName>mystream-${date}</logStreamName>
+
+        <!-- Hardcoded AWS region -->
+        <!-- So even when running inside an AWS instance in us-west-1, logs will go to us-west-2 -->
+        <logRegion>us-west-2</logRegion>
+
+        <!-- Maximum number of events in each batch (50 is the default) -->
+        <!-- will flush when the event queue has 50 elements, even if still in quiet time (see maxFlushTimeMillis) -->
+        <maxBatchLogEvents>50</maxBatchLogEvents>
+
+        <!-- Maximum quiet time in millisecond (0 is the default) -->
+        <!-- will flush when met, even if the batch size is not met (see maxBatchLogEvents) -->
+        <maxFlushTimeMillis>30000</maxFlushTimeMillis>
+
+        <!-- Maximum block time in millisecond (5000 is the default) -->
+        <!-- when > 0: this is the maximum time the logging thread will wait for the logger, -->
+        <!-- when == 0: the logging thread will never wait for the logger, discarding events while the queue is full -->
+        <maxBlockTimeMillis>5000</maxBlockTimeMillis>
+    </appender>
+
+</included>

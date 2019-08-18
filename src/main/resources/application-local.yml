@@ -1,0 +1,9 @@
+server:
+  port: 8000
+
+spring:
+  datasource:
+    username: root
+    password: bb2848
+    url: jdbc:mysql://localhost:3306/study_db?characterEncoding=UTF-8&serverTimezone=UTC
+    driver-class-name: com.mysql.cj.jdbc.Driver
