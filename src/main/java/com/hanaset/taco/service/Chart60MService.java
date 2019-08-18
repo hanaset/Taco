@@ -31,4 +31,19 @@ public class Chart60MService {
         });
 
     }
+
+    public void getLastChartData(Long DateTime) {
+
+        Set<String> pairs = cryptoPairs.pairs;
+
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss'Z'");
+        String date = format.format(DateTime);
+
+        pairs.stream().forEach(pair->{
+
+            String url = "candles/minutes/60?market=KRW-" + pair + "&count=24&to=" + date;
+            upbitClient.getRestApi(url);
+        });
+
+    }
 }
