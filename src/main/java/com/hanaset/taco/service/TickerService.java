@@ -26,12 +26,11 @@ public class TickerService {
 
     public void getTicekrList() {
 
-        cryptoPairs.pairs.stream().forEach(pair ->
-                {
-                    bithumbClient.getRestApi("ticker/" + pair);
-                    upbitClient.getRestApi("ticker?markets=KRW-" + pair);
-                    coinoneClient.getRestApi("ticker?currency=" + pair);
-                });
+        cryptoPairs.pairs.stream().forEach(pair -> {
+            bithumbClient.getRestApi("ticker/" + pair);
+            upbitClient.getRestApi("ticker?markets=KRW-" + pair);
+            coinoneClient.getRestApi("ticker?currency=" + pair);
+        });
     }
 
 }
