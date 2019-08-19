@@ -10,8 +10,6 @@ import java.util.Set;
 @Service
 public class Chart60MService {
 
-    CryptoPairs cryptoPairs;
-
     private final UpbitClient upbitClient;
 
     public Chart60MService(UpbitClient upbitClient) {
@@ -20,11 +18,10 @@ public class Chart60MService {
 
     public void getChartData() {
 
-        Set<String> pairs = cryptoPairs.pairs;
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss'Z'");
         String date = format.format(System.currentTimeMillis());
 
-        pairs.stream().forEach(pair->{
+        CryptoPairs.pairs.stream().forEach(pair->{
 
             String url = "candles/minutes/60?market=KRW-" + pair + "&count=24&to=" + date;
             upbitClient.getRestApi(url);

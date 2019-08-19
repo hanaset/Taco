@@ -30,8 +30,8 @@ public class Taco2UpbitConvert {
             return TransactionItem.builder()
                     .market("upbit")
                     .pair(pair)
-                    .price(new BigDecimal(upbitObject.get("trade_volume").toString()))
-                    .amount(new BigDecimal(upbitObject.get("trade_price").toString()))
+                    .price(new BigDecimal(upbitObject.get("trade_price").toString()))
+                    .amount(new BigDecimal(upbitObject.get("trade_volume").toString()))
                     .build();
 
         } catch (ParseException e) {

@@ -9,8 +9,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class TickerService {
 
-    CryptoPairs cryptoPairs;
-
     private final BithumbClient bithumbClient;
     private final UpbitClient upbitClient;
     private final CoinoneClient coinoneClient;
@@ -26,7 +24,7 @@ public class TickerService {
 
     public void getTicekrList() {
 
-        cryptoPairs.pairs.stream().forEach(pair -> {
+        CryptoPairs.pairs.stream().forEach(pair -> {
             bithumbClient.getRestApi("ticker/" + pair);
             upbitClient.getRestApi("ticker?markets=KRW-" + pair);
             coinoneClient.getRestApi("ticker?currency=" + pair);

@@ -21,8 +21,6 @@ import java.util.List;
 @Service
 public class TransactionHistoryService {
 
-    CryptoPairs cryptoPairs;
-
     private final BithumbClient bithumbClient;
     private final UpbitClient upbitClient;
     private final CoinoneClient coinoneClient;
@@ -39,7 +37,7 @@ public class TransactionHistoryService {
 
         List<TransactionItem> transactionItems = Lists.newArrayList();
 
-        cryptoPairs.pairs.stream().forEach(pair -> {
+        CryptoPairs.pairs.stream().forEach(pair -> {
             transactionItems.add(Taco2BithumbConvert.convertTransaction(bithumbClient.getRestApi("transaction_history/" + pair), pair));
             transactionItems.add(Taco2UpbitConvert.convertTransaction(upbitClient.getRestApi("trades/ticks?market=KRW-" + pair), pair));
             transactionItems.add(Taco2CoinoneConvert.convertTransaction(coinoneClient.getRestApi("trades?currency=" + pair), pair));
