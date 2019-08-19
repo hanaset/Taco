@@ -14,13 +14,20 @@ public class Taco2BithumbConvert {
 
     final private static JSONParser jsonParser = new JSONParser();
 
+    public static JSONObject convertJSONObject(String data) throws ParseException {
+
+        JSONObject jsonObject = (JSONObject) jsonParser.parse(data);
+        JSONArray jsonArray = (JSONArray) jsonObject.get("data");
+
+        JSONObject bithumbObject = (JSONObject) jsonArray.get(0);
+
+        return bithumbObject;
+    }
+
     public static TransactionItem convertTransaction(String data, String pair) {
 
         try {
-            JSONObject jsonObject = (JSONObject) jsonParser.parse(data);
-            JSONArray jsonArray = (JSONArray)jsonObject.get("data");
-
-            JSONObject bithumbObject = (JSONObject)jsonArray.get(0);
+            JSONObject bithumbObject = convertJSONObject(data);
 
             return TransactionItem.builder()
                     .market("bithumb")
@@ -29,7 +36,7 @@ public class Taco2BithumbConvert {
                     .amount(new BigDecimal(bithumbObject.get("units_traded").toString()))
                     .build();
 
-        }catch (ParseException e) {
+        } catch (ParseException e) {
             log.error("[parser error] -> {}", data);
         }
 

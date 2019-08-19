@@ -14,11 +14,18 @@ public class Taco2UpbitConvert {
 
     final private static JSONParser jsonPaser = new JSONParser();
 
+    public static JSONObject convertJSONObject(String data) throws ParseException {
+        JSONArray jsonArray = (JSONArray) jsonPaser.parse(data);
+        JSONObject upbitObject = (JSONObject) jsonArray.get(0);
+
+        return upbitObject;
+    }
+
     public static TransactionItem convertTransaction(String data, String pair) {
 
         try {
-            JSONArray jsonArray = (JSONArray) jsonPaser.parse(data);
-            JSONObject upbitObject = (JSONObject)jsonArray.get(0);
+
+            JSONObject upbitObject = convertJSONObject(data);
 
             return TransactionItem.builder()
                     .market("upbit")
@@ -27,7 +34,7 @@ public class Taco2UpbitConvert {
                     .amount(new BigDecimal(upbitObject.get("trade_price").toString()))
                     .build();
 
-        }catch (ParseException e) {
+        } catch (ParseException e) {
             log.error("[parser error] -> {}", data);
         }
 

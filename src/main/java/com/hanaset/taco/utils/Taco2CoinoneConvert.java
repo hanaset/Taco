@@ -14,12 +14,19 @@ public class Taco2CoinoneConvert {
 
     final private static JSONParser jsonParser = new JSONParser();
 
+    public static JSONObject convertJSONObject(String data) throws ParseException {
+
+        JSONObject jsonObject = (JSONObject) jsonParser.parse(data);
+        JSONArray jsonArray = (JSONArray) jsonObject.get("completeOrders");
+        JSONObject coinoneObject = (JSONObject) jsonArray.get(0);
+
+        return coinoneObject;
+    }
+
     public static TransactionItem convertTransaction(String data, String pair) {
 
-        try{
-            JSONObject jsonObject = (JSONObject)jsonParser.parse(data);
-            JSONArray jsonArray = (JSONArray)jsonObject.get("completeOrders");
-            JSONObject coinoneObject = (JSONObject)jsonArray.get(0);
+        try {
+            JSONObject coinoneObject = convertJSONObject(data);
 
             return TransactionItem.builder()
                     .market("coinone")
@@ -27,9 +34,8 @@ public class Taco2CoinoneConvert {
                     .price(new BigDecimal(coinoneObject.get("price").toString()))
                     .amount(new BigDecimal(coinoneObject.get("qty").toString()))
                     .build();
-
-        }catch (ParseException e) {
-           log.error("[parser error] -> {}", e.getUnexpectedObject());
+        } catch (ParseException e) {
+            log.error("[parser error] -> {}", e.getUnexpectedObject());
         }
 
         return null;
