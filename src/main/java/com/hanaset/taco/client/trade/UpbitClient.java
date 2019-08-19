@@ -18,16 +18,19 @@ public class UpbitClient implements AbstarctClient {
     private String publicUrl;
     private RestTemplate restTemplate;
 
-    public void getRestApi(String function) {
+    public String getRestApi(String function) {
 
         try {
             String response = restTemplate.getForObject(getUri(function), String.class);
-            log.info(response);
+            //log.info(response);
+            return response;
         } catch (HttpClientErrorException e) {
             log.error("[upbit] -> {}", e.getMessage());
         } catch (ResourceAccessException e) {
             log.error("[upbit] -> {}", e.getMessage());
         }
+
+        return null;
     }
 
     public URI getUri(String fuction) {

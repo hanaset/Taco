@@ -6,7 +6,7 @@ import java.net.URI;
 
 public interface AbstarctClient {
 
-    public void getRestApi(String function);
+    public String getRestApi(String function);
 
     public URI getUri(String fuction);
 

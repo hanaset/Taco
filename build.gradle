@@ -34,4 +34,6 @@ dependencies {
     compile group: 'com.google.collections', name: 'google-collections', version: '1.0' // google collect 
 
     compile group: 'ca.pjer', name: 'logback-awslogs-appender', version: '1.1.0' // aws cloudwatch
+
+    compile group: 'org.apache.clerezza.ext', name: 'org.json.simple', version: '0.4' // JSONObject
 }
