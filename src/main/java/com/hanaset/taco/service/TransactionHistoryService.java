@@ -1,36 +1,33 @@
 package com.hanaset.taco.service;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.hanaset.taco.client.trade.BithumbClient;
-import com.hanaset.taco.client.trade.CoinoneClient;
-import com.hanaset.taco.client.trade.UpbitClient;
+import com.hanaset.taco.api.bithumb.BithumbRestClient;
+import com.hanaset.taco.api.coinone.CoinoneRestClient;
+import com.hanaset.taco.api.upbit.UpbitApiRestClient;
 import com.hanaset.taco.config.CryptoPairs;
 import com.hanaset.taco.item.TransactionItem;
 import com.hanaset.taco.utils.Taco2BithumbConvert;
 import com.hanaset.taco.utils.Taco2CoinoneConvert;
 import com.hanaset.taco.utils.Taco2UpbitConvert;
 import lombok.extern.slf4j.Slf4j;
-import org.json.simple.parser.JSONParser;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
 
 @Slf4j
 @Service
 public class TransactionHistoryService {
 
-    private final BithumbClient bithumbClient;
-    private final UpbitClient upbitClient;
-    private final CoinoneClient coinoneClient;
+    private final BithumbRestClient bithumbRestClient;
+    private final UpbitApiRestClient upbitApiRestClient;
+    private final CoinoneRestClient coinoneRestClient;
 
-    public TransactionHistoryService(BithumbClient bithumbClient,
-                                     UpbitClient upbitClient,
-                                     CoinoneClient coinoneClient) {
-        this.bithumbClient = bithumbClient;
-        this.upbitClient = upbitClient;
-        this.coinoneClient = coinoneClient;
+    public TransactionHistoryService(BithumbRestClient bithumbRestClient,
+                                     UpbitApiRestClient upbitApiRestClient,
+                                     CoinoneRestClient coinoneRestClient) {
+        this.bithumbRestClient = bithumbRestClient;
+        this.upbitApiRestClient = upbitApiRestClient;
+        this.coinoneRestClient = coinoneRestClient;
     }
 
     public void getTransactionHistory() {
@@ -38,9 +35,9 @@ public class TransactionHistoryService {
         List<TransactionItem> transactionItems = Lists.newArrayList();
 
         CryptoPairs.pairs.stream().forEach(pair -> {
-            transactionItems.add(Taco2BithumbConvert.convertTransaction(bithumbClient.getRestApi("transaction_history/" + pair), pair));
-            transactionItems.add(Taco2UpbitConvert.convertTransaction(upbitClient.getRestApi("trades/ticks?market=KRW-" + pair), pair));
-            transactionItems.add(Taco2CoinoneConvert.convertTransaction(coinoneClient.getRestApi("trades?currency=" + pair), pair));
+            transactionItems.add(Taco2BithumbConvert.convertTransaction(bithumbRestClient.getRestApi("transaction_history/" + pair), pair));
+            transactionItems.add(Taco2UpbitConvert.convertTransaction(upbitApiRestClient.getRestApi("trades/ticks?market=KRW-" + pair), pair));
+            transactionItems.add(Taco2CoinoneConvert.convertTransaction(coinoneRestClient.getRestApi("trades?currency=" + pair), pair));
         });
 
         log.info(transactionItems.toString());

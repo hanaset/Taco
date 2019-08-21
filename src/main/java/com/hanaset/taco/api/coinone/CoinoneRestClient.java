@@ -1,4 +1,4 @@
-package com.hanaset.taco.client.trade;
+package com.hanaset.taco.api.coinone;
 
 import com.hanaset.taco.client.AbstarctClient;
 import lombok.AllArgsConstructor;
@@ -13,7 +13,7 @@ import java.net.URI;
 
 @Slf4j
 @AllArgsConstructor
-public class UpbitClient implements AbstarctClient {
+public class CoinoneRestClient implements AbstarctClient {
 
     private String publicUrl;
     private RestTemplate restTemplate;
@@ -23,11 +23,12 @@ public class UpbitClient implements AbstarctClient {
         try {
             String response = restTemplate.getForObject(getUri(function), String.class);
             //log.info(response);
+
             return response;
         } catch (HttpClientErrorException e) {
-            log.error("[upbit] -> {}", e.getMessage());
+            log.error("[coinone] -> {}", e.getMessage());
         } catch (ResourceAccessException e) {
-            log.error("[upbit] -> {}", e.getMessage());
+            log.error("[coinone] -> {}", e.getMessage());
         }
 
         return null;
@@ -36,8 +37,6 @@ public class UpbitClient implements AbstarctClient {
     public URI getUri(String fuction) {
         String url = publicUrl + fuction;
         UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromUriString(url);
-
-        //System.out.println(url);
         return uriComponentsBuilder.build().encode().toUri();
     }
 

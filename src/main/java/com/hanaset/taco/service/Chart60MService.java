@@ -1,19 +1,18 @@
 package com.hanaset.taco.service;
 
-import com.hanaset.taco.client.trade.UpbitClient;
+import com.hanaset.taco.api.upbit.UpbitApiRestClient;
 import com.hanaset.taco.config.CryptoPairs;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
-import java.util.Set;
 
 @Service
 public class Chart60MService {
 
-    private final UpbitClient upbitClient;
+    private final UpbitApiRestClient upbitApiRestClient;
 
-    public Chart60MService(UpbitClient upbitClient) {
-        this.upbitClient = upbitClient;
+    public Chart60MService(UpbitApiRestClient upbitApiRestClient) {
+        this.upbitApiRestClient = upbitApiRestClient;
     }
 
     public void getChartData() {
@@ -24,7 +23,7 @@ public class Chart60MService {
         CryptoPairs.pairs.stream().forEach(pair->{
 
             String url = "candles/minutes/60?market=KRW-" + pair + "&count=24&to=" + date;
-            upbitClient.getRestApi(url);
+            upbitApiRestClient.getRestApi(url);
         });
 
     }

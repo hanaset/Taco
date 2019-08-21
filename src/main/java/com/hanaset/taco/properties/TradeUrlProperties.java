@@ -18,6 +18,9 @@ public class TradeUrlProperties {
     @Value("${upbit.public}")
     private String upbitPublicUrl;
 
+    @Value("${upbit.websocket}")
+    private String upbitWebSockUrl;
+
     @Value("${coinone.public}")
     private String coinonePublicUrl;
 

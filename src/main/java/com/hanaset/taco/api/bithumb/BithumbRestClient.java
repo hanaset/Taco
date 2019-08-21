@@ -1,4 +1,4 @@
-package com.hanaset.taco.client.trade;
+package com.hanaset.taco.api.bithumb;
 
 import com.hanaset.taco.client.AbstarctClient;
 import lombok.AllArgsConstructor;
@@ -13,7 +13,7 @@ import java.net.URI;
 
 @Slf4j
 @AllArgsConstructor
-public class CoinoneClient implements AbstarctClient {
+public class BithumbRestClient implements AbstarctClient {
 
     private String publicUrl;
     private RestTemplate restTemplate;
@@ -26,9 +26,9 @@ public class CoinoneClient implements AbstarctClient {
 
             return response;
         } catch (HttpClientErrorException e) {
-            log.error("[coinone] -> {}", e.getMessage());
+            log.error("[bithumb] -> {}", e.getMessage());
         } catch (ResourceAccessException e) {
-            log.error("[coinone] -> {}", e.getMessage());
+            log.error("[bithumb] -> {}", e.getMessage());
         }
 
         return null;
@@ -44,4 +44,5 @@ public class CoinoneClient implements AbstarctClient {
         final HttpHeaders httpHeaders = new HttpHeaders();
         return httpHeaders;
     }
+
 }

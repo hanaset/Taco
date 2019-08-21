@@ -43,6 +43,8 @@ public class TacoApplication {
     @EventListener(ApplicationReadyEvent.class)
     public void applicationReadyEvent() {
         log.info("applicationReady profiles:{}", Arrays.toString(environment.getActiveProfiles()));
+        //UpbitWebSocketClient client = new UpbitWebSocketClient();
+        //client.connect();
     }
 
 }

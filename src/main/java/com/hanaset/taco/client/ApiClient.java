@@ -1,9 +1,9 @@
 package com.hanaset.taco.client;
 
 
-import com.hanaset.taco.client.trade.BithumbClient;
-import com.hanaset.taco.client.trade.CoinoneClient;
-import com.hanaset.taco.client.trade.UpbitClient;
+import com.hanaset.taco.api.bithumb.BithumbRestClient;
+import com.hanaset.taco.api.coinone.CoinoneRestClient;
+import com.hanaset.taco.api.upbit.UpbitApiRestClient;
 import com.hanaset.taco.properties.TradeUrlProperties;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -23,20 +23,20 @@ public class ApiClient extends AbstractrestTemplate {
 
 
     @Bean
-    public BithumbClient bithumbClient() {
-        return new BithumbClient(tradeUrlProperties.getBithumbPublicUrl(),
+    public BithumbRestClient bithumbClient() {
+        return new BithumbRestClient(tradeUrlProperties.getBithumbPublicUrl(),
                 defaultRestTemplate());
     }
 
     @Bean
-    public UpbitClient upbitClient() {
-        return new UpbitClient(tradeUrlProperties.getUpbitPublicUrl(),
+    public UpbitApiRestClient upbitClient() {
+        return new UpbitApiRestClient(tradeUrlProperties.getUpbitPublicUrl(),
                 defaultRestTemplate());
     }
 
     @Bean
-    public CoinoneClient coinoneClient(){
-        return new CoinoneClient(tradeUrlProperties.getCoinonePublicUrl(),
+    public CoinoneRestClient coinoneClient(){
+        return new CoinoneRestClient(tradeUrlProperties.getCoinonePublicUrl(),
                 defaultRestTemplate());
     }
 

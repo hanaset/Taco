@@ -4,14 +4,15 @@ import com.hanaset.taco.service.Chart60MService;
 import com.hanaset.taco.service.TickerService;
 import com.hanaset.taco.service.TransactionHistoryService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-//@ConditionalOnProperty(
-//        prefix = "taco.ticker.scheduler", name = "enabled", havingValue = "true"
-//)
+@ConditionalOnProperty(
+        prefix = "taco.ticker.scheduler", name = "enabled", havingValue = "true"
+)
 public class TacoScheduler {
 
     private final TickerService tickerService;

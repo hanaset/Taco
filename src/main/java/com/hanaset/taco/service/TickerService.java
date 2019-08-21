@@ -1,33 +1,33 @@
 package com.hanaset.taco.service;
 
-import com.hanaset.taco.client.trade.BithumbClient;
-import com.hanaset.taco.client.trade.CoinoneClient;
-import com.hanaset.taco.client.trade.UpbitClient;
+import com.hanaset.taco.api.bithumb.BithumbRestClient;
+import com.hanaset.taco.api.coinone.CoinoneRestClient;
+import com.hanaset.taco.api.upbit.UpbitApiRestClient;
 import com.hanaset.taco.config.CryptoPairs;
 import org.springframework.stereotype.Service;
 
 @Service
 public class TickerService {
 
-    private final BithumbClient bithumbClient;
-    private final UpbitClient upbitClient;
-    private final CoinoneClient coinoneClient;
+    private final BithumbRestClient bithumbRestClient;
+    private final UpbitApiRestClient upbitApiRestClient;
+    private final CoinoneRestClient coinoneRestClient;
 
-    public TickerService(BithumbClient bithumbClient,
-                         UpbitClient upbitClient,
-                         CoinoneClient coinoneClient) {
-        this.bithumbClient = bithumbClient;
-        this.upbitClient = upbitClient;
-        this.coinoneClient = coinoneClient;
+    public TickerService(BithumbRestClient bithumbRestClient,
+                         UpbitApiRestClient upbitApiRestClient,
+                         CoinoneRestClient coinoneRestClient) {
+        this.bithumbRestClient = bithumbRestClient;
+        this.upbitApiRestClient = upbitApiRestClient;
+        this.coinoneRestClient = coinoneRestClient;
     }
 
 
     public void getTicekrList() {
 
         CryptoPairs.pairs.stream().forEach(pair -> {
-            bithumbClient.getRestApi("ticker/" + pair);
-            upbitClient.getRestApi("ticker?markets=KRW-" + pair);
-            coinoneClient.getRestApi("ticker?currency=" + pair);
+            bithumbRestClient.getRestApi("ticker/" + pair);
+            upbitApiRestClient.getRestApi("ticker?markets=KRW-" + pair);
+            coinoneRestClient.getRestApi("ticker?currency=" + pair);
         });
     }
 
