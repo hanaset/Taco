@@ -7,11 +7,11 @@ import lombok.Data;
 public class UpbitOrderbookItem {
 
     @SerializedName("ask_price")
-    private Double askPrice;
+    private Double ask_price;
     @SerializedName("bid_price")
-    private Double bidPrice;
+    private Double bid_price;
     @SerializedName("ask_size")
-    private Double askSize;
+    private Double ask_size;
     @SerializedName("bid_size")
-    private Double bidSize;
+    private Double bid_size;
 }
