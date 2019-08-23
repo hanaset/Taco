@@ -1,5 +1,6 @@
 package com.hanaset.taco;
 
+import com.ulisesbocchio.jasyptspringboot.annotation.EnableEncryptableProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -18,6 +19,7 @@ import java.util.Arrays;
 @SpringBootApplication
 @EnableScheduling
 @EnableAsync
+@EnableEncryptableProperties
 public class TacoApplication {
 
 

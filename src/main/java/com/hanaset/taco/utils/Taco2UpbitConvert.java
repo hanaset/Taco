@@ -40,4 +40,11 @@ public class Taco2UpbitConvert {
 
         return null;
     }
+
+    public static String convertPair(String pair) {
+
+        String data[] = pair.split("-");
+
+        return data[1];
+    }
 }

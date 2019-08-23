@@ -41,4 +41,8 @@ dependencies {
     compile group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.1.0'
 
     compile 'com.google.code.gson:gson:2.6.2' // gson
+
+    compile group: 'com.github.ulisesbocchio', name: 'jasypt-spring-boot-starter', version: '2.1.0' // Jasypt
+
+    compile group: 'com.auth0', name: 'java-jwt', version: '3.8.1' // Upbit Auth
 }

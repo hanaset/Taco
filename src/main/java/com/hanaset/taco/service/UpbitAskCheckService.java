@@ -4,54 +4,43 @@ import com.hanaset.taco.api.upbit.model.UpbitOrderbookItem;
 import com.hanaset.taco.cache.OrderbookCached;
 import com.hanaset.taco.utils.Taco2CurrencyConvert;
 import com.hanaset.taco.utils.TacoPercentChecker;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-@Slf4j
 @Service
 public class UpbitAskCheckService {
+
+    private Logger log = LoggerFactory.getLogger("upbit_askbid");
 
     public void compareASKWithBID(String pair) {
 
         try {
-            UpbitOrderbookItem btcItem = OrderbookCached.UPBIT.get("BTC-ETH");
-            UpbitOrderbookItem krwItem = OrderbookCached.UPBIT.get("KRW-ETH");
+            UpbitOrderbookItem btcItem = OrderbookCached.UPBIT.get("BTC-" + pair);
+            UpbitOrderbookItem krwItem = OrderbookCached.UPBIT.get("KRW-" + pair);
 
             if (TacoPercentChecker.profitCheck(Taco2CurrencyConvert.convertBTC2KRW(btcItem.getBid_price()), krwItem.getAsk_price(), 0.3)) {
 
-                System.out.println("=======================================");
-                System.out.println(String.format("Ask : %f, Bid : %f, profit : %f, percent : %f",
-                        Taco2CurrencyConvert.convertBTC2KRW(btcItem.getBid_price()), krwItem.getAsk_price(),
+                log.info("[{}] [Bid : {}/{}] [Ask : {}/{}] [profit : {}] [percent : {}]",
+                        pair,
+                        Taco2CurrencyConvert.convertBTC2KRW(btcItem.getBid_price()), btcItem.getBid_size(),
+                        krwItem.getAsk_price(), krwItem.getAsk_size(),
                         Taco2CurrencyConvert.convertBTC2KRW(btcItem.getBid_price()) - krwItem.getAsk_price(),
-                        (Taco2CurrencyConvert.convertBTC2KRW(btcItem.getBid_price()) - krwItem.getAsk_price() / Taco2CurrencyConvert.convertBTC2KRW(btcItem.getBid_price()) * 100)));
-                System.out.println("=======================================");
+                        (Taco2CurrencyConvert.convertBTC2KRW(btcItem.getBid_price()) - krwItem.getAsk_price()) / krwItem.getAsk_price() * 100);
 
             } else if (TacoPercentChecker.profitCheck(krwItem.getBid_price(), Taco2CurrencyConvert.convertBTC2KRW(btcItem.getAsk_price()), 0.3)) {
 
-                System.out.println("=======================================");
-                System.out.println(String.format("Ask : %f, Bid : %f, profit : %f, percent : %f",
-                        krwItem.getBid_price(), Taco2CurrencyConvert.convertBTC2KRW(btcItem.getAsk_price()),
+                log.info("[{}] [Bid : {}/{}] [Ask : {}/{}] [profit : {}] [percent : {}]",
+                        pair,
+                        krwItem.getBid_price(), krwItem.getBid_size(),
+                        Taco2CurrencyConvert.convertBTC2KRW(btcItem.getAsk_price()), btcItem.getAsk_size(),
                         krwItem.getBid_price() - Taco2CurrencyConvert.convertBTC2KRW(btcItem.getAsk_price()),
-                        (krwItem.getBid_price() - Taco2CurrencyConvert.convertBTC2KRW(btcItem.getAsk_price())) / krwItem.getBid_price() * 100));
-                System.out.println("=======================================");
+                        (krwItem.getBid_price() - Taco2CurrencyConvert.convertBTC2KRW(btcItem.getAsk_price())) / Taco2CurrencyConvert.convertBTC2KRW(btcItem.getAsk_price()) * 100);
 
             }
 
-            System.out.println("=======================================");
-            System.out.println(String.format("Ask : %f / Bid : %f / profit : %f / percent : %f",
-                    Taco2CurrencyConvert.convertBTC2KRW(btcItem.getBid_price()), krwItem.getAsk_price(),
-                    Taco2CurrencyConvert.convertBTC2KRW(btcItem.getBid_price()) - krwItem.getAsk_price(),
-                    (Taco2CurrencyConvert.convertBTC2KRW(btcItem.getBid_price()) - krwItem.getAsk_price()) / Taco2CurrencyConvert.convertBTC2KRW(btcItem.getBid_price()) * 100));
-            System.out.println("=======================================");
-            System.out.println("=======================================");
-            System.out.println(String.format("Ask : %f / Bid : %f / profit : %f / percent : %f",
-                    krwItem.getBid_price(), Taco2CurrencyConvert.convertBTC2KRW(btcItem.getAsk_price()),
-                    krwItem.getBid_price() - Taco2CurrencyConvert.convertBTC2KRW(btcItem.getAsk_price()),
-                    (krwItem.getBid_price() - Taco2CurrencyConvert.convertBTC2KRW(btcItem.getAsk_price())) / krwItem.getBid_price() * 100));
-            System.out.println("=======================================");
-
-        }catch (NullPointerException e) {
-            log.error("Upbit Data Null");
+        } catch (NullPointerException e) {
+            log.error("[{}] Upbit Data Null", pair);
         }
     }
 }

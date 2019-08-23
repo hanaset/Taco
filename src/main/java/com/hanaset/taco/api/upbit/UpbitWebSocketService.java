@@ -3,6 +3,7 @@ package com.hanaset.taco.api.upbit;
 import com.google.common.collect.Lists;
 import com.hanaset.taco.api.upbit.model.body.Ticket;
 import com.hanaset.taco.api.upbit.model.body.Type;
+import com.hanaset.taco.config.CryptoPairs;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -42,7 +43,7 @@ public class UpbitWebSocketService {
 
         Type type = Type.builder()
                 .type("orderbook")
-                .codes(Lists.newArrayList("KRW-ETH", "BTC-ETH"))
+                .codes(CryptoPairs.UPBIT_PAIRS)
                 .build();
 
         upbitApiWebSocketClient.connect(ticket, type);

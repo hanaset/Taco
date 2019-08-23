@@ -4,10 +4,6 @@ public class TacoPercentChecker {
 
     public static boolean profitCheck(Double bid, Double ask, Double percent) {
 
-        if(bid - ask > ask + (ask * percent)) {
-            return true;
-        } else {
-            return false;
-        }
+        return (bid - ask) / bid * 100.f > percent;
     }
 }

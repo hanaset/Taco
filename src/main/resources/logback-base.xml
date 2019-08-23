@@ -65,6 +65,20 @@
         </rollingPolicy>
     </appender>
 
+    <appender name="trace_log" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>TRACE</level>
+        </filter>
+        <file>logs/trace.log</file>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %p [%15.15t] [%c{1}] %M \(%L\): %m%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/archived/trace.log.%d{yyyy-MM-dd}</fileNamePattern>
+            <maxHistory>7</maxHistory>
+        </rollingPolicy>
+    </appender>
+
     <appender name="error_log" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>ERROR</level>
@@ -177,16 +191,16 @@
         <maxBlockTimeMillis>5000</maxBlockTimeMillis>
     </appender>
 
-    <appender name="test_log" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <appender name="upbit_askbid_log" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>INFO</level>
         </filter>
-        <file>logs/test.log</file>
+        <file>logs/upbit_askbid.log</file>
         <encoder>
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %p [%15.15t] [%c{1}] %M \(%L\): %m%n</pattern>
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>logs/archived/test.log.%d{yyyy-MM-dd}</fileNamePattern>
+            <fileNamePattern>logs/archived/upbit_askbid.log.%d{yyyy-MM-dd}</fileNamePattern>
             <maxHistory>7</maxHistory>
         </rollingPolicy>
     </appender>

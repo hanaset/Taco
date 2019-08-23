@@ -9,10 +9,15 @@
             <appender-ref ref="debug_log"/>
             <appender-ref ref="info_log"/>
             <appender-ref ref="error_log"/>
+            <appender-ref ref="trace_log"/>
         </root>
 
-        <logger name="com.actwo.walker" level="DEBUG">
+        <logger name="com.hanaset.taco" level="DEBUG">
             <appender-ref ref="application_log"/>
+        </logger>
+
+        <logger name="upbit_askbid" level="INFO">
+            <appender-ref ref="upbit_askbid_log"/>
         </logger>
 
         <logger name="reqRes_log" level="INFO" additivity="false">
@@ -40,7 +45,7 @@
             <appender-ref ref="cloudWatch_error_log"/>
         </root>
 
-        <logger name="com.actwo.walker" level="DEBUG">
+        <logger name="com.hanaset.taco" level="DEBUG">
             <appender-ref ref="application_log"/>
             <appender-ref ref="cloudWatch_application_log"/>
         </logger>
@@ -50,8 +55,8 @@
             <appender-ref ref="cloudWatch_reqRes_log"/>
         </logger>
 
-        <logger name="test_log" level="INFO" additivity="false">
-            <appender-ref ref="test_log"/>
+        <logger name="upbit_askbid" level="INFO">
+            <appender-ref ref="upbit_askbid_log"/>
         </logger>
 
         <logger name="slow_query_log" level="INFO" additivity="false">
@@ -74,9 +79,13 @@
             <appender-ref ref="cloudWatch_error_log"/>
         </root>
 
-        <logger name="com.actwo.walker" level="INFO">
+        <logger name="com.hanaset.taco" level="INFO">
             <appender-ref ref="application_log"/>
             <appender-ref ref="cloudWatch_application_log"/>
+        </logger>
+
+        <logger name="upbit_askbid" level="INFO">
+            <appender-ref ref="upbit_askbid_log"/>
         </logger>
 
         <logger name="reqRes_log" level="INFO" additivity="false">
