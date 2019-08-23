@@ -3,69 +3,57 @@ package com.hanaset.taco.api.upbit;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hanaset.taco.api.upbit.model.UpbitAccount;
-import com.hanaset.taco.client.AbstarctClient;
+import com.hanaset.taco.api.upbit.model.UpbitOrderRequest;
+import com.hanaset.taco.api.upbit.model.UpbitOrderResponse;
 import com.hanaset.taco.properties.TradeKeyProperties;
+import com.hanaset.taco.properties.TradeUrlProperties;
 import com.hanaset.taco.utils.HashConvert;
-import lombok.AllArgsConstructor;
+import io.reactivex.Single;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.ResourceAccessException;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
+import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
+import retrofit2.converter.gson.GsonConverterFactory;
 
-import java.net.URI;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
-@AllArgsConstructor
-public class UpbitApiRestClient implements AbstarctClient {
+public class UpbitApiRestClient {
 
-    private String publicUrl;
-    private RestTemplate restTemplate;
     private final TradeKeyProperties tradeKeyProperties;
+    private final TradeUrlProperties tradeUrlProperties;
+    private final UpbitApiRestService upbitApiRestService;
 
-    public UpbitApiRestClient(TradeKeyProperties tradeKeyProperties) {
+    public UpbitApiRestClient(TradeKeyProperties tradeKeyProperties,
+                              TradeUrlProperties tradeUrlProperties) {
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(tradeUrlProperties.getUpbitPublicUrl())
+                .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .build();
+
         this.tradeKeyProperties = tradeKeyProperties;
+        this.tradeUrlProperties = tradeUrlProperties;
+        this.upbitApiRestService = retrofit.create(UpbitApiRestService.class);
     }
 
-    public String getRestApi(String function) {
 
-        try {
-            String response = restTemplate.getForObject(getUri(function), String.class);
-
-            System.out.println(createToken(null));
-            //log.info(response);
-            return response;
-        } catch (HttpClientErrorException e) {
-            log.error("[upbit] -> {}", e.getMessage());
-        } catch (ResourceAccessException e) {
-            log.error("[upbit] -> {}", e.getMessage());
-        }
-
-        return null;
+    public Single<List<UpbitAccount>> getAccount(String query) {
+        return upbitApiRestService.getAccount(createToken(query));
     }
 
-    public URI getUri(String fuction) {
-        String url = publicUrl + fuction;
-        UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromUriString(url);
+    public Single<UpbitOrderResponse> createOrder(UpbitOrderRequest request) {
 
-        //System.out.println(url);
-        return uriComponentsBuilder.build().encode().toUri();
-    }
+        String query = "market=" + request.getMarket()
+                + "&side=" + request.getSide()
+                + "&volume=" + request.getVolume()
+                + "&price=" + request.getPrice()
+                + "&ord_type=" + request.getOrd_type();
 
-    public HttpHeaders getHttpHeader() {
-        final HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add(HttpHeaders.AUTHORIZATION, createToken(""));
-        return httpHeaders;
+        return upbitApiRestService.createOrder(createToken(query), request);
     }
 
     private String createToken(String queryString) {
@@ -78,9 +66,12 @@ public class UpbitApiRestClient implements AbstarctClient {
 
             jwtBulider
                     .withClaim("access_key", tradeKeyProperties.getUpbitAccessKey())
-                    .withClaim("nonce", System.currentTimeMillis())
+                    .withClaim("nonce", UUID.randomUUID().toString())
                     .withClaim("query", queryString);
-                    //.withClaim("query_hash", HashConvert.getSHA512(""));
+
+            if (!StringUtils.isEmpty(queryString)) {
+                jwtBulider.withClaim("query", queryString);
+            }
 
             token = jwtBulider.sign(Algorithm.HMAC256(tradeKeyProperties.getUpbitSecretKey()));
         } catch (Exception e) {
@@ -90,19 +81,6 @@ public class UpbitApiRestClient implements AbstarctClient {
         return "Bearer " + (StringUtils.isEmpty(token) ? "" : token);
     }
 
-    public String balanceRestApi(String function) {
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            HttpEntity<String> httpEntity = new HttpEntity<>(null, getHttpHeader());
-            ResponseEntity<List<UpbitAccount>> response = restTemplate.exchange(getUri(function), HttpMethod.GET, httpEntity, new ParameterizedTypeReference<List<UpbitAccount>>() {});
-            log.info(response.getBody().toString());
-        } catch (HttpClientErrorException e) {
-            log.error("[upbit] -> {}", e.getMessage());
-        } catch (ResourceAccessException e) {
-            log.error("[upbit] -> {}", e.getMessage());
-        }
 
-        return null;
-    }
 }

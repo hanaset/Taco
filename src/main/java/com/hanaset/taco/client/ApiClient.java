@@ -1,8 +1,6 @@
 package com.hanaset.taco.client;
 
 
-import com.hanaset.taco.api.bithumb.BithumbRestClient;
-import com.hanaset.taco.api.coinone.CoinoneRestClient;
 import com.hanaset.taco.api.upbit.UpbitApiRestClient;
 import com.hanaset.taco.properties.TradeKeyProperties;
 import com.hanaset.taco.properties.TradeUrlProperties;
@@ -27,23 +25,8 @@ public class ApiClient extends AbstractrestTemplate {
 
 
     @Bean
-    public BithumbRestClient bithumbClient() {
-        return new BithumbRestClient(tradeUrlProperties.getBithumbPublicUrl(),
-                defaultRestTemplate());
-    }
-
-    @Bean
     public UpbitApiRestClient upbitClient() {
-        return new UpbitApiRestClient(tradeUrlProperties.getUpbitPublicUrl(),
-                defaultRestTemplate(),
-                tradeKeyProperties);
+        return new UpbitApiRestClient(tradeKeyProperties, tradeUrlProperties);
     }
-
-    @Bean
-    public CoinoneRestClient coinoneClient(){
-        return new CoinoneRestClient(tradeUrlProperties.getCoinonePublicUrl(),
-                defaultRestTemplate());
-    }
-
 
 }
