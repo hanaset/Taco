@@ -4,10 +4,8 @@ import com.hanaset.taco.api.upbit.model.UpbitAccount;
 import com.hanaset.taco.api.upbit.model.UpbitOrderRequest;
 import com.hanaset.taco.api.upbit.model.UpbitOrderResponse;
 import io.reactivex.Single;
-import retrofit2.http.Body;
-import retrofit2.http.GET;
-import retrofit2.http.Header;
-import retrofit2.http.POST;
+import retrofit2.Call;
+import retrofit2.http.*;
 
 import java.util.List;
 
@@ -17,7 +15,10 @@ public interface UpbitApiRestService {
     Single<List<UpbitAccount>> getAccount(@Header("Authorization") String token);
 
     @POST("/v1/orders")
-    Single<UpbitOrderResponse> createOrder(@Header("Authorization") String token, @Body UpbitOrderRequest request);
+    Call<UpbitOrderResponse> createOrder(@Header("Authorization") String token, @Body UpbitOrderRequest request);
+
+    @DELETE("/v1/order")
+    Call<UpbitOrderResponse> deleteOrder(@Header("Authorization") String token, @Query("uuid") String uuid);
 
 
 }

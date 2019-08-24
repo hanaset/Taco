@@ -26,16 +26,16 @@ public class TransactionHistoryEntity {
     private String bidPair;
 
     @Column(name = "ask_amount")
-    private BigDecimal askAmount;
+    private Double askAmount;
 
     @Column(name = "bid_amount")
-    private BigDecimal bidAmount;
+    private Double bidAmount;
 
     @Column(name = "ask_price")
-    private BigDecimal askPrice;
+    private Double askPrice;
 
     @Column(name = "bid_price")
-    private BigDecimal bidPrice;
+    private Double bidPrice;
 
     @Column(name = "ask_snapshot")
     private ZonedDateTime askSnapShot;
@@ -43,9 +43,9 @@ public class TransactionHistoryEntity {
     @Column(name = "bid_snapshot")
     private ZonedDateTime bidSnapShot;
 
-    private BigDecimal nowBTC;
+    private Double nowBTC;
 
-    private BigDecimal profit;
+    private Double profit;
 
-    private BigDecimal fee;
+    private Double fee;
 }

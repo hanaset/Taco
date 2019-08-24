@@ -12,6 +12,7 @@ import com.hanaset.taco.utils.HashConvert;
 import io.reactivex.Single;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
+import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -45,7 +46,7 @@ public class UpbitApiRestClient {
         return upbitApiRestService.getAccount(createToken(query));
     }
 
-    public Single<UpbitOrderResponse> createOrder(UpbitOrderRequest request) {
+    public Call<UpbitOrderResponse> createOrder(UpbitOrderRequest request) {
 
         String query = "market=" + request.getMarket()
                 + "&side=" + request.getSide()
@@ -54,6 +55,33 @@ public class UpbitApiRestClient {
                 + "&ord_type=" + request.getOrd_type();
 
         return upbitApiRestService.createOrder(createToken(query), request);
+    }
+
+    public Call<UpbitOrderResponse> askOrder(UpbitOrderRequest request) {
+
+        String query = "market=" + request.getMarket()
+                + "&side=" + request.getSide()
+                + "&volume=" + request.getVolume()
+                + "&ord_type=" + request.getOrd_type();
+
+        return upbitApiRestService.createOrder(createToken(query), request);
+    }
+
+    public Call<UpbitOrderResponse> bidOrder(UpbitOrderRequest request) {
+
+        String query = "market=" + request.getMarket()
+                + "&side=" + request.getSide()
+                + "&price=" + request.getPrice()
+                + "&ord_type=" + request.getOrd_type();
+
+        return upbitApiRestService.createOrder(createToken(query), request);
+    }
+
+    public Call<UpbitOrderResponse> deleteOrder(String uuid) {
+
+        String query = "uuid=" + uuid;
+
+        return upbitApiRestService.deleteOrder(createToken(query), uuid);
     }
 
     private String createToken(String queryString) {

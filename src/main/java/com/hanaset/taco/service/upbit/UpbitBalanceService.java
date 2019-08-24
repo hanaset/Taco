@@ -32,6 +32,15 @@ public class UpbitBalanceService {
         return upbitLists.blockingGet();
     }
 
+    public void controlBalance() {
+
+        Single<List<UpbitAccount>> upbitLists = upbitApiRestClient.getAccount("amount");
+
+        //upbitLists.blockingGet().stream().forEach();
+
+
+    }
+
     public void recordBalance() {
 
         Single<List<UpbitAccount>> upbitLists = upbitApiRestClient.getAccount("amount");
@@ -41,7 +50,7 @@ public class UpbitBalanceService {
             BalanceEntity entity = BalanceEntity.builder()
                     .market("upbit")
                     .asset(upbitAccount.getCurrency())
-                    .amount(upbitAccount.getBalance())
+                    .amount(upbitAccount.getBalance().toPlainString())
                     .snapshot(ZonedDateTime.now())
                     .build();
 

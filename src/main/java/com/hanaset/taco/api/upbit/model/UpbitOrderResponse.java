@@ -1,8 +1,11 @@
 package com.hanaset.taco.api.upbit.model;
 
+import lombok.Data;
+
 import java.math.BigDecimal;
 import java.util.List;
 
+@Data
 public class UpbitOrderResponse {
 
     private String uuid;

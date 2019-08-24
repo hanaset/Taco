@@ -19,9 +19,14 @@ public class TacoScheduler {
         this.upbitBalanceService = upbitBalanceService;
     }
 
-    @Scheduled(cron = "* */15 * * * *")
+    @Scheduled(cron = "0 0,15,30,45 * * * *")
     public void recordUpbitBalance() {
         upbitBalanceService.recordBalance();
+    }
+
+    @Scheduled(fixedDelay = 1000 * 20)
+    public void controlBalacne() {
+        upbitBalanceService.controlBalance();;
     }
 
 }

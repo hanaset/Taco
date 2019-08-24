@@ -2,6 +2,7 @@ package com.hanaset.taco;
 
 import com.hanaset.taco.api.upbit.UpbitApiRestClient;
 import com.hanaset.taco.api.upbit.model.UpbitOrderRequest;
+import com.hanaset.taco.api.upbit.model.UpbitOrderResponse;
 import com.hanaset.taco.properties.TradeKeyProperties;
 import com.hanaset.taco.properties.TradeUrlProperties;
 import org.junit.Test;
@@ -14,7 +15,11 @@ import org.springframework.jmx.export.annotation.AnnotationMBeanExporter;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.HashMap;
 
@@ -34,17 +39,26 @@ public class TacoApplicationTests {
     UpbitApiRestClient upbitApiRestClient;
 
     @Test
-    public void contextLoads() {
+    public void contextLoads() throws IOException {
 
         UpbitOrderRequest request = UpbitOrderRequest.builder()
-                .market("KRW-ETH")
-                .side("ask")
-                .volume("0.003")
-                .price("232250")
+                .market("KRW-BTC")
+                .side("bid")
+                .volume("0.002")
+                .price("12000000")
                 .ord_type("limit")
                 .build();
 
-        System.out.println(upbitApiRestClient.createOrder(request));
+
+        //upbitApiRestClient.createOrder(request);
+
+        try {
+            String uuid = upbitApiRestClient.createOrder(request).execute().body().getUuid();
+            System.out.println(uuid);
+            //System.out.println(upbitApiRestClient.deleteOrder(uuid).execute().body().toString());
+        }catch (NullPointerException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
 }
