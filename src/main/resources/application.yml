@@ -5,3 +5,8 @@ spring:
 jasypt:
   encryptor:
     bean: jasyptStringEncryptor
+
+taco:
+  ticker:
+    scheduler:
+      enabled: true

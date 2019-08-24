@@ -1,18 +1,24 @@
 package com.hanaset.taco.api.upbit;
 
-import org.springframework.stereotype.Service;
+import com.hanaset.taco.api.upbit.model.UpbitAccount;
+import com.hanaset.taco.api.upbit.model.UpbitOrderRequest;
+import com.hanaset.taco.api.upbit.model.UpbitOrderResponse;
+import io.reactivex.Single;
+import retrofit2.Call;
+import retrofit2.http.*;
 
-@Service
-public class UpbitApiRestService {
+import java.util.List;
 
-    private final UpbitApiRestClient upbitApiRestClient;
+public interface UpbitApiRestService {
 
-    public UpbitApiRestService(UpbitApiRestClient upbitApiRestClient) {
-        this.upbitApiRestClient = upbitApiRestClient;
-    }
+    @GET("/v1/accounts")
+    Single<List<UpbitAccount>> getAccount(@Header("Authorization") String token);
 
-    public void getAccounts() {
+    @POST("/v1/orders")
+    Call<UpbitOrderResponse> createOrder(@Header("Authorization") String token, @Body UpbitOrderRequest request);
 
-        upbitApiRestClient.balanceRestApi("accounts");
-    }
+    @DELETE("/v1/order")
+    Call<UpbitOrderResponse> deleteOrder(@Header("Authorization") String token, @Query("uuid") String uuid);
+
+
 }

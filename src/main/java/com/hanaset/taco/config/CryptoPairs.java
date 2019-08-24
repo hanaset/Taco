@@ -15,11 +15,15 @@ public class CryptoPairs {
     public static final List<String> UPBIT_PAIRS =
             Lists.newArrayList( "KRW-ETH", "BTC-ETH",
                     "KRW-XRP", "BTC-XRP",
-                    "KRW-MTL", "BTC-MTL",
                     "KRW-ETC", "BTC-ETC",
                     "KRW-BCH", "BTC-BCH",
-                    "KRW-BSV", "BTC-BSV",
-                    "KRW-LTC", "BTC-LTC",
-                    "KRW-TSHP", "BTC-TSHP");
+                    "KRW-EOS", "BTC-EOS",
+                    "KRW-MTL", "BTC-MTL",
+                    "KRW-TTC", "BTC-TTC",
+
+                    "KRW-IGNIS", "BTC-IGNIS",
+                    "KRW-CVC", "BTC-CVC",
+                    "KRW-TSHP", "BTC-TSHP"
+            );
 
 }

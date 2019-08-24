@@ -3,6 +3,8 @@ package com.hanaset.taco.api.upbit.model;
 import com.google.gson.annotations.SerializedName;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 @Data
 public class UpbitOrderbookItem {
 

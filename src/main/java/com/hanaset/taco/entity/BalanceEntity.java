@@ -21,7 +21,7 @@ public class BalanceEntity {
 
     private String asset;
 
-    private BigDecimal amount;
+    private String amount;
 
     private ZonedDateTime snapshot;
 }
