@@ -21,9 +21,8 @@ public class CryptoPairs {
                     "KRW-MTL", "BTC-MTL",
                     "KRW-TTC", "BTC-TTC",
 
-                    "KRW-IGNIS", "BTC-IGNIS",
-                    "KRW-CVC", "BTC-CVC",
-                    "KRW-TSHP", "BTC-TSHP"
+                    "KRW-TSHP", "BTC-TSHP",
+                    "KRW-BSV", "BTC-BSV"
             );
 
 }

@@ -38,12 +38,26 @@ public class UpbitAskCheckService {
             UpbitOrderbookItem btcItem = OrderbookCached.UPBIT.get("BTC-" + pair);
             UpbitOrderbookItem krwItem = OrderbookCached.UPBIT.get("KRW-" + pair);
 
-            if (TacoPercentChecker.profitCheck(Taco2CurrencyConvert.convertBTC2KRW(btcItem.getBid_price()), krwItem.getAsk_price(), 0.35)) {
+            UpbitOrderbookItem converItem = new UpbitOrderbookItem();
+
+            if (TacoPercentChecker.profitCheck(Taco2CurrencyConvert.convertBTC2KRW(btcItem.getBid_price()), krwItem.getAsk_price(), 0.37)) {
 
                 Double amount = btcItem.getBid_size() > krwItem.getAsk_size() ? krwItem.getAsk_size() : btcItem.getBid_size();
                 amount /= 10.f;
 
+                log.info("[{}] [BTC Bid : {}({})/{}] [KRW Ask : {}/{}] [profit : {}] [percent : {}]",
+                        pair,
+                        Taco2CurrencyConvert.convertBTC2KRW(btcItem.getBid_price()), BigDecimal.valueOf(btcItem.getBid_price()).toPlainString(),btcItem.getBid_size(),
+                        krwItem.getAsk_price(), krwItem.getAsk_size(),
+                        Taco2CurrencyConvert.convertBTC2KRW(btcItem.getBid_price()) - krwItem.getAsk_price(),
+                        (Taco2CurrencyConvert.convertBTC2KRW(btcItem.getBid_price()) - krwItem.getAsk_price()) / krwItem.getAsk_price() * 100);
+
+                if( amount * btcItem.getBid_price() <= 0.0005 || amount * krwItem.getAsk_price() < 500) {
+                    return;
+                }
+
                 TransactionHistoryEntity entity = TransactionHistoryEntity.builder()
+                        .market("upbit")
                         .askPair("KRW-" + pair)
                         .bidPair("BTC-" + pair)
                         .askAmount(amount)
@@ -51,17 +65,10 @@ public class UpbitAskCheckService {
                         .nowBTC(OrderbookCached.UPBIT_BTC.doubleValue())
                         .build();
 
-                log.info("[{}] [BTC Bid : {}/{}] [KRW Ask : {}/{}] [profit : {}] [percent : {}]",
-                        pair,
-                        Taco2CurrencyConvert.convertBTC2KRW(btcItem.getBid_price()), btcItem.getBid_size(),
-                        krwItem.getAsk_price(), krwItem.getAsk_size(),
-                        Taco2CurrencyConvert.convertBTC2KRW(btcItem.getBid_price()) - krwItem.getAsk_price(),
-                        (Taco2CurrencyConvert.convertBTC2KRW(btcItem.getBid_price()) - krwItem.getAsk_price()) / krwItem.getAsk_price() * 100);
-
                 try {
-                    Response<UpbitOrderResponse> bidResponse = bidingKRW(krwItem, BigDecimal.valueOf(amount), "KRW-" + pair);
+                    Response<UpbitOrderResponse> bidResponse = biding(krwItem, BigDecimal.valueOf(amount), "KRW-" + pair);
 
-                    Thread.sleep(200);
+                    Thread.sleep(400);
 
                     if (bidResponse.isSuccessful()) {
 
@@ -69,40 +76,50 @@ public class UpbitAskCheckService {
                         entity.setBidSnapShot(ZonedDateTime.now());
                         System.out.println(bidResponse.body());
 
-                        Response<UpbitOrderResponse> askResponse = askingBTC(btcItem, BigDecimal.valueOf(amount), "BTC-" + pair);
+                        Response<UpbitOrderResponse> askResponse = asking(btcItem, BigDecimal.valueOf(amount), "BTC-" + pair);
                         if (!askResponse.isSuccessful()) {
                             log.error("BTC ASK error -> {}",askResponse.errorBody().byteString().toString());
                             orderDeleting(bidResponse.body().getUuid());
                         } else {
-                            System.out.println(askResponse.body());
                             entity.setAskPrice(askResponse.body().getPrice() / amount);
                             entity.setAskSnapShot(ZonedDateTime.now());
 
                             transactionHistoryRepository.save(entity);
+
+                            // 원화 -> 비트코인으로 변한 만큼 다시 비트코인 판매
+                            Thread.sleep(400);
+                            converItem.setBid_price(OrderbookCached.UPBIT_BTC.doubleValue());
+                            asking(converItem, BigDecimal.valueOf(amount * btcItem.getAsk_price()), "KRW-BTC");
                         }
                     } else {
                         log.error(bidResponse.errorBody().byteString().toString());
                     }
                 } catch (IOException e) {
-                    log.error("KRW BID error -> {}", e.getMessage());
+                    log.error("KRW BID / BTC ASK error -> {}", e.getMessage());
                 } catch (InterruptedException e){
-                    log.error("KRW BID slepp error");
+                    log.error("sleep error");
                 }
 
 
-            } else if (TacoPercentChecker.profitCheck(krwItem.getBid_price(), Taco2CurrencyConvert.convertBTC2KRW(btcItem.getAsk_price()), 0.35)) {
+            } else if (TacoPercentChecker.profitCheck(krwItem.getBid_price(), Taco2CurrencyConvert.convertBTC2KRW(btcItem.getAsk_price()), 0.37)) {
 
                 Double amount = krwItem.getBid_size() > btcItem.getAsk_size() ? btcItem.getAsk_size() : krwItem.getBid_size();
                 amount /= 10.f;
 
-                log.info("[{}] [KRW Bid : {}/{}] [BTC Ask : {}/{}] [profit : {}] [percent : {}]",
+                log.info("[{}] [KRW Bid : {}/{}] [BTC Ask : {}({})/{}] [profit : {}] [percent : {}]",
                         pair,
                         krwItem.getBid_price(), krwItem.getBid_size(),
-                        Taco2CurrencyConvert.convertBTC2KRW(btcItem.getAsk_price()), btcItem.getAsk_size(),
+                        Taco2CurrencyConvert.convertBTC2KRW(btcItem.getAsk_price()), BigDecimal.valueOf(btcItem.getAsk_price()).toPlainString(), btcItem.getAsk_size(),
                         krwItem.getBid_price() - Taco2CurrencyConvert.convertBTC2KRW(btcItem.getAsk_price()),
                         (krwItem.getBid_price() - Taco2CurrencyConvert.convertBTC2KRW(btcItem.getAsk_price())) / Taco2CurrencyConvert.convertBTC2KRW(btcItem.getAsk_price()) * 100);
 
+
+                if( amount * btcItem.getAsk_price() <= 0.0005 || amount * krwItem.getBid_price() < 500) {
+                    return;
+                }
+
                 TransactionHistoryEntity entity = TransactionHistoryEntity.builder()
+                        .market("upbit")
                         .askPair("BTC-" + pair)
                         .bidPair("KRW-" + pair)
                         .askAmount(amount)
@@ -110,9 +127,9 @@ public class UpbitAskCheckService {
                         .nowBTC(OrderbookCached.UPBIT_BTC.doubleValue())
                         .build();
                 try {
-                    Response<UpbitOrderResponse> bidResponse = bidingBTC(btcItem, BigDecimal.valueOf(amount), "BTC-" + pair);
+                    Response<UpbitOrderResponse> bidResponse = biding(btcItem, BigDecimal.valueOf(amount), "BTC-" + pair);
 
-                    Thread.sleep(200);
+                    Thread.sleep(400);
 
                     if (bidResponse.isSuccessful()) {
 
@@ -120,7 +137,7 @@ public class UpbitAskCheckService {
                         entity.setBidSnapShot(ZonedDateTime.now());
                         System.out.println(bidResponse.body());
 
-                        Response<UpbitOrderResponse> askResponse = askingKRW(krwItem, BigDecimal.valueOf(amount), "KRW-" + pair);
+                        Response<UpbitOrderResponse> askResponse = asking(krwItem, BigDecimal.valueOf(amount), "KRW-" + pair);
                         if (!askResponse.isSuccessful()) {
                             log.error("BTC ASK error -> {}",askResponse.errorBody().byteString().toString());
                             orderDeleting(bidResponse.body().getUuid());
@@ -130,14 +147,18 @@ public class UpbitAskCheckService {
                             entity.setAskSnapShot(ZonedDateTime.now());
 
                             transactionHistoryRepository.save(entity);
+
+                            Thread.sleep(400);
+                            converItem.setAsk_price(OrderbookCached.UPBIT_BTC.doubleValue());
+                            biding(converItem, BigDecimal.valueOf(amount * btcItem.getBid_price()), "KRW-BTC");
                         }
                     } else {
                         log.error(bidResponse.errorBody().byteString().toString());
                     }
                 } catch (IOException e) {
-                    log.error("BTC BID error -> {}", e.getMessage());
-                } catch (InterruptedException e) {
-                    log.error("BTC BID sleep error");
+                    log.error("BTC BID / KRW ASK error -> {}", e.getMessage());
+                } catch (InterruptedException e){
+                    log.error("sleep error");
                 }
             }
 
@@ -146,36 +167,8 @@ public class UpbitAskCheckService {
         }
     }
 
-    private Response<UpbitOrderResponse> bidingKRW(UpbitOrderbookItem askitem, BigDecimal amount, String pair) throws IOException {
 
-        // 매수
-        UpbitOrderRequest request = UpbitOrderRequest.builder()
-                .market(pair)
-                .side("bid")
-                .price(amount.multiply(BigDecimal.valueOf(askitem.getAsk_price())).toPlainString())
-                .volume(null)
-                .ord_type("price")
-                .build();
-
-        return upbitApiRestClient.bidOrder(request).execute();
-    }
-
-
-    private Response<UpbitOrderResponse> askingKRW(UpbitOrderbookItem biditem, BigDecimal amount, String pair) throws IOException {
-
-        // 매도
-        UpbitOrderRequest request = UpbitOrderRequest.builder()
-                .market(pair)
-                .side("ask")
-                .price(null)
-                .volume(amount.toPlainString())
-                .ord_type("market")
-                .build();
-
-        return upbitApiRestClient.askOrder(request).execute();
-    }
-
-    private Response<UpbitOrderResponse> bidingBTC(UpbitOrderbookItem askitem, BigDecimal amount, String pair) throws IOException {
+    private Response<UpbitOrderResponse> biding(UpbitOrderbookItem askitem, BigDecimal amount, String pair) throws IOException {
 
         // 매수
         UpbitOrderRequest request = UpbitOrderRequest.builder()
@@ -186,22 +179,24 @@ public class UpbitAskCheckService {
                 .ord_type("limit")
                 .build();
 
+        System.out.println(request);
         return upbitApiRestClient.createOrder(request).execute();
 
     }
 
 
-    private Response<UpbitOrderResponse> askingBTC(UpbitOrderbookItem biditem, BigDecimal amount, String pair) throws IOException {
+    private Response<UpbitOrderResponse> asking(UpbitOrderbookItem biditem, BigDecimal amount, String pair) throws IOException {
 
         // 매도
         UpbitOrderRequest request = UpbitOrderRequest.builder()
                 .market(pair)
                 .side("ask")
-                .price(BigDecimal.valueOf(biditem.getAsk_price()).toPlainString())
+                .price(BigDecimal.valueOf(biditem.getBid_price()).toPlainString())
                 .volume(amount.toPlainString())
                 .ord_type("limit")
                 .build();
 
+        System.out.println(request);
         return upbitApiRestClient.createOrder(request).execute();
     }
 

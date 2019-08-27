@@ -43,6 +43,7 @@ public class TransactionHistoryEntity {
     @Column(name = "bid_snapshot")
     private ZonedDateTime bidSnapShot;
 
+    @Column(name = "now_btc")
     private Double nowBTC;
 
     private Double profit;
