@@ -57,26 +57,6 @@ public class UpbitApiRestClient {
         return upbitApiRestService.createOrder(createToken(query), request);
     }
 
-    public Call<UpbitOrderResponse> askOrder(UpbitOrderRequest request) {
-
-        String query = "market=" + request.getMarket()
-                + "&side=" + request.getSide()
-                + "&volume=" + request.getVolume()
-                + "&ord_type=" + request.getOrd_type();
-
-        return upbitApiRestService.createOrder(createToken(query), request);
-    }
-
-    public Call<UpbitOrderResponse> bidOrder(UpbitOrderRequest request) {
-
-        String query = "market=" + request.getMarket()
-                + "&side=" + request.getSide()
-                + "&price=" + request.getPrice()
-                + "&ord_type=" + request.getOrd_type();
-
-        return upbitApiRestService.createOrder(createToken(query), request);
-    }
-
     public Call<UpbitOrderResponse> deleteOrder(String uuid) {
 
         String query = "uuid=" + uuid;

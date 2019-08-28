@@ -44,6 +44,8 @@ public class UpbitWebSocketHandler extends BinaryWebSocketHandler {
         try {
             UpbitOrderBook upbitOrderBook = objectMapper.readValue(charBuffer.toString(), UpbitOrderBook.class);
 
+            //System.out.println(upbitOrderBook);
+
             if (OrderbookCached.UPBIT_BTC != null) {
 
                 UpbitOrderbookItem item = upbitOrderBook.getOrderbook_units().get(0);
