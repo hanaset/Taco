@@ -26,6 +26,8 @@ public class UpbitAskCheckService {
     private final TransactionHistoryRepository transactionHistoryRepository;
     private final UpbitApiRestClient upbitApiRestClient;
 
+    private Integer gap = 350;
+
     public UpbitAskCheckService(TransactionHistoryRepository transactionHistoryRepository,
                                 UpbitApiRestClient upbitApiRestClient) {
         this.transactionHistoryRepository = transactionHistoryRepository;
@@ -40,10 +42,10 @@ public class UpbitAskCheckService {
 
             UpbitOrderbookItem converItem = new UpbitOrderbookItem();
 
-            if (TacoPercentChecker.profitCheck(Taco2CurrencyConvert.convertBTC2KRW(btcItem.getBid_price()), krwItem.getAsk_price(), 0.37)) {
+            if (TacoPercentChecker.profitCheck(Taco2CurrencyConvert.convertBTC2KRW(btcItem.getBid_price()), krwItem.getAsk_price(), 0.4)) {
 
-                Double amount = btcItem.getBid_size() > krwItem.getAsk_size() ? krwItem.getAsk_size() : btcItem.getBid_size();
-                amount /= 10.f;
+                Double base_amount = btcItem.getBid_size() > krwItem.getAsk_size() ? krwItem.getAsk_size() : btcItem.getBid_size();
+                Double amount = base_amount / 10.f;
 
                 log.info("[{}] [BTC Bid : {}({})/{}] [KRW Ask : {}/{}] [profit : {}] [percent : {}]",
                         pair,
@@ -52,8 +54,13 @@ public class UpbitAskCheckService {
                         Taco2CurrencyConvert.convertBTC2KRW(btcItem.getBid_price()) - krwItem.getAsk_price(),
                         (Taco2CurrencyConvert.convertBTC2KRW(btcItem.getBid_price()) - krwItem.getAsk_price()) / krwItem.getAsk_price() * 100);
 
-                if( amount * btcItem.getBid_price() <= 0.0005 || amount * krwItem.getAsk_price() < 500) {
-                    return;
+                while( amount * btcItem.getBid_price() <= 0.0005 || amount * krwItem.getAsk_price() < 1000) {
+
+                    System.out.println("최소 금액 미달");
+
+//                    amount += (base_amount / 10.f);
+//                    if(base_amount < amount)
+                        return;
                 }
 
                 TransactionHistoryEntity entity = TransactionHistoryEntity.builder()
@@ -68,11 +75,11 @@ public class UpbitAskCheckService {
                 try {
                     Response<UpbitOrderResponse> bidResponse = biding(krwItem, BigDecimal.valueOf(amount), "KRW-" + pair);
 
-                    Thread.sleep(400);
+                    Thread.sleep(gap);
 
                     if (bidResponse.isSuccessful()) {
 
-                        entity.setBidPrice(bidResponse.body().getPrice()/amount);
+                        entity.setBidPrice(bidResponse.body().getPrice());
                         entity.setBidSnapShot(ZonedDateTime.now());
                         System.out.println(bidResponse.body());
 
@@ -80,16 +87,17 @@ public class UpbitAskCheckService {
                         if (!askResponse.isSuccessful()) {
                             log.error("BTC ASK error -> {}",askResponse.errorBody().byteString().toString());
                             orderDeleting(bidResponse.body().getUuid());
+                            System.out.println("거래 취소");
                         } else {
-                            entity.setAskPrice(askResponse.body().getPrice() / amount);
+                            entity.setAskPrice(askResponse.body().getPrice());
                             entity.setAskSnapShot(ZonedDateTime.now());
 
                             transactionHistoryRepository.save(entity);
 
                             // 원화 -> 비트코인으로 변한 만큼 다시 비트코인 판매
-                            Thread.sleep(400);
+                            Thread.sleep(gap);
                             converItem.setBid_price(OrderbookCached.UPBIT_BTC.doubleValue());
-                            asking(converItem, BigDecimal.valueOf(amount * btcItem.getAsk_price()), "KRW-BTC");
+                            log.info(asking(converItem, BigDecimal.valueOf(amount * btcItem.getAsk_price()), "KRW-BTC").body().toString());
                         }
                     } else {
                         log.error(bidResponse.errorBody().byteString().toString());
@@ -101,10 +109,10 @@ public class UpbitAskCheckService {
                 }
 
 
-            } else if (TacoPercentChecker.profitCheck(krwItem.getBid_price(), Taco2CurrencyConvert.convertBTC2KRW(btcItem.getAsk_price()), 0.37)) {
+            } else if (TacoPercentChecker.profitCheck(krwItem.getBid_price(), Taco2CurrencyConvert.convertBTC2KRW(btcItem.getAsk_price()), 0.4)) {
 
-                Double amount = krwItem.getBid_size() > btcItem.getAsk_size() ? btcItem.getAsk_size() : krwItem.getBid_size();
-                amount /= 10.f;
+                Double base_amount = krwItem.getBid_size() > btcItem.getAsk_size() ? btcItem.getAsk_size() : krwItem.getBid_size();
+                Double amount = base_amount / 10.f;
 
                 log.info("[{}] [KRW Bid : {}/{}] [BTC Ask : {}({})/{}] [profit : {}] [percent : {}]",
                         pair,
@@ -114,8 +122,13 @@ public class UpbitAskCheckService {
                         (krwItem.getBid_price() - Taco2CurrencyConvert.convertBTC2KRW(btcItem.getAsk_price())) / Taco2CurrencyConvert.convertBTC2KRW(btcItem.getAsk_price()) * 100);
 
 
-                if( amount * btcItem.getAsk_price() <= 0.0005 || amount * krwItem.getBid_price() < 500) {
-                    return;
+                if( amount * btcItem.getAsk_price() <= 0.0005 || amount * krwItem.getBid_price() < 1000) {
+
+                    System.out.println("최소 금액 미달");
+
+//                    amount += (base_amount / 10.f);
+//                    if(base_amount < amount)
+                        return;
                 }
 
                 TransactionHistoryEntity entity = TransactionHistoryEntity.builder()
@@ -129,11 +142,11 @@ public class UpbitAskCheckService {
                 try {
                     Response<UpbitOrderResponse> bidResponse = biding(btcItem, BigDecimal.valueOf(amount), "BTC-" + pair);
 
-                    Thread.sleep(400);
+                    Thread.sleep(gap);
 
                     if (bidResponse.isSuccessful()) {
 
-                        entity.setBidPrice(bidResponse.body().getPrice()/amount);
+                        entity.setBidPrice(bidResponse.body().getPrice());
                         entity.setBidSnapShot(ZonedDateTime.now());
                         System.out.println(bidResponse.body());
 
@@ -141,16 +154,17 @@ public class UpbitAskCheckService {
                         if (!askResponse.isSuccessful()) {
                             log.error("BTC ASK error -> {}",askResponse.errorBody().byteString().toString());
                             orderDeleting(bidResponse.body().getUuid());
+                            System.out.println("거래 취소");
                         } else {
                             System.out.println(askResponse.body());
-                            entity.setAskPrice(askResponse.body().getPrice() / amount);
+                            entity.setAskPrice(askResponse.body().getPrice());
                             entity.setAskSnapShot(ZonedDateTime.now());
 
                             transactionHistoryRepository.save(entity);
 
-                            Thread.sleep(400);
+                            Thread.sleep(gap);
                             converItem.setAsk_price(OrderbookCached.UPBIT_BTC.doubleValue());
-                            biding(converItem, BigDecimal.valueOf(amount * btcItem.getBid_price()), "KRW-BTC");
+                            log.info(biding(converItem, BigDecimal.valueOf(amount * btcItem.getBid_price()), "KRW-BTC").body().toString());
                         }
                     } else {
                         log.error(bidResponse.errorBody().byteString().toString());

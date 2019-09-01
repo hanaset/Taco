@@ -22,7 +22,8 @@ public class CryptoPairs {
                     "KRW-TTC", "BTC-TTC",
 
                     "KRW-TSHP", "BTC-TSHP",
-                    "KRW-BSV", "BTC-BSV"
+                    "KRW-BSV", "BTC-BSV",
+                    "KRW-GTO", "BTC-GTO"
             );
 
 }
