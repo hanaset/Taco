@@ -22,12 +22,13 @@ public class CryptoPairs {
                     "KRW-MTL", "BTC-MTL",
                     "KRW-TTC", "BTC-TTC",
 
-                    //"KRW-TSHP", "BTC-TSHP",
                     "KRW-BSV", "BTC-BSV",
                     "KRW-MANA", "BTC-MANA",
                     "KRW-ADA", "BTC-ADA",
                     "KRW-STEEM", "BTC-STEEM",
-                    "KRW-ENJ", "BTC-ENJ"
+                    "KRW-ENJ", "BTC-ENJ",
+                    "KRW-TRX", "BTC-TRX",
+                    "KRW-ATOM", "BTC-ATOM"
             );
 
 }

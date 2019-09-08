@@ -34,7 +34,7 @@ public class UpbitAskCheckService {
         this.transactionHistoryRepository = transactionHistoryRepository;
         this.upbitApiRestClient = upbitApiRestClient;
     }
-
+/*
     @Async
     public void compareASKWithBID(String pair){
 
@@ -189,6 +189,7 @@ public class UpbitAskCheckService {
         }
     }
 
+ */
 
     private Response<UpbitOrderResponse> biding(UpbitOrderbookItem askitem, BigDecimal amount, String pair) throws IOException {
 

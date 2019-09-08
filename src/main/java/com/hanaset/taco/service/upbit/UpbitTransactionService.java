@@ -20,7 +20,8 @@ import java.math.BigDecimal;
 public class UpbitTransactionService {
 
     private final UpbitApiRestClient upbitApiRestClient;
-    private final Double profit = 0.31;
+    private final Double profit = 0.37;
+    private final int DELAY = 100 * 10;
 
     public UpbitTransactionService(UpbitApiRestClient upbitApiRestClient) {
         this.upbitApiRestClient = upbitApiRestClient;
@@ -71,6 +72,8 @@ public class UpbitTransactionService {
 
                     UpbitTransactionCached.TICKET = ticket;
 
+                    Thread.sleep(DELAY);
+
                 } else {
                     log.error("매수 에러:{}", bidResponse.errorBody().byteString().toString());
                     UpbitTransactionCached.LOCK = false;
@@ -112,13 +115,17 @@ public class UpbitTransactionService {
 
                     UpbitTransactionCached.TICKET = ticket;
 
+                    Thread.sleep(DELAY);
+
                 } else {
                     log.error("매수 오류:{}", bidResponse.errorBody().byteString().toString());
                     UpbitTransactionCached.LOCK = false;
                 }
             }
 
-        } catch (Exception e) {
+        }catch (InterruptedException e) {
+            log.error("delay Error");
+        }catch (Exception e) {
             log.error("[{}] Upbit Data error -> {}", pair, e.getMessage());
             UpbitTransactionCached.LOCK = false;
         }
@@ -131,7 +138,6 @@ public class UpbitTransactionService {
             return;
 
         UpbitTicket ticket = UpbitTransactionCached.TICKET;
-
 
         if (!UpbitTransactionCached.TICKET.getBid_market().equals(upbitTrade.getCode())) {
             UpbitTransactionCached.COUNT++;
@@ -147,10 +153,25 @@ public class UpbitTransactionService {
         }
 
         try {
+
             Response<UpbitOrderResponse> askResponse = asking(ticket.getAskOrderbookItem(), ticket.getAmount(), ticket.getAsk_market());
 
             if(askResponse.isSuccessful()) {
                 log.info("매도:{}", askResponse.body());
+
+                UpbitOrderbookItem converItem = new UpbitOrderbookItem();
+                converItem.setAsk_price(OrderbookCached.UPBIT_BTC.get("ask").doubleValue());
+                converItem.setBid_price(OrderbookCached.UPBIT_BTC.get("bid").doubleValue());
+
+                if(ticket.getBid_market().contains("KRW")) {
+
+                    log.info("환전:{}",askingMarket(converItem, ticket.getAmount().multiply(BigDecimal.valueOf(ticket.getAskOrderbookItem().getAsk_price())), "KRW-BTC").body().toString());
+
+                }else if(ticket.getBid_market().contains("BTC")) {
+
+                    log.info("환전:{}",bidingMarket(converItem, ticket.getAmount().multiply(BigDecimal.valueOf(ticket.getBidOrderbookItem().getBid_price())), "KRW-BTC").body().toString());
+                }
+
             }else {
                 log.error("매도 에러: {}", askResponse.errorBody().byteString().toString());
             }
