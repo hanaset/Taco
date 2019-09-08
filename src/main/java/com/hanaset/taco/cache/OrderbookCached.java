@@ -10,8 +10,16 @@ import java.util.Map;
 @Data
 public class OrderbookCached {
 
-    public static BigDecimal UPBIT_BTC;
+    public static Map<String, BigDecimal> UPBIT_BTC = Maps.newHashMap();
 
     public static Map<String, UpbitOrderbookItem> UPBIT = Maps.newHashMap();
+
+    public static boolean UPBIT_LOCK = false;
+
+    public static Map<String, Boolean> UPBIT_LOCKS = Maps.newHashMap();
+
+    public static synchronized void lock_chage(Boolean lock){
+        UPBIT_LOCK = lock;
+    }
 
 }

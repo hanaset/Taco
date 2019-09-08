@@ -13,7 +13,8 @@ public class CryptoPairs {
     public static final Set<String> pairs = Sets.newHashSet( "BTC", "ETH", "XRP", "LTC", "BCH", "EOS" );
 
     public static final List<String> UPBIT_PAIRS =
-            Lists.newArrayList( "KRW-ETH", "BTC-ETH",
+            Lists.newArrayList( "KRW-BTC",
+                    "KRW-ETH", "BTC-ETH",
                     "KRW-XRP", "BTC-XRP",
                     "KRW-ETC", "BTC-ETC",
                     "KRW-BCH", "BTC-BCH",
@@ -21,9 +22,12 @@ public class CryptoPairs {
                     "KRW-MTL", "BTC-MTL",
                     "KRW-TTC", "BTC-TTC",
 
-                    "KRW-TSHP", "BTC-TSHP",
+                    //"KRW-TSHP", "BTC-TSHP",
                     "KRW-BSV", "BTC-BSV",
-                    "KRW-GTO", "BTC-GTO"
+                    "KRW-MANA", "BTC-MANA",
+                    "KRW-ADA", "BTC-ADA",
+                    "KRW-STEEM", "BTC-STEEM",
+                    "KRW-ENJ", "BTC-ENJ"
             );
 
 }

@@ -10,9 +10,9 @@ import com.hanaset.taco.service.upbit.UpbitAskCheckService;
 import com.hanaset.taco.utils.Taco2JsonConvert;
 import com.hanaset.taco.utils.Taco2UpbitConvert;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.criterion.Order;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.BinaryWebSocketHandler;
@@ -34,7 +34,6 @@ public class UpbitWebSocketHandler extends BinaryWebSocketHandler {
     }
 
     @Override
-    @Async
     public void handleBinaryMessage(WebSocketSession session, BinaryMessage message) {
         ByteBuffer byteMessage = message.getPayload();
         CharBuffer charBuffer = StandardCharsets.UTF_8.decode(byteMessage);
@@ -44,9 +43,13 @@ public class UpbitWebSocketHandler extends BinaryWebSocketHandler {
         try {
             UpbitOrderBook upbitOrderBook = objectMapper.readValue(charBuffer.toString(), UpbitOrderBook.class);
 
-            //System.out.println(upbitOrderBook);
+            if(upbitOrderBook.getCode().equals("KRW-BTC")){
+                OrderbookCached.UPBIT_BTC.put("bid", BigDecimal.valueOf(upbitOrderBook.getOrderbook_units().get(0).getBid_price()));
+                OrderbookCached.UPBIT_BTC.put("ask", BigDecimal.valueOf(upbitOrderBook.getOrderbook_units().get(0).getAsk_price()));
+                return;
+            }
 
-            if (OrderbookCached.UPBIT_BTC != null) {
+            if (!OrderbookCached.UPBIT_BTC.isEmpty()) {
 
                 UpbitOrderbookItem item = upbitOrderBook.getOrderbook_units().get(0);
                 OrderbookCached.UPBIT.put(upbitOrderBook.getCode(), item);
@@ -56,17 +59,9 @@ public class UpbitWebSocketHandler extends BinaryWebSocketHandler {
             }
         } catch (JsonParseException e) {
             log.error(e.getMessage());
-        } catch (JsonMappingException e) { // Orderbook 외의 웹소켓 통신 데이터
-
-            JSONObject object = Taco2JsonConvert.convertJSONObject(charBuffer.toString());
-
-            if (object.get("type").toString().equals("ticker")) {
-                OrderbookCached.UPBIT_BTC = new BigDecimal(object.get("trade_price").toString());
-            } else {
-                log.error(e.getMessage());
-            }
-
         } catch (IOException e) {
+            log.error(e.getMessage());
+        } catch (Exception e) {
             log.error(e.getMessage());
         }
     }

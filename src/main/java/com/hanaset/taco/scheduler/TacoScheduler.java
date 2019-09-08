@@ -24,9 +24,4 @@ public class TacoScheduler {
         upbitBalanceService.recordBalance();
     }
 
-    @Scheduled(fixedDelay = 1000 * 1)
-    public void controlBalacne() {
-        upbitBalanceService.controlBalance();
-    }
-
 }

@@ -37,9 +37,9 @@ public class TacoApplication {
     public TaskExecutor taskExecutor() {
         ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
         taskExecutor.setThreadNamePrefix("tacoExecutor-");
-        taskExecutor.setCorePoolSize(10);
+        taskExecutor.setCorePoolSize(30);
         taskExecutor.setQueueCapacity(50);
-        taskExecutor.setMaxPoolSize(20);
+        taskExecutor.setMaxPoolSize(30);
 
         return taskExecutor;
     }
