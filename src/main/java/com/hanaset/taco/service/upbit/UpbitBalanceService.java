@@ -35,32 +35,6 @@ public class UpbitBalanceService {
         return upbitLists.blockingGet();
     }
 
-//    public void controlBalance() {
-//
-//        Single<List<UpbitAccount>> upbitLists = upbitApiRestClient.getAccount("amount");
-//
-//        BigDecimal base_balance = BigDecimal.valueOf(0.012);
-//
-//        BigDecimal amount = null;
-//
-//        if(upbitLists.blockingGet().get(1).getCurrency().equals("BTC")) {
-//            amount = upbitLists.blockingGet().get(1).getBalance();
-//
-//            if(amount.compareTo(BigDecimal.valueOf(0.012)) != 0) {
-//
-//                UpbitOrderRequest request = UpbitOrderRequest.builder()
-//                        .market("KRW-BTC")
-//                        .price(OrderbookCached.UPBIT_BTC.toPlainString())
-//                        .ord_type("limit")
-//                        .volume(amount.subtract(base_balance).abs().toPlainString())
-//                        .side("bid")
-//                        .build();
-//
-//                upbitApiRestClient.createOrder(request);
-//            }
-//        }
-//
-//    }
 
     public void recordBalance() {
 

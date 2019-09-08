@@ -19,26 +19,26 @@ public class UpbitWebSocketService {
         this.upbitApiWebSocketClient = upbitApiWebSocketClient;
     }
 
-//    @PostConstruct
-//    public void ticker_BTC_Connect() {
-//
-//        Ticket ticket = Ticket.builder()
-//                .ticket("UPBIT_TICKER_BTC")
-//                .build();
-//
-//        Type type = Type.builder()
-//                .type("ticker")
-//                .codes(Lists.newArrayList("KRW-BTC"))
-//                .build();
-//
-//        upbitApiWebSocketClient.connect(ticket, type);
-//    }
-
     @PostConstruct
-    public void orderbook_ETH_Connect() {
+    public void trade_Connect() {
 
         Ticket ticket = Ticket.builder()
-                .ticket("UPBIT_ETH")
+                .ticket("UPBIT_TRADE")
+                .build();
+
+        Type type = Type.builder()
+                .type("trade")
+                .codes(CryptoPairs.UPBIT_PAIRS)
+                .build();
+
+        upbitApiWebSocketClient.connect(ticket, type);
+    }
+
+    @PostConstruct
+    public void orderbook_Connect() {
+
+        Ticket ticket = Ticket.builder()
+                .ticket("UPBIT_ORDERBOOK")
                 .build();
 
         Type type = Type.builder()

@@ -6,6 +6,7 @@ import com.hanaset.taco.api.upbit.model.body.Ticket;
 import com.hanaset.taco.api.upbit.model.body.Type;
 import com.hanaset.taco.properties.TradeUrlProperties;
 import com.hanaset.taco.service.upbit.UpbitAskCheckService;
+import com.hanaset.taco.service.upbit.UpbitTransactionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
@@ -23,11 +24,14 @@ public class UpbitApiWebSocketClient {
 
     private final TradeUrlProperties tradeUrlProperties;
     private final UpbitAskCheckService upbitAskCheckService;
+    private final UpbitTransactionService upbitTransactionService;
 
     public UpbitApiWebSocketClient(TradeUrlProperties tradeUrlProperties,
-                                   UpbitAskCheckService upbitAskCheckService) {
+                                   UpbitAskCheckService upbitAskCheckService,
+                                   UpbitTransactionService upbitTransactionService) {
         this.tradeUrlProperties = tradeUrlProperties;
         this.upbitAskCheckService = upbitAskCheckService;
+        this.upbitTransactionService = upbitTransactionService;
     }
 
     public void connect(Ticket ticket, Type type) {
@@ -45,7 +49,7 @@ public class UpbitApiWebSocketClient {
             webSocketClient = new StandardWebSocketClient();
 
             WebSocketSession webSocketSession =
-                    webSocketClient.doHandshake(new UpbitWebSocketHandler(upbitAskCheckService), new WebSocketHttpHeaders(), URI.create(tradeUrlProperties.getUpbitWebSockUrl())).get();
+                    webSocketClient.doHandshake(new UpbitWebSocketHandler(upbitAskCheckService, upbitTransactionService), new WebSocketHttpHeaders(), URI.create(tradeUrlProperties.getUpbitWebSockUrl())).get();
 
             try {
                 TextMessage message = new TextMessage(body);
