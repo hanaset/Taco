@@ -20,14 +20,13 @@ import java.math.BigDecimal;
 public class UpbitTransactionService {
 
     private final UpbitApiRestClient upbitApiRestClient;
-    private final Double profit = 0.37;
-    private final int DELAY = 100 * 10;
+    private final Double profit = 0.35;
+    private final int DELAY = 3000;
 
     public UpbitTransactionService(UpbitApiRestClient upbitApiRestClient) {
         this.upbitApiRestClient = upbitApiRestClient;
     }
-
-    @Async
+    
     public void checkProfit(String pair) {
 
         if (UpbitTransactionCached.LOCK) {
@@ -41,7 +40,7 @@ public class UpbitTransactionService {
             if (TacoPercentChecker.profitCheck(Taco2CurrencyConvert.convertBidBTC2KRW(btcItem.getBid_price()), krwItem.getAsk_price(), profit)) {
 
                 Double base_amount = btcItem.getBid_size() > krwItem.getAsk_size() ? krwItem.getAsk_size() : btcItem.getBid_size();
-                Double amount = base_amount / 5.f;
+                Double amount = base_amount / 10.f;
 
                 if (amount * btcItem.getBid_price() <= 0.0005 || amount * krwItem.getAsk_price() <= 5000) {
                     return;
@@ -72,17 +71,15 @@ public class UpbitTransactionService {
 
                     UpbitTransactionCached.TICKET = ticket;
 
-                    Thread.sleep(DELAY);
-
                 } else {
-                    log.error("매수 에러:{}", bidResponse.errorBody().byteString().toString());
+                    log.error("매수 오류:{}", bidResponse.errorBody().byteString().toString());
                     UpbitTransactionCached.LOCK = false;
                 }
 
             } else if (TacoPercentChecker.profitCheck(krwItem.getBid_price(), Taco2CurrencyConvert.convertAskBTC2KRW(btcItem.getAsk_price()), profit)) {
 
                 Double base_amount = krwItem.getBid_size() > btcItem.getAsk_size() ? btcItem.getAsk_size() : krwItem.getBid_size();
-                Double amount = base_amount / 5.f;
+                Double amount = base_amount / 10.f;
 
                 if (amount * btcItem.getAsk_price() <= 0.0005 || amount * krwItem.getBid_price() <= 5000) {
                     return;
@@ -115,40 +112,44 @@ public class UpbitTransactionService {
 
                     UpbitTransactionCached.TICKET = ticket;
 
-                    Thread.sleep(DELAY);
-
                 } else {
                     log.error("매수 오류:{}", bidResponse.errorBody().byteString().toString());
                     UpbitTransactionCached.LOCK = false;
                 }
             }
 
-        }catch (InterruptedException e) {
-            log.error("delay Error");
-        }catch (Exception e) {
+        } catch (Exception e) {
             log.error("[{}] Upbit Data error -> {}", pair, e.getMessage());
             UpbitTransactionCached.LOCK = false;
         }
     }
 
-    @Async
     public void orderProfit(UpbitTrade upbitTrade) {
 
-        if (UpbitTransactionCached.TICKET == null)
+        if (UpbitTransactionCached.TICKET == null || upbitTrade == null)
+            return;
+
+        if (!UpbitTransactionCached.TICKET.getBid_market().equals(upbitTrade.getCode()))
             return;
 
         UpbitTicket ticket = UpbitTransactionCached.TICKET;
+        System.out.println(upbitTrade);
+        System.out.println(ticket);
 
-        if (!UpbitTransactionCached.TICKET.getBid_market().equals(upbitTrade.getCode())) {
-            UpbitTransactionCached.COUNT++;
 
-            if (UpbitTransactionCached.COUNT >= 3) {
-                try {
-                    orderDeleting(ticket.getUuid());
-                } catch (IOException e) {
-                    log.error("매수 취소 에러: {}", e.getMessage());
-                }
+        if (!upbitTrade.getAsk_bid().equals("BID")
+                || upbitTrade.getTrade_price().compareTo(BigDecimal.valueOf(ticket.getBidOrderbookItem().getBid_price())) != 0
+                || upbitTrade.getTrade_volume().compareTo(ticket.getAmount()) != 0) { // 수량 금액 체크 추가
+
+            try {
+                log.info("매수 취소: {}", orderDeleting(ticket.getUuid()).body().toString());
+                UpbitTransactionCached.COUNT = 0;
+            } catch (IOException e) {
+                log.error("매수 취소 에러: {}", e.getMessage());
             }
+            UpbitTransactionCached.TICKET = null;
+            UpbitTransactionCached.LOCK = false;
+
             return;
         }
 
@@ -156,23 +157,23 @@ public class UpbitTransactionService {
 
             Response<UpbitOrderResponse> askResponse = asking(ticket.getAskOrderbookItem(), ticket.getAmount(), ticket.getAsk_market());
 
-            if(askResponse.isSuccessful()) {
+            if (askResponse.isSuccessful()) {
                 log.info("매도:{}", askResponse.body());
 
                 UpbitOrderbookItem converItem = new UpbitOrderbookItem();
                 converItem.setAsk_price(OrderbookCached.UPBIT_BTC.get("ask").doubleValue());
                 converItem.setBid_price(OrderbookCached.UPBIT_BTC.get("bid").doubleValue());
 
-                if(ticket.getBid_market().contains("KRW")) {
+                if (ticket.getBid_market().contains("KRW")) {
 
-                    log.info("환전:{}",askingMarket(converItem, ticket.getAmount().multiply(BigDecimal.valueOf(ticket.getAskOrderbookItem().getAsk_price())), "KRW-BTC").body().toString());
+                    log.info("환전:{}", askingMarket(converItem, ticket.getAmount().multiply(BigDecimal.valueOf(ticket.getAskOrderbookItem().getAsk_price())), "KRW-BTC").body().toString());
 
-                }else if(ticket.getBid_market().contains("BTC")) {
+                } else if (ticket.getBid_market().contains("BTC")) {
 
-                    log.info("환전:{}",bidingMarket(converItem, ticket.getAmount().multiply(BigDecimal.valueOf(ticket.getBidOrderbookItem().getBid_price())), "KRW-BTC").body().toString());
+                    log.info("환전:{}", bidingMarket(converItem, ticket.getAmount().multiply(BigDecimal.valueOf(ticket.getBidOrderbookItem().getBid_price())), "KRW-BTC").body().toString());
                 }
 
-            }else {
+            } else {
                 log.error("매도 에러: {}", askResponse.errorBody().byteString().toString());
             }
         } catch (IOException e) {
