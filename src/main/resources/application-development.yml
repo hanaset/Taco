@@ -1,0 +1,9 @@
+server:
+  port: 8000
+
+spring:
+  datasource:
+    username: admin
+    password: peertec123!
+    url: jdbc:mysql://database-1.cix19k6a8m49.ap-northeast-2.rds.amazonaws.com:3306/taco?characterEncoding=UTF-8&serverTimezone=UTC
+    driver-class-name: com.mysql.cj.jdbc.Driver

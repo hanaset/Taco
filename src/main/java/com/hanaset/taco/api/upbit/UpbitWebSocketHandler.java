@@ -6,7 +6,6 @@ import com.hanaset.taco.api.upbit.model.UpbitOrderBook;
 import com.hanaset.taco.api.upbit.model.UpbitOrderbookItem;
 import com.hanaset.taco.api.upbit.model.UpbitTrade;
 import com.hanaset.taco.cache.OrderbookCached;
-import com.hanaset.taco.service.upbit.UpbitAskCheckService;
 import com.hanaset.taco.service.upbit.UpbitTransactionService;
 import com.hanaset.taco.utils.Taco2UpbitConvert;
 import lombok.extern.slf4j.Slf4j;
@@ -25,13 +24,9 @@ import java.nio.charset.StandardCharsets;
 @Slf4j
 public class UpbitWebSocketHandler extends BinaryWebSocketHandler {
 
-    private UpbitAskCheckService upbitAskCheckService;
-
     private UpbitTransactionService upbitTransactionService;
 
-    public UpbitWebSocketHandler(UpbitAskCheckService upbitAskCheckService,
-                                 UpbitTransactionService upbitTransactionService) {
-        this.upbitAskCheckService = upbitAskCheckService;
+    public UpbitWebSocketHandler(UpbitTransactionService upbitTransactionService) {
         this.upbitTransactionService = upbitTransactionService;
     }
 

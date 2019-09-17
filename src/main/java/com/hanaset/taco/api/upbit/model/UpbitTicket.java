@@ -20,4 +20,6 @@ public class UpbitTicket {
     private UpbitOrderbookItem askOrderbookItem;
 
     private UpbitOrderbookItem bidOrderbookItem;
+
+    private BigDecimal real_amount;
 }

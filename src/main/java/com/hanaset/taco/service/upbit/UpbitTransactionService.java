@@ -6,8 +6,8 @@ import com.hanaset.taco.cache.OrderbookCached;
 import com.hanaset.taco.cache.UpbitTransactionCached;
 import com.hanaset.taco.utils.Taco2CurrencyConvert;
 import com.hanaset.taco.utils.TacoPercentChecker;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import retrofit2.Response;
 
@@ -15,9 +15,10 @@ import java.io.IOException;
 import java.math.BigDecimal;
 
 @Service
-@Slf4j
 @SuppressWarnings("Duplicates")
 public class UpbitTransactionService {
+
+    private Logger log = LoggerFactory.getLogger("upbit_askbid");
 
     private final UpbitApiRestClient upbitApiRestClient;
     private final Double profit = 0.35;
@@ -26,7 +27,7 @@ public class UpbitTransactionService {
     public UpbitTransactionService(UpbitApiRestClient upbitApiRestClient) {
         this.upbitApiRestClient = upbitApiRestClient;
     }
-    
+
     public void checkProfit(String pair) {
 
         if (UpbitTransactionCached.LOCK) {
@@ -67,6 +68,7 @@ public class UpbitTransactionService {
                             .bidOrderbookItem(krwItem)
                             .askOrderbookItem(btcItem)
                             .amount(BigDecimal.valueOf(amount))
+                            .real_amount(BigDecimal.valueOf(base_amount))
                             .build();
 
                     UpbitTransactionCached.TICKET = ticket;
@@ -108,6 +110,7 @@ public class UpbitTransactionService {
                             .bidOrderbookItem(btcItem)
                             .askOrderbookItem(krwItem)
                             .amount(BigDecimal.valueOf(amount))
+                            .real_amount(BigDecimal.valueOf(base_amount))
                             .build();
 
                     UpbitTransactionCached.TICKET = ticket;
@@ -133,17 +136,19 @@ public class UpbitTransactionService {
             return;
 
         UpbitTicket ticket = UpbitTransactionCached.TICKET;
-        System.out.println(upbitTrade);
-        System.out.println(ticket);
+        BigDecimal amount = ticket.getReal_amount();
 
+        log.info("채결 내용: {}", upbitTrade);
+        log.info("내 주문 내역: {}", ticket);
 
         if (!upbitTrade.getAsk_bid().equals("BID")
                 || upbitTrade.getTrade_price().compareTo(BigDecimal.valueOf(ticket.getBidOrderbookItem().getBid_price())) != 0
-                || upbitTrade.getTrade_volume().compareTo(ticket.getAmount()) != 0) { // 수량 금액 체크 추가
+                //|| upbitTrade.getTrade_volume().compareTo(ticket.getAmount()) != 0
+                || amount.min(upbitTrade.getTrade_volume()).compareTo(ticket.getAmount()) <= 0
+        ) { // 수량 금액 체크 추가
 
             try {
                 log.info("매수 취소: {}", orderDeleting(ticket.getUuid()).body().toString());
-                UpbitTransactionCached.COUNT = 0;
             } catch (IOException e) {
                 log.error("매수 취소 에러: {}", e.getMessage());
             }
@@ -152,6 +157,11 @@ public class UpbitTransactionService {
 
             return;
         }
+
+        ticket.setReal_amount(amount.min(upbitTrade.getTrade_volume()));
+
+        if (upbitTrade.getTrade_volume().compareTo(ticket.getAmount()) != 0)
+            return;
 
         try {
 
@@ -175,6 +185,12 @@ public class UpbitTransactionService {
 
             } else {
                 log.error("매도 에러: {}", askResponse.errorBody().byteString().toString());
+
+                try {
+                    log.info("매수 취소: {}", orderDeleting(ticket.getUuid()).body().toString());
+                } catch (IOException e) {
+                    log.error("매수 취소 에러: {}", e.getMessage());
+                }
             }
         } catch (IOException e) {
             log.error("IOException: {}", e.getMessage());
@@ -219,8 +235,6 @@ public class UpbitTransactionService {
         return upbitApiRestClient.deleteOrder(uuid).execute();
     }
 
-    /// 시장가
-
     private Response<UpbitOrderResponse> bidingMarket(UpbitOrderbookItem askitem, BigDecimal amount, String pair) throws IOException {
 
         // 매수
@@ -234,7 +248,6 @@ public class UpbitTransactionService {
 
         return upbitApiRestClient.bidOrder(request).execute();
     }
-
 
     private Response<UpbitOrderResponse> askingMarket(UpbitOrderbookItem biditem, BigDecimal amount, String pair) throws IOException {
 
