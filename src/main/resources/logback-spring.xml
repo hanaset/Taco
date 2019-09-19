@@ -41,18 +41,14 @@
             <appender-ref ref="debug_log"/>
             <appender-ref ref="info_log"/>
             <appender-ref ref="error_log"/>
-            <appender-ref ref="cloudWatch_info_log"/>
-            <appender-ref ref="cloudWatch_error_log"/>
         </root>
 
         <logger name="com.hanaset.taco" level="DEBUG">
             <appender-ref ref="application_log"/>
-            <appender-ref ref="cloudWatch_application_log"/>
         </logger>
 
         <logger name="reqRes_log" level="INFO" additivity="false">
             <appender-ref ref="reqRes_log"/>
-            <appender-ref ref="cloudWatch_reqRes_log"/>
         </logger>
 
         <logger name="upbit_askbid" level="INFO">

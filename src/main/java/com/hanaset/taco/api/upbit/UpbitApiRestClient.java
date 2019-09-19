@@ -4,11 +4,11 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.hanaset.taco.api.upbit.model.UpbitAccount;
+import com.hanaset.taco.api.upbit.model.UpbitMarket;
 import com.hanaset.taco.api.upbit.model.UpbitOrderRequest;
 import com.hanaset.taco.api.upbit.model.UpbitOrderResponse;
 import com.hanaset.taco.properties.TradeKeyProperties;
 import com.hanaset.taco.properties.TradeUrlProperties;
-import com.hanaset.taco.utils.HashConvert;
 import io.reactivex.Single;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
@@ -39,6 +39,10 @@ public class UpbitApiRestClient {
         this.tradeKeyProperties = tradeKeyProperties;
         this.tradeUrlProperties = tradeUrlProperties;
         this.upbitApiRestService = retrofit.create(UpbitApiRestService.class);
+    }
+
+    public Single<List<UpbitMarket>> getMarket() {
+        return upbitApiRestService.getMarket();
     }
 
 
@@ -108,8 +112,6 @@ public class UpbitApiRestClient {
 
         return upbitApiRestService.createOrder(createToken(query), request);
     }
-
-
 
 
 }

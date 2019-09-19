@@ -13,7 +13,9 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -33,6 +35,23 @@ public class UpbitBalanceService {
         Single<List<UpbitAccount>> upbitLists = upbitApiRestClient.getAccount("amount");
 
         return upbitLists.blockingGet();
+    }
+
+    public BigDecimal getUpbitMarketAccount(String market) {
+
+        List<UpbitAccount> upbitLists = upbitApiRestClient.getAccount("amount").blockingGet();
+
+        System.out.println(upbitLists);
+
+        for(UpbitAccount account : upbitLists) {
+            if(account.getCurrency().equals(market)) {
+                System.out.println(account);
+                return account.getBalance();
+            }
+        }
+
+        System.out.println("XXXXXXXXXXXXXXXX");
+        return BigDecimal.ZERO;
     }
 
 

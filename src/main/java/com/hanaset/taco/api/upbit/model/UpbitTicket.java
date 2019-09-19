@@ -11,6 +11,8 @@ public class UpbitTicket {
 
     private String uuid;
 
+    private String market;
+
     private String ask_market;
 
     private String bid_market;

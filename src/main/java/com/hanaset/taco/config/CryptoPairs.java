@@ -27,7 +27,9 @@ public class CryptoPairs {
                     "KRW-STEEM", "BTC-STEEM",
                     "KRW-ENJ", "BTC-ENJ",
                     "KRW-TRX", "BTC-TRX",
-                    "KRW-ATOM", "BTC-ATOM"
+                    "KRW-ATOM", "BTC-ATOM",
+                    "KRW-XLM", "BTC-XLM",
+                    "KRW-CVC", "BTC-CVC"
             );
 
 }

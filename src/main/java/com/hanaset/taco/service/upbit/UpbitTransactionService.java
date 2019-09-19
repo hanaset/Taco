@@ -21,11 +21,14 @@ public class UpbitTransactionService {
     private Logger log = LoggerFactory.getLogger("upbit_askbid");
 
     private final UpbitApiRestClient upbitApiRestClient;
+    private final UpbitBalanceService upbitBalanceService;
     private final Double profit = 0.35;
     private final int DELAY = 3000;
 
-    public UpbitTransactionService(UpbitApiRestClient upbitApiRestClient) {
+    public UpbitTransactionService(UpbitApiRestClient upbitApiRestClient,
+                                   UpbitBalanceService upbitBalanceService) {
         this.upbitApiRestClient = upbitApiRestClient;
+        this.upbitBalanceService = upbitBalanceService;
     }
 
     public void checkProfit(String pair) {
@@ -49,6 +52,8 @@ public class UpbitTransactionService {
 
                 UpbitTransactionCached.LOCK = true;
 
+                log.info("==================================================================");
+
                 log.info("[{}] [BTC Bid : {}({})/{}] [KRW Ask : {}/{}] [profit : {}] [percent : {}]",
                         pair,
                         Taco2CurrencyConvert.convertBidBTC2KRW(btcItem.getBid_price()), BigDecimal.valueOf(btcItem.getBid_price()).toPlainString(), btcItem.getBid_size(),
@@ -63,6 +68,7 @@ public class UpbitTransactionService {
 
                     UpbitTicket ticket = UpbitTicket.builder()
                             .uuid(bidResponse.body().getUuid())
+                            .market(pair)
                             .bid_market(bidResponse.body().getMarket())
                             .ask_market("BTC-" + pair)
                             .bidOrderbookItem(krwItem)
@@ -89,6 +95,8 @@ public class UpbitTransactionService {
 
                 UpbitTransactionCached.LOCK = true;
 
+                log.info("==================================================================");
+
                 log.info("[{}] [KRW Bid : {}/{}] [BTC Ask : {}({})/{}] [profit : {}] [percent : {}]",
                         pair,
                         krwItem.getBid_price(), krwItem.getBid_size(),
@@ -105,6 +113,7 @@ public class UpbitTransactionService {
 
                     UpbitTicket ticket = UpbitTicket.builder()
                             .uuid(bidResponse.body().getUuid())
+                            .market(pair)
                             .bid_market(bidResponse.body().getMarket())
                             .ask_market("KRW-" + pair)
                             .bidOrderbookItem(btcItem)
@@ -132,23 +141,27 @@ public class UpbitTransactionService {
         if (UpbitTransactionCached.TICKET == null || upbitTrade == null)
             return;
 
-        if (!UpbitTransactionCached.TICKET.getBid_market().equals(upbitTrade.getCode()))
+        if (!UpbitTransactionCached.TICKET.getBid_market().equals(upbitTrade.getCode()) || !upbitTrade.getAsk_bid().equals("BID"))
             return;
 
         UpbitTicket ticket = UpbitTransactionCached.TICKET;
-        BigDecimal amount = ticket.getReal_amount();
+        BigDecimal amount = ticket.getReal_amount().subtract(upbitTrade.getTrade_volume());
 
         log.info("채결 내용: {}", upbitTrade);
         log.info("내 주문 내역: {}", ticket);
 
-        if (!upbitTrade.getAsk_bid().equals("BID")
-                || upbitTrade.getTrade_price().compareTo(BigDecimal.valueOf(ticket.getBidOrderbookItem().getBid_price())) != 0
-                //|| upbitTrade.getTrade_volume().compareTo(ticket.getAmount()) != 0
-                || amount.min(upbitTrade.getTrade_volume()).compareTo(ticket.getAmount()) <= 0
-        ) { // 수량 금액 체크 추가
+        log.info("{} {} {}", amount.toPlainString(), ticket.getAmount().toPlainString(), amount.compareTo(ticket.getAmount()));
+
+        if (amount.compareTo(ticket.getAmount()) < 0) { // 수량 금액 체크 추가
 
             try {
-                log.info("매수 취소: {}", orderDeleting(ticket.getUuid()).body().toString());
+                Response<UpbitOrderResponse> deleteResponse = orderDeleting(ticket.getUuid());
+
+                if (deleteResponse.isSuccessful()) {
+                    log.info("매수 취소: {}", deleteResponse.body().toString());
+                } else {
+                    log.error("매수 취소 에러 :{}", deleteResponse.errorBody().byteString().toString());
+                }
             } catch (IOException e) {
                 log.error("매수 취소 에러: {}", e.getMessage());
             }
@@ -158,39 +171,84 @@ public class UpbitTransactionService {
             return;
         }
 
-        ticket.setReal_amount(amount.min(upbitTrade.getTrade_volume()));
+        ticket.setReal_amount(amount);
+        BigDecimal myBalance = upbitBalanceService.getUpbitMarketAccount(ticket.getMarket());
 
-        if (upbitTrade.getTrade_volume().compareTo(ticket.getAmount()) != 0)
+        if (myBalance.compareTo(BigDecimal.ZERO) == 0) {
+
+            // 이때 환전을 할까?
+            myBalance = upbitBalanceService.getUpbitMarketAccount("BTC");
+
+            UpbitOrderbookItem converItem = new UpbitOrderbookItem();
+            converItem.setAsk_price(OrderbookCached.UPBIT_BTC.get("ask").doubleValue());
+            converItem.setBid_price(OrderbookCached.UPBIT_BTC.get("bid").doubleValue());
+
+            if (myBalance.compareTo(BigDecimal.valueOf(0.01)) == 1) {
+
+                try {
+                    Response<UpbitOrderResponse> exchangeResponse = asking(converItem, myBalance.subtract(BigDecimal.valueOf(0.01)), "KRW-BTC");
+
+                    if(exchangeResponse.isSuccessful()) {
+                        log.info("환전:{}", exchangeResponse.body().toString());
+                    }else {
+                        log.error("환전 실패:{}", exchangeResponse.errorBody().byteString().toString());
+                    }
+
+                }catch (IOException e) {
+                    log.error("환전 에러:{}", e.getMessage());
+                }
+            } else if (myBalance.compareTo(BigDecimal.valueOf(0.01)) == -1) {
+
+                try{
+                    Response<UpbitOrderResponse> exchangeResponse = biding(converItem, BigDecimal.valueOf(0.01).subtract(myBalance), "KRW-BTC");
+
+                    if(exchangeResponse.isSuccessful()) {
+                        log.info("환전:{}", exchangeResponse.body().toString());
+                    }else {
+                        log.error("환전 실패:{}", exchangeResponse.errorBody().byteString().toString());
+                    }
+                }catch (IOException e) {
+                    log.error("환전 에러:{}", e.getMessage());
+                }
+
+            }
             return;
+        }
 
         try {
 
-            Response<UpbitOrderResponse> askResponse = asking(ticket.getAskOrderbookItem(), ticket.getAmount(), ticket.getAsk_market());
+            Response<UpbitOrderResponse> askResponse = asking(ticket.getAskOrderbookItem(), myBalance, ticket.getAsk_market());
 
             if (askResponse.isSuccessful()) {
                 log.info("매도:{}", askResponse.body());
 
-                UpbitOrderbookItem converItem = new UpbitOrderbookItem();
-                converItem.setAsk_price(OrderbookCached.UPBIT_BTC.get("ask").doubleValue());
-                converItem.setBid_price(OrderbookCached.UPBIT_BTC.get("bid").doubleValue());
-
-                if (ticket.getBid_market().contains("KRW")) {
-
-                    log.info("환전:{}", askingMarket(converItem, ticket.getAmount().multiply(BigDecimal.valueOf(ticket.getAskOrderbookItem().getAsk_price())), "KRW-BTC").body().toString());
-
-                } else if (ticket.getBid_market().contains("BTC")) {
-
-                    log.info("환전:{}", bidingMarket(converItem, ticket.getAmount().multiply(BigDecimal.valueOf(ticket.getBidOrderbookItem().getBid_price())), "KRW-BTC").body().toString());
-                }
+//                UpbitOrderbookItem converItem = new UpbitOrderbookItem();
+//                converItem.setAsk_price(OrderbookCached.UPBIT_BTC.get("ask").doubleValue());
+//                converItem.setBid_price(OrderbookCached.UPBIT_BTC.get("bid").doubleValue());
+//
+//                if (ticket.getBid_market().contains("KRW")) {
+//
+//                    Response<UpbitOrderResponse> askMarketResponse = askingMarket(converItem, BigDecimal.valueOf(ticket.getBidOrderbookItem().getBid_price()).multiply(myBalance), "KRW-BTC");
+//                    if (askMarketResponse.isSuccessful()) {
+//                        log.info("환전:{}", askMarketResponse.body().toString());
+//                    } else {
+//                        log.error("환전 실패:{}", askMarketResponse.errorBody().byteString().toString());
+//                        log.error("환전 데이터:{}/{}", converItem, myBalance);
+//                    }
+//
+//                } else if (ticket.getBid_market().contains("BTC")) {
+//
+//                    Response<UpbitOrderResponse> bidMarketResponse = bidingMarket(converItem, BigDecimal.valueOf(ticket.getBidOrderbookItem().getBid_price()).multiply(myBalance), "KRW-BTC");
+//                    if (bidMarketResponse.isSuccessful()) {
+//                        log.info("환전:{}", bidMarketResponse.body().toString());
+//                    } else {
+//                        log.error("환전 실패:{}:", bidMarketResponse.errorBody().byteString().toString());
+//                        log.error("환전 데이터:{}/{}", converItem, myBalance);
+//                    }
+//                }
 
             } else {
                 log.error("매도 에러: {}", askResponse.errorBody().byteString().toString());
-
-                try {
-                    log.info("매수 취소: {}", orderDeleting(ticket.getUuid()).body().toString());
-                } catch (IOException e) {
-                    log.error("매수 취소 에러: {}", e.getMessage());
-                }
             }
         } catch (IOException e) {
             log.error("IOException: {}", e.getMessage());
@@ -241,7 +299,7 @@ public class UpbitTransactionService {
         UpbitOrderRequest request = UpbitOrderRequest.builder()
                 .market(pair)
                 .side("bid")
-                .price(amount.multiply(BigDecimal.valueOf(askitem.getAsk_price())).toPlainString())
+                .price(amount.toPlainString())
                 .volume(null)
                 .ord_type("price")
                 .build();
@@ -256,7 +314,7 @@ public class UpbitTransactionService {
                 .market(pair)
                 .side("ask")
                 .price(null)
-                .volume(amount.toPlainString())
+                .volume(amount.divide(BigDecimal.valueOf(biditem.getAsk_price())).toPlainString())
                 .ord_type("market")
                 .build();
 

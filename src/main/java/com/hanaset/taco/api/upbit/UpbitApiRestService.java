@@ -1,6 +1,7 @@
 package com.hanaset.taco.api.upbit;
 
 import com.hanaset.taco.api.upbit.model.UpbitAccount;
+import com.hanaset.taco.api.upbit.model.UpbitMarket;
 import com.hanaset.taco.api.upbit.model.UpbitOrderRequest;
 import com.hanaset.taco.api.upbit.model.UpbitOrderResponse;
 import io.reactivex.Single;
@@ -20,5 +21,7 @@ public interface UpbitApiRestService {
     @DELETE("/v1/order")
     Call<UpbitOrderResponse> deleteOrder(@Header("Authorization") String token, @Query("uuid") String uuid);
 
+    @GET("v1/market/all")
+    Single<List<UpbitMarket>> getMarket();
 
 }
