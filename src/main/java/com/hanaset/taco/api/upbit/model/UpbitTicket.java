@@ -23,5 +23,7 @@ public class UpbitTicket {
 
     private UpbitOrderbookItem bidOrderbookItem;
 
-    private BigDecimal real_amount;
+    private BigDecimal ask_amount;
+
+    private BigDecimal bid_amount;
 }

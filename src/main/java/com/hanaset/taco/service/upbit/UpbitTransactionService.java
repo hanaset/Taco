@@ -74,7 +74,8 @@ public class UpbitTransactionService {
                             .bidOrderbookItem(krwItem)
                             .askOrderbookItem(btcItem)
                             .amount(BigDecimal.valueOf(amount))
-                            .real_amount(BigDecimal.valueOf(base_amount))
+                            .ask_amount(BigDecimal.valueOf(krwItem.getAsk_size()))
+                            .bid_amount(BigDecimal.valueOf(btcItem.getBid_size()))
                             .build();
 
                     UpbitTransactionCached.TICKET = ticket;
@@ -119,7 +120,8 @@ public class UpbitTransactionService {
                             .bidOrderbookItem(btcItem)
                             .askOrderbookItem(krwItem)
                             .amount(BigDecimal.valueOf(amount))
-                            .real_amount(BigDecimal.valueOf(base_amount))
+                            .ask_amount(BigDecimal.valueOf(btcItem.getAsk_size()))
+                            .bid_amount(BigDecimal.valueOf(krwItem.getBid_size()))
                             .build();
 
                     UpbitTransactionCached.TICKET = ticket;
@@ -141,121 +143,168 @@ public class UpbitTransactionService {
         if (UpbitTransactionCached.TICKET == null || upbitTrade == null)
             return;
 
-        if (!UpbitTransactionCached.TICKET.getBid_market().equals(upbitTrade.getCode()) || !upbitTrade.getAsk_bid().equals("BID"))
+        if (!UpbitTransactionCached.TICKET.getBid_market().equals(upbitTrade.getCode()))
             return;
 
-        UpbitTicket ticket = UpbitTransactionCached.TICKET;
-        BigDecimal amount = ticket.getReal_amount().subtract(upbitTrade.getTrade_volume());
-
-        log.info("채결 내용: {}", upbitTrade);
-        log.info("내 주문 내역: {}", ticket);
-
-        log.info("{} {} {}", amount.toPlainString(), ticket.getAmount().toPlainString(), amount.compareTo(ticket.getAmount()));
-
-        if (amount.compareTo(ticket.getAmount()) < 0) { // 수량 금액 체크 추가
-
-            try {
-                Response<UpbitOrderResponse> deleteResponse = orderDeleting(ticket.getUuid());
-
-                if (deleteResponse.isSuccessful()) {
-                    log.info("매수 취소: {}", deleteResponse.body().toString());
-                } else {
-                    log.error("매수 취소 에러 :{}", deleteResponse.errorBody().byteString().toString());
-                }
-            } catch (IOException e) {
-                log.error("매수 취소 에러: {}", e.getMessage());
-            }
-            UpbitTransactionCached.TICKET = null;
-            UpbitTransactionCached.LOCK = false;
-
-            return;
+        if (upbitTrade.getAsk_bid().equals("BID")) {
+            bidProfit(upbitTrade);
+        } else if (upbitTrade.getAsk_bid().equals("ASK")) {
+            askProfit(upbitTrade);
         }
 
-        ticket.setReal_amount(amount);
+    }
+
+    private void bidProfit(UpbitTrade upbitTrade) {
+
+        UpbitTicket ticket = UpbitTransactionCached.TICKET;
+
+        if (upbitTrade.getTrade_price().compareTo(BigDecimal.valueOf(ticket.getBidOrderbookItem().getAsk_price())) != 0)
+            return;
+
         BigDecimal myBalance = upbitBalanceService.getUpbitMarketAccount(ticket.getMarket());
 
-        if (myBalance.compareTo(BigDecimal.ZERO) == 0) {
+        if (myBalance.compareTo(BigDecimal.ZERO) == 0) { // 내 코인이 안사졌을 경우
 
-            // 이때 환전을 할까?
-            myBalance = upbitBalanceService.getUpbitMarketAccount("BTC");
+            BigDecimal enableAmount = ticket.getAsk_amount().subtract(upbitTrade.getTrade_volume());
 
-            UpbitOrderbookItem converItem = new UpbitOrderbookItem();
-            converItem.setAsk_price(OrderbookCached.UPBIT_BTC.get("ask").doubleValue());
-            converItem.setBid_price(OrderbookCached.UPBIT_BTC.get("bid").doubleValue());
-
-            if (myBalance.compareTo(BigDecimal.valueOf(0.01)) == 1) {
+            if (enableAmount.compareTo(ticket.getAmount()) < 0) { // 구매 취소
+                // 구매 가능 수량 - 구매가 일어난 수량 >= 내가 구매할 수량 (즉시 구매)
+                // 구매 가능 수량 - 구매가 일어난 수량 < 내가 구매할 수량 (대기) -> 구매 취소
 
                 try {
-                    Response<UpbitOrderResponse> exchangeResponse = asking(converItem, myBalance.subtract(BigDecimal.valueOf(0.01)), "KRW-BTC");
+                    Response<UpbitOrderResponse> deleteResponse = orderDeleting(ticket.getUuid());
 
-                    if(exchangeResponse.isSuccessful()) {
-                        log.info("환전:{}", exchangeResponse.body().toString());
-                    }else {
-                        log.error("환전 실패:{}", exchangeResponse.errorBody().byteString().toString());
+                    if (deleteResponse.isSuccessful()) {
+                        log.info("매수 취소: {}", deleteResponse.body().toString());
+                    } else {
+                        log.error("매수 취소 에러 :{}", deleteResponse.errorBody().byteString().toString());
                     }
-
-                }catch (IOException e) {
-                    log.error("환전 에러:{}", e.getMessage());
+                } catch (IOException e) {
+                    log.error("매수 취소 에러: {}", e.getMessage());
                 }
-            } else if (myBalance.compareTo(BigDecimal.valueOf(0.01)) == -1) {
-
-                try{
-                    Response<UpbitOrderResponse> exchangeResponse = biding(converItem, BigDecimal.valueOf(0.01).subtract(myBalance), "KRW-BTC");
-
-                    if(exchangeResponse.isSuccessful()) {
-                        log.info("환전:{}", exchangeResponse.body().toString());
-                    }else {
-                        log.error("환전 실패:{}", exchangeResponse.errorBody().byteString().toString());
-                    }
-                }catch (IOException e) {
-                    log.error("환전 에러:{}", e.getMessage());
-                }
-
+                UpbitTransactionCached.TICKET = null;
+                UpbitTransactionCached.LOCK = false;
+            } else {
+                ticket.setAsk_amount(enableAmount);
+                // 구매 가능한 수량이 남아 있기에 남은 수량을 담에 비교 할 수 있도록 저장
             }
             return;
         }
 
         try {
-
             Response<UpbitOrderResponse> askResponse = asking(ticket.getAskOrderbookItem(), myBalance, ticket.getAsk_market());
 
             if (askResponse.isSuccessful()) {
                 log.info("매도:{}", askResponse.body());
-
-//                UpbitOrderbookItem converItem = new UpbitOrderbookItem();
-//                converItem.setAsk_price(OrderbookCached.UPBIT_BTC.get("ask").doubleValue());
-//                converItem.setBid_price(OrderbookCached.UPBIT_BTC.get("bid").doubleValue());
-//
-//                if (ticket.getBid_market().contains("KRW")) {
-//
-//                    Response<UpbitOrderResponse> askMarketResponse = askingMarket(converItem, BigDecimal.valueOf(ticket.getBidOrderbookItem().getBid_price()).multiply(myBalance), "KRW-BTC");
-//                    if (askMarketResponse.isSuccessful()) {
-//                        log.info("환전:{}", askMarketResponse.body().toString());
-//                    } else {
-//                        log.error("환전 실패:{}", askMarketResponse.errorBody().byteString().toString());
-//                        log.error("환전 데이터:{}/{}", converItem, myBalance);
-//                    }
-//
-//                } else if (ticket.getBid_market().contains("BTC")) {
-//
-//                    Response<UpbitOrderResponse> bidMarketResponse = bidingMarket(converItem, BigDecimal.valueOf(ticket.getBidOrderbookItem().getBid_price()).multiply(myBalance), "KRW-BTC");
-//                    if (bidMarketResponse.isSuccessful()) {
-//                        log.info("환전:{}", bidMarketResponse.body().toString());
-//                    } else {
-//                        log.error("환전 실패:{}:", bidMarketResponse.errorBody().byteString().toString());
-//                        log.error("환전 데이터:{}/{}", converItem, myBalance);
-//                    }
-//                }
 
             } else {
                 log.error("매도 에러: {}", askResponse.errorBody().byteString().toString());
             }
         } catch (IOException e) {
             log.error("IOException: {}", e.getMessage());
-        } finally {
+        }
+    }
+
+    private void exchangeProfit() {
+
+        BigDecimal myBalance = upbitBalanceService.getUpbitMarketAccount("BTC");
+
+        UpbitOrderbookItem converItem = new UpbitOrderbookItem();
+        converItem.setAsk_price(OrderbookCached.UPBIT_BTC.get("ask").doubleValue());
+        converItem.setBid_price(OrderbookCached.UPBIT_BTC.get("bid").doubleValue());
+
+        if (myBalance.compareTo(BigDecimal.valueOf(0.01)) == 1) {
+
+            try {
+                Response<UpbitOrderResponse> exchangeResponse = asking(converItem, myBalance.subtract(BigDecimal.valueOf(0.01)), "KRW-BTC");
+
+                if (exchangeResponse.isSuccessful()) {
+                    log.info("환전:{}", exchangeResponse.body().toString());
+                } else {
+                    log.error("환전 실패:{}", exchangeResponse.errorBody().byteString().toString());
+                }
+
+            } catch (IOException e) {
+                log.error("환전 에러:{}", e.getMessage());
+            }
+        } else if (myBalance.compareTo(BigDecimal.valueOf(0.01)) == -1) {
+
+            try {
+                Response<UpbitOrderResponse> exchangeResponse = biding(converItem, BigDecimal.valueOf(0.01).subtract(myBalance), "KRW-BTC");
+
+                if (exchangeResponse.isSuccessful()) {
+                    log.info("환전:{}", exchangeResponse.body().toString());
+                } else {
+                    log.error("환전 실패:{}", exchangeResponse.errorBody().byteString().toString());
+                }
+            } catch (IOException e) {
+                log.error("환전 에러:{}", e.getMessage());
+            }
+        }
+
+    }
+
+    private void askProfit(UpbitTrade upbitTrade) {
+
+        UpbitTicket ticket = UpbitTransactionCached.TICKET;
+
+        if (upbitTrade.getTrade_price().compareTo(BigDecimal.valueOf(ticket.getAskOrderbookItem().getBid_price())) != 0)
+            return;
+
+        BigDecimal myBalance = upbitBalanceService.getUpbitMarketAccount(ticket.getMarket());
+        BigDecimal enableAmount = BigDecimal.valueOf(ticket.getAskOrderbookItem().getBid_size()).subtract(ticket.getAmount());
+
+        if (myBalance.compareTo(BigDecimal.ZERO) != 0) { // 내 코인이 안팔렸을 경우
+
+            if (enableAmount.compareTo(ticket.getAmount()) < 0) { // 구매 취소
+                // 판매 가능 수량 - 판매가 일어난 수량 >= 내가 판매할 수량 (즉시 판매)
+                // 판매 가능 수량 - 판매가 일어난 수량 < 내가 판매할 수량 (대기) -> 구매 취소
+
+                try {
+                    Response<UpbitOrderResponse> deleteResponse = orderDeleting(ticket.getUuid());
+
+                    if (deleteResponse.isSuccessful()) {
+                        log.info("매수 취소: {}", deleteResponse.body().toString());
+                    } else {
+                        log.error("매수 취소 에러 :{}", deleteResponse.errorBody().byteString().toString());
+                    }
+                } catch (IOException e) {
+                    log.error("매수 취소 에러: {}", e.getMessage());
+                }
+                UpbitTransactionCached.TICKET = null;
+                UpbitTransactionCached.LOCK = false;
+
+            } else {
+                // 판매 가능 수량이 남아 있을 경우 담에 다시 비교 할 수 있도록 저장
+                ticket.setBid_amount(enableAmount);
+            }
+
+            return;
+
+        } else { // 내 지갑에 코인이 없다?? 무조건 취소 한번하고 시작
+
+            if(enableAmount.compareTo(ticket.getAmount()) < 0) {
+                // 판매 가능 수량 - 판매가 일어난 수량 < 내가 판매할 수량 (대기) -> 구매 취소 // 어짜피 이미 구매했으면 무시되는 코드
+                try {
+                    Response<UpbitOrderResponse> deleteResponse = orderDeleting(ticket.getUuid());
+
+                    if (deleteResponse.isSuccessful()) {
+                        log.info("매수 취소: {}", deleteResponse.body().toString());
+                    } else {
+                        log.error("매수 취소 에러 :{}", deleteResponse.errorBody().byteString().toString());
+                    }
+                } catch (IOException e) {
+                    log.error("매수 취소 에러: {}", e.getMessage());
+                }
+            }
+
+            // 최종적으로 거래가 끝났거나 거래가 없다면 환전해서 밸런스를 맞춰주자.
+            exchangeProfit();
+
             UpbitTransactionCached.TICKET = null;
             UpbitTransactionCached.LOCK = false;
         }
+
     }
 
 
