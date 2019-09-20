@@ -8,6 +8,7 @@ import com.hanaset.taco.utils.Taco2CurrencyConvert;
 import com.hanaset.taco.utils.TacoPercentChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import retrofit2.Response;
 
@@ -22,8 +23,7 @@ public class UpbitTransactionService {
 
     private final UpbitApiRestClient upbitApiRestClient;
     private final UpbitBalanceService upbitBalanceService;
-    private final Double profit = 0.35;
-    private final int DELAY = 3000;
+    private final Double profit = 0.38;
 
     public UpbitTransactionService(UpbitApiRestClient upbitApiRestClient,
                                    UpbitBalanceService upbitBalanceService) {
@@ -31,6 +31,7 @@ public class UpbitTransactionService {
         this.upbitBalanceService = upbitBalanceService;
     }
 
+    @Async
     public void checkProfit(String pair) {
 
         if (UpbitTransactionCached.LOCK) {
@@ -38,15 +39,18 @@ public class UpbitTransactionService {
         }
 
         try {
-            UpbitOrderbookItem btcItem = OrderbookCached.UPBIT.get("BTC-" + pair);
-            UpbitOrderbookItem krwItem = OrderbookCached.UPBIT.get("KRW-" + pair);
+            UpbitOrderbookItem btcItem = OrderbookCached.UPBIT.getOrDefault("BTC-" + pair, null);
+            UpbitOrderbookItem krwItem = OrderbookCached.UPBIT.getOrDefault("KRW-" + pair, null);
+
+            if(btcItem == null || krwItem == null)
+                return;
 
             if (TacoPercentChecker.profitCheck(Taco2CurrencyConvert.convertBidBTC2KRW(btcItem.getBid_price()), krwItem.getAsk_price(), profit)) {
 
                 Double base_amount = btcItem.getBid_size() > krwItem.getAsk_size() ? krwItem.getAsk_size() : btcItem.getBid_size();
                 Double amount = base_amount / 10.f;
 
-                if (amount * btcItem.getBid_price() <= 0.0005 || amount * krwItem.getAsk_price() <= 5000) {
+                if (amount * btcItem.getBid_price() <= 0.0005 || amount * krwItem.getAsk_price() <= 10000) {
                     return;
                 }
 
@@ -90,7 +94,7 @@ public class UpbitTransactionService {
                 Double base_amount = krwItem.getBid_size() > btcItem.getAsk_size() ? btcItem.getAsk_size() : krwItem.getBid_size();
                 Double amount = base_amount / 10.f;
 
-                if (amount * btcItem.getAsk_price() <= 0.0005 || amount * krwItem.getBid_price() <= 5000) {
+                if (amount * btcItem.getAsk_price() <= 0.0005 || amount * krwItem.getBid_price() <= 15000) {
                     return;
                 }
 
@@ -138,19 +142,27 @@ public class UpbitTransactionService {
         }
     }
 
+    @Async
     public void orderProfit(UpbitTrade upbitTrade) {
 
         if (UpbitTransactionCached.TICKET == null || upbitTrade == null)
             return;
 
-        if (!UpbitTransactionCached.TICKET.getBid_market().equals(upbitTrade.getCode()))
-            return;
-
-        if (upbitTrade.getAsk_bid().equals("BID")) {
+        if (UpbitTransactionCached.TICKET.getBid_market().equals(upbitTrade.getCode()) &&
+            upbitTrade.getAsk_bid().equals("BID")) {
             bidProfit(upbitTrade);
-        } else if (upbitTrade.getAsk_bid().equals("ASK")) {
+        } else if (UpbitTransactionCached.TICKET.getAsk_market().equals(upbitTrade.getCode()) &&
+            upbitTrade.getAsk_bid().equals("ASK")) {
             askProfit(upbitTrade);
         }
+
+//        System.out.println(upbitTrade);
+//
+//        if (upbitTrade.getAsk_bid().equals("BID")) {
+//            bidProfit(upbitTrade);
+//        } else if (upbitTrade.getAsk_bid().equals("ASK")) {
+//            askProfit(upbitTrade);
+//        }
 
     }
 
@@ -161,33 +173,35 @@ public class UpbitTransactionService {
         if (upbitTrade.getTrade_price().compareTo(BigDecimal.valueOf(ticket.getBidOrderbookItem().getAsk_price())) != 0)
             return;
 
+        System.out.println(upbitTrade);
+
         BigDecimal myBalance = upbitBalanceService.getUpbitMarketAccount(ticket.getMarket());
 
         if (myBalance.compareTo(BigDecimal.ZERO) == 0) { // 내 코인이 안사졌을 경우
 
-            BigDecimal enableAmount = ticket.getAsk_amount().subtract(upbitTrade.getTrade_volume());
-
-            if (enableAmount.compareTo(ticket.getAmount()) < 0) { // 구매 취소
-                // 구매 가능 수량 - 구매가 일어난 수량 >= 내가 구매할 수량 (즉시 구매)
-                // 구매 가능 수량 - 구매가 일어난 수량 < 내가 구매할 수량 (대기) -> 구매 취소
-
-                try {
-                    Response<UpbitOrderResponse> deleteResponse = orderDeleting(ticket.getUuid());
-
-                    if (deleteResponse.isSuccessful()) {
-                        log.info("매수 취소: {}", deleteResponse.body().toString());
-                    } else {
-                        log.error("매수 취소 에러 :{}", deleteResponse.errorBody().byteString().toString());
-                    }
-                } catch (IOException e) {
-                    log.error("매수 취소 에러: {}", e.getMessage());
-                }
-                UpbitTransactionCached.TICKET = null;
-                UpbitTransactionCached.LOCK = false;
-            } else {
-                ticket.setAsk_amount(enableAmount);
-                // 구매 가능한 수량이 남아 있기에 남은 수량을 담에 비교 할 수 있도록 저장
-            }
+//            BigDecimal enableAmount = ticket.getAsk_amount().subtract(upbitTrade.getTrade_volume());
+//
+//            if (enableAmount.compareTo(ticket.getAmount()) < 0) { // 구매 취소
+//                // 구매 가능 수량 - 구매가 일어난 수량 >= 내가 구매할 수량 (즉시 구매)
+//                // 구매 가능 수량 - 구매가 일어난 수량 < 내가 구매할 수량 (대기) -> 구매 취소
+//
+//                try {
+//                    Response<UpbitOrderResponse> deleteResponse = orderDeleting(ticket.getUuid());
+//
+//                    if (deleteResponse.isSuccessful()) {
+//                        log.info("매수 취소: {}", deleteResponse.body().toString());
+//                    } else {
+//                        log.error("매수 취소 에러 :{}", deleteResponse.errorBody().byteString().toString());
+//                    }
+//                } catch (IOException e) {
+//                    log.error("매수 취소 IOException: {}", e.getMessage());
+//                }
+//                UpbitTransactionCached.TICKET = null;
+//                UpbitTransactionCached.LOCK = false;
+//            } else {
+//                ticket.setAsk_amount(enableAmount);
+//                // 구매 가능한 수량이 남아 있기에 남은 수량을 담에 비교 할 수 있도록 저장
+//            }
             return;
         }
 
@@ -205,7 +219,7 @@ public class UpbitTransactionService {
         }
     }
 
-    private void exchangeProfit() {
+    public void exchangeProfit() {
 
         BigDecimal myBalance = upbitBalanceService.getUpbitMarketAccount("BTC");
 
@@ -250,6 +264,8 @@ public class UpbitTransactionService {
 
         if (upbitTrade.getTrade_price().compareTo(BigDecimal.valueOf(ticket.getAskOrderbookItem().getBid_price())) != 0)
             return;
+
+        System.out.println(upbitTrade);
 
         BigDecimal myBalance = upbitBalanceService.getUpbitMarketAccount(ticket.getMarket());
         BigDecimal enableAmount = BigDecimal.valueOf(ticket.getAskOrderbookItem().getBid_size()).subtract(ticket.getAmount());
@@ -337,7 +353,7 @@ public class UpbitTransactionService {
         return upbitApiRestClient.createOrder(request).execute();
     }
 
-    private Response<UpbitOrderResponse> orderDeleting(String uuid) throws IOException {
+    public Response<UpbitOrderResponse> orderDeleting(String uuid) throws IOException {
 
         return upbitApiRestClient.deleteOrder(uuid).execute();
     }

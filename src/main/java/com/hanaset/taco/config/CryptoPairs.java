@@ -29,7 +29,15 @@ public class CryptoPairs {
                     "KRW-TRX", "BTC-TRX",
                     "KRW-ATOM", "BTC-ATOM",
                     "KRW-XLM", "BTC-XLM",
-                    "KRW-CVC", "BTC-CVC"
+                    "KRW-CVC", "BTC-CVC",
+                    "KRW-BTT", "BTC-BTT",
+                    "KRW-SNT", "BTC-SNT",
+                    "KRW-SBD", "BTC-SBD",
+                    "KRW-LTC", "BTC-LTC",
+                    "KRW-QTUM", "BTC-QTUM",
+                    "KRW-TSHP", "BTC-TSHP"
+
+
             );
 
 }

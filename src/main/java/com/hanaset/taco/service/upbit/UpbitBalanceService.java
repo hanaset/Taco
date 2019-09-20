@@ -41,16 +41,15 @@ public class UpbitBalanceService {
 
         List<UpbitAccount> upbitLists = upbitApiRestClient.getAccount("amount").blockingGet();
 
-        System.out.println(upbitLists);
+        //System.out.println(upbitLists);
 
         for(UpbitAccount account : upbitLists) {
             if(account.getCurrency().equals(market)) {
-                System.out.println(account);
+                //System.out.println(account);
                 return account.getBalance();
             }
         }
 
-        System.out.println("XXXXXXXXXXXXXXXX");
         return BigDecimal.ZERO;
     }
 

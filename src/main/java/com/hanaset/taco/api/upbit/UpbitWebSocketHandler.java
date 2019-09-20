@@ -57,7 +57,6 @@ public class UpbitWebSocketHandler extends BinaryWebSocketHandler {
 
 
                     upbitTransactionService.checkProfit(Taco2UpbitConvert.convertPair(upbitOrderBook.getCode()));
-                    //upbitAskCheckService.compareASKWithBID(Taco2UpbitConvert.convertPair(upbitOrderBook.getCode()));
                 }
             }else if(jsonObject.get("type").equals("trade")) {
 

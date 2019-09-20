@@ -21,7 +21,7 @@ public interface UpbitApiRestService {
     @DELETE("/v1/order")
     Call<UpbitOrderResponse> deleteOrder(@Header("Authorization") String token, @Query("uuid") String uuid);
 
-    @GET("v1/market/all")
+    @GET("/v1/market/all")
     Single<List<UpbitMarket>> getMarket();
 
 }
