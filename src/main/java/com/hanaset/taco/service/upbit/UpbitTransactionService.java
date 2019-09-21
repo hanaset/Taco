@@ -23,7 +23,7 @@ public class UpbitTransactionService {
 
     private final UpbitApiRestClient upbitApiRestClient;
     private final UpbitBalanceService upbitBalanceService;
-    private final Double profit = 0.38;
+    private final Double profit = 0.4;
 
     public UpbitTransactionService(UpbitApiRestClient upbitApiRestClient,
                                    UpbitBalanceService upbitBalanceService) {
@@ -42,7 +42,7 @@ public class UpbitTransactionService {
             UpbitOrderbookItem btcItem = OrderbookCached.UPBIT.getOrDefault("BTC-" + pair, null);
             UpbitOrderbookItem krwItem = OrderbookCached.UPBIT.getOrDefault("KRW-" + pair, null);
 
-            if(btcItem == null || krwItem == null)
+            if (btcItem == null || krwItem == null)
                 return;
 
             if (TacoPercentChecker.profitCheck(Taco2CurrencyConvert.convertBidBTC2KRW(btcItem.getBid_price()), krwItem.getAsk_price(), profit)) {
@@ -94,7 +94,7 @@ public class UpbitTransactionService {
                 Double base_amount = krwItem.getBid_size() > btcItem.getAsk_size() ? btcItem.getAsk_size() : krwItem.getBid_size();
                 Double amount = base_amount / 10.f;
 
-                if (amount * btcItem.getAsk_price() <= 0.0005 || amount * krwItem.getBid_price() <= 15000) {
+                if (amount * btcItem.getAsk_price() <= 0.0005 || amount * krwItem.getBid_price() <= 10000) {
                     return;
                 }
 
@@ -142,31 +142,27 @@ public class UpbitTransactionService {
         }
     }
 
-    @Async
     public void orderProfit(UpbitTrade upbitTrade) {
 
         if (UpbitTransactionCached.TICKET == null || upbitTrade == null)
             return;
 
+        if(UpbitTransactionCached.LOCK == false) { // 거래 요청 후 락일 경우에만 처리
+            return;
+        }
+
         if (UpbitTransactionCached.TICKET.getBid_market().equals(upbitTrade.getCode()) &&
-            upbitTrade.getAsk_bid().equals("BID")) {
+                upbitTrade.getAsk_bid().equals("BID")) {
             bidProfit(upbitTrade);
         } else if (UpbitTransactionCached.TICKET.getAsk_market().equals(upbitTrade.getCode()) &&
-            upbitTrade.getAsk_bid().equals("ASK")) {
+                upbitTrade.getAsk_bid().equals("ASK")) {
             askProfit(upbitTrade);
         }
 
-//        System.out.println(upbitTrade);
-//
-//        if (upbitTrade.getAsk_bid().equals("BID")) {
-//            bidProfit(upbitTrade);
-//        } else if (upbitTrade.getAsk_bid().equals("ASK")) {
-//            askProfit(upbitTrade);
-//        }
-
     }
 
-    private void bidProfit(UpbitTrade upbitTrade) {
+    @Async
+    public void bidProfit(UpbitTrade upbitTrade) {
 
         UpbitTicket ticket = UpbitTransactionCached.TICKET;
 
@@ -179,30 +175,32 @@ public class UpbitTransactionService {
 
         if (myBalance.compareTo(BigDecimal.ZERO) == 0) { // 내 코인이 안사졌을 경우
 
-//            BigDecimal enableAmount = ticket.getAsk_amount().subtract(upbitTrade.getTrade_volume());
-//
-//            if (enableAmount.compareTo(ticket.getAmount()) < 0) { // 구매 취소
-//                // 구매 가능 수량 - 구매가 일어난 수량 >= 내가 구매할 수량 (즉시 구매)
-//                // 구매 가능 수량 - 구매가 일어난 수량 < 내가 구매할 수량 (대기) -> 구매 취소
-//
-//                try {
-//                    Response<UpbitOrderResponse> deleteResponse = orderDeleting(ticket.getUuid());
-//
-//                    if (deleteResponse.isSuccessful()) {
-//                        log.info("매수 취소: {}", deleteResponse.body().toString());
-//                    } else {
-//                        log.error("매수 취소 에러 :{}", deleteResponse.errorBody().byteString().toString());
-//                    }
-//                } catch (IOException e) {
-//                    log.error("매수 취소 IOException: {}", e.getMessage());
-//                }
-//                UpbitTransactionCached.TICKET = null;
-//                UpbitTransactionCached.LOCK = false;
-//            } else {
-//                ticket.setAsk_amount(enableAmount);
-//                // 구매 가능한 수량이 남아 있기에 남은 수량을 담에 비교 할 수 있도록 저장
-//            }
-            return;
+            System.out.println("잔고 없음");
+
+            BigDecimal enableAmount = ticket.getAsk_amount().subtract(upbitTrade.getTrade_volume());
+
+            if (enableAmount.compareTo(ticket.getAmount()) < 0) { // 구매 취소
+                // 구매 가능 수량 - 구매가 일어난 수량 >= 내가 구매할 수량 (즉시 구매)
+                // 구매 가능 수량 - 구매가 일어난 수량 < 내가 구매할 수량 (대기) -> 구매 취소
+
+                try {
+                    Response<UpbitOrderResponse> deleteResponse = orderDeleting(ticket.getUuid());
+
+                    if (deleteResponse.isSuccessful()) {
+                        log.info("매수 취소: {}", deleteResponse.body().toString());
+                    } else {
+                        log.error("매수 취소 에러 :{}", deleteResponse.errorBody().byteString().toString());
+                    }
+                } catch (IOException e) {
+                    log.error("매수 취소 IOException: {}", e.getMessage());
+                }
+                UpbitTransactionCached.TICKET = null;
+                UpbitTransactionCached.LOCK = false;
+            } else {
+                ticket.setAsk_amount(enableAmount);
+                // 구매 가능한 수량이 남아 있기에 남은 수량을 담에 비교 할 수 있도록 저장
+            }
+//            return;
         }
 
         try {
@@ -258,7 +256,8 @@ public class UpbitTransactionService {
 
     }
 
-    private void askProfit(UpbitTrade upbitTrade) {
+    @Async
+    public void askProfit(UpbitTrade upbitTrade) {
 
         UpbitTicket ticket = UpbitTransactionCached.TICKET;
 
@@ -299,7 +298,7 @@ public class UpbitTransactionService {
 
         } else { // 내 지갑에 코인이 없다?? 무조건 취소 한번하고 시작
 
-            if(enableAmount.compareTo(ticket.getAmount()) < 0) {
+            if (enableAmount.compareTo(ticket.getAmount()) < 0) {
                 // 판매 가능 수량 - 판매가 일어난 수량 < 내가 판매할 수량 (대기) -> 구매 취소 // 어짜피 이미 구매했으면 무시되는 코드
                 try {
                     Response<UpbitOrderResponse> deleteResponse = orderDeleting(ticket.getUuid());
@@ -312,15 +311,57 @@ public class UpbitTransactionService {
                 } catch (IOException e) {
                     log.error("매수 취소 에러: {}", e.getMessage());
                 }
+
+                UpbitTransactionCached.TICKET = null;
+                UpbitTransactionCached.LOCK = false;
             }
 
-            // 최종적으로 거래가 끝났거나 거래가 없다면 환전해서 밸런스를 맞춰주자.
-            exchangeProfit();
+            try {
+                Response<UpbitOrderResponse> askResponse = asking(ticket.getAskOrderbookItem(), myBalance, ticket.getAsk_market());
 
-            UpbitTransactionCached.TICKET = null;
-            UpbitTransactionCached.LOCK = false;
+                if (askResponse.isSuccessful()) {
+                    log.info("매도:{}", askResponse.body());
+
+                } else {
+                    log.error("매도 에러: {}", askResponse.errorBody().byteString().toString());
+                }
+            } catch (IOException e) {
+                log.error("IOException: {}", e.getMessage());
+            }
         }
 
+    }
+
+    //@Async
+    public void lockCheck() {
+
+        try {
+            Thread.sleep(1000 * 3);
+
+            if (UpbitTransactionCached.LOCK) {
+                System.out.println("Lock");
+
+                if (UpbitTransactionCached.TICKET == null)
+                    return;
+
+                try {
+                    Response<UpbitOrderResponse> response = orderDeleting(UpbitTransactionCached.TICKET.getUuid());
+                    if (response.isSuccessful()) {
+                        log.info("scheduler 매수 취소:{}", response.body().toString());
+                    } else {
+                        log.error("scheduler 매수 취소 에러:{}", response.errorBody().byteString().toString());
+                    }
+
+                } catch (IOException e) {
+                    log.error("scheduler Delete error");
+                }
+                UpbitTransactionCached.LOCK = false;
+                UpbitTransactionCached.TICKET = null;
+                System.out.println("UnLock");
+            }
+        } catch (InterruptedException e) {
+            log.error("sleep error");
+        }
     }
 
 

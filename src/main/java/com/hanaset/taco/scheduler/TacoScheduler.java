@@ -25,13 +25,17 @@ public class TacoScheduler {
         this.upbitTransactionService = upbitTransactionService;
     }
 
-    @Scheduled(fixedDelay = 1000 * 5)
-    public synchronized void lockCheck() {
+    @Scheduled(fixedDelay = 1000 * 10)
+    public void lockCheck() {
 
         try {
             if (UpbitTransactionCached.LOCK) {
                 System.out.println("Lock");
                 Thread.sleep(1000 * 10);
+
+                if(UpbitTransactionCached.TICKET == null)
+                    return;
+
                 try {
                     Response<UpbitOrderResponse> response = upbitTransactionService.orderDeleting(UpbitTransactionCached.TICKET.getUuid());
                     if(response.isSuccessful()) {
