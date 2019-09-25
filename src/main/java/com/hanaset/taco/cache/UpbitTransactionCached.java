@@ -12,5 +12,11 @@ public class UpbitTransactionCached {
 
     public static Boolean LOCK = false;
 
+    public static void reset() {
+        TICKET = null;
+        COUNT = 0;
+        LOCK = false;
+    }
+
 
 }

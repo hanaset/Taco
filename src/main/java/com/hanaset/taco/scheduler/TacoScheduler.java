@@ -25,13 +25,21 @@ public class TacoScheduler {
         this.upbitTransactionService = upbitTransactionService;
     }
 
-    @Scheduled(fixedDelay = 1000 * 10)
+    //@Scheduled(fixedDelay = 1000 * 60)
+    public void lockPrint() {
+        if(UpbitTransactionCached.LOCK) {
+            System.out.println("Lock On");
+        }
+    }
+
+
+  // @Scheduled(fixedDelay = 1000 * 10)
     public void lockCheck() {
 
         try {
             if (UpbitTransactionCached.LOCK) {
                 System.out.println("Lock");
-                Thread.sleep(1000 * 10);
+                Thread.sleep(1000 * 5);
 
                 if(UpbitTransactionCached.TICKET == null)
                     return;
@@ -56,7 +64,7 @@ public class TacoScheduler {
         }
     }
 
-    @Scheduled(fixedDelay = 1000 * 30)
+    //@Scheduled(fixedDelay = 1000 * 30)
     public void balanceCheck() {
         upbitTransactionService.exchangeProfit();
     }

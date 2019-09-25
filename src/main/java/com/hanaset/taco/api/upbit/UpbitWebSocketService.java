@@ -5,6 +5,7 @@ import com.hanaset.taco.api.upbit.model.body.Type;
 import com.hanaset.taco.config.CryptoPairs;
 import com.hanaset.taco.service.upbit.UpbitMarketService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -27,6 +28,7 @@ public class UpbitWebSocketService {
         this.upbitMarketService = upbitMarketService;
     }
 
+    @Async
     @PostConstruct
     public void trade_Connect() {
 
@@ -48,6 +50,7 @@ public class UpbitWebSocketService {
         upbitApiWebSocketClient.connect(ticket, type);
     }
 
+    @Async
     @PostConstruct
     public void orderbook_Connect() {
 

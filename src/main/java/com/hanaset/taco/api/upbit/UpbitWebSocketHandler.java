@@ -6,6 +6,7 @@ import com.hanaset.taco.api.upbit.model.UpbitOrderBook;
 import com.hanaset.taco.api.upbit.model.UpbitOrderbookItem;
 import com.hanaset.taco.api.upbit.model.UpbitTrade;
 import com.hanaset.taco.cache.OrderbookCached;
+import com.hanaset.taco.service.upbit.UpbitMarketTransactionService;
 import com.hanaset.taco.service.upbit.UpbitTransactionService;
 import com.hanaset.taco.utils.Taco2UpbitConvert;
 import lombok.extern.slf4j.Slf4j;
@@ -25,9 +26,12 @@ import java.nio.charset.StandardCharsets;
 public class UpbitWebSocketHandler extends BinaryWebSocketHandler {
 
     private UpbitTransactionService upbitTransactionService;
+    private UpbitMarketTransactionService upbitMarketTransactionService;
 
-    public UpbitWebSocketHandler(UpbitTransactionService upbitTransactionService) {
+    public UpbitWebSocketHandler(UpbitTransactionService upbitTransactionService,
+                                 UpbitMarketTransactionService upbitMarketTransactionService) {
         this.upbitTransactionService = upbitTransactionService;
+        this.upbitMarketTransactionService = upbitMarketTransactionService;
     }
 
     @Override
@@ -54,14 +58,15 @@ public class UpbitWebSocketHandler extends BinaryWebSocketHandler {
 
                     UpbitOrderbookItem item = upbitOrderBook.getOrderbook_units().get(0);
                     OrderbookCached.UPBIT.put(upbitOrderBook.getCode(), item);
-
-
-                    upbitTransactionService.checkProfit(Taco2UpbitConvert.convertPair(upbitOrderBook.getCode()));
+                    //System.out.println(upbitOrderBook);
+                    //upbitTransactionService.checkProfit(Taco2UpbitConvert.convertPair(upbitOrderBook.getCode()));
+                    upbitMarketTransactionService.checkProfit(Taco2UpbitConvert.convertPair(upbitOrderBook.getCode()));
                 }
             }else if(jsonObject.get("type").equals("trade")) {
 
                 UpbitTrade upbitTrade = objectMapper.readValue(charBuffer.toString(), UpbitTrade.class);
-                upbitTransactionService.orderProfit(upbitTrade);
+                //upbitTransactionService.orderProfit(upbitTrade);
+                upbitMarketTransactionService.orderProfit(upbitTrade);
 
             }
         } catch (JsonParseException e) {
