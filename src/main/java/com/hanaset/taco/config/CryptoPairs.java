@@ -10,7 +10,8 @@ public class CryptoPairs {
 
     public static final List<String> UPBIT_PAIRS =
             Lists.newArrayList( "KRW-BTC",
-                    "KRW-LOOM", "BTC-LOOM"
+                    "KRW-LOOM", "BTC-LOOM",
+                    "KRW-XLM", "BTC-XLM"
 
 //                    "KRW-ETH", "BTC-ETH",
 //                    "KRW-XRP", "BTC-XRP",

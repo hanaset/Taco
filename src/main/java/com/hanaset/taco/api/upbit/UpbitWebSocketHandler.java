@@ -6,7 +6,7 @@ import com.hanaset.taco.api.upbit.model.UpbitOrderBook;
 import com.hanaset.taco.api.upbit.model.UpbitOrderbookItem;
 import com.hanaset.taco.api.upbit.model.UpbitTrade;
 import com.hanaset.taco.cache.OrderbookCached;
-import com.hanaset.taco.service.upbit.UpbitTransactionV2Service;
+import com.hanaset.taco.service.upbit.UpbitMarketTransactionService;
 import com.hanaset.taco.service.upbit.UpbitSpecificTransactionService;
 import com.hanaset.taco.service.upbit.UpbitTransactionService;
 import com.hanaset.taco.utils.Taco2UpbitConvert;
@@ -27,14 +27,14 @@ import java.nio.charset.StandardCharsets;
 public class UpbitWebSocketHandler extends BinaryWebSocketHandler {
 
     private UpbitTransactionService upbitTransactionService;
-    private UpbitTransactionV2Service upbitTransactionV2Service;
+    private UpbitMarketTransactionService upbitMarketTransactionService;
     private UpbitSpecificTransactionService upbitSpecificTransactionService;
 
     public UpbitWebSocketHandler(UpbitTransactionService upbitTransactionService,
-                                 UpbitTransactionV2Service upbitTransactionV2Service,
+                                 UpbitMarketTransactionService upbitMarketTransactionService,
                                  UpbitSpecificTransactionService upbitSpecificTransactionService) {
         this.upbitTransactionService = upbitTransactionService;
-        this.upbitTransactionV2Service = upbitTransactionV2Service;
+        this.upbitMarketTransactionService = upbitMarketTransactionService;
         this.upbitSpecificTransactionService = upbitSpecificTransactionService;
     }
 
@@ -64,7 +64,7 @@ public class UpbitWebSocketHandler extends BinaryWebSocketHandler {
                     OrderbookCached.UPBIT.put(upbitOrderBook.getCode(), item);
                     //System.out.println(upbitOrderBook);
                     //upbitTransactionService.checkProfit(Taco2UpbitConvert.convertPair(upbitOrderBook.getCode()));
-                    upbitTransactionV2Service.checkProfit(Taco2UpbitConvert.convertPair(upbitOrderBook.getCode()));
+                    upbitMarketTransactionService.checkProfit(Taco2UpbitConvert.convertPair(upbitOrderBook.getCode()));
                     //upbitSpecificTransactionService.checkProfit(Taco2UpbitConvert.convertPair(upbitOrderBook.getCode()));
                 }
             }
@@ -72,7 +72,7 @@ public class UpbitWebSocketHandler extends BinaryWebSocketHandler {
 
                 UpbitTrade upbitTrade = objectMapper.readValue(charBuffer.toString(), UpbitTrade.class);
                 //upbitTransactionService.orderProfit(upbitTrade);
-                upbitTransactionV2Service.orderProfit(upbitTrade);
+                upbitMarketTransactionService.orderProfit(upbitTrade);
 
             }
         } catch (JsonParseException e) {

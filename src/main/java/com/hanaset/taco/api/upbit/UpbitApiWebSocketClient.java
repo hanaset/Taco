@@ -5,7 +5,7 @@ import com.google.gson.Gson;
 import com.hanaset.taco.api.upbit.model.body.Ticket;
 import com.hanaset.taco.api.upbit.model.body.Type;
 import com.hanaset.taco.properties.TradeUrlProperties;
-import com.hanaset.taco.service.upbit.UpbitTransactionV2Service;
+import com.hanaset.taco.service.upbit.UpbitMarketTransactionService;
 import com.hanaset.taco.service.upbit.UpbitSpecificTransactionService;
 import com.hanaset.taco.service.upbit.UpbitTransactionService;
 import lombok.extern.slf4j.Slf4j;
@@ -25,16 +25,16 @@ public class UpbitApiWebSocketClient {
 
     private final TradeUrlProperties tradeUrlProperties;
     private final UpbitTransactionService upbitTransactionService;
-    private final UpbitTransactionV2Service upbitTransactionV2Service;
+    private final UpbitMarketTransactionService upbitMarketTransactionService;
     private final UpbitSpecificTransactionService upbitSpecificTransactionService;
 
     public UpbitApiWebSocketClient(TradeUrlProperties tradeUrlProperties,
                                    UpbitTransactionService upbitTransactionService,
-                                   UpbitTransactionV2Service upbitTransactionV2Service,
+                                   UpbitMarketTransactionService upbitMarketTransactionService,
                                    UpbitSpecificTransactionService upbitSpecificTransactionService) {
         this.tradeUrlProperties = tradeUrlProperties;
         this.upbitTransactionService = upbitTransactionService;
-        this.upbitTransactionV2Service = upbitTransactionV2Service;
+        this.upbitMarketTransactionService = upbitMarketTransactionService;
         this.upbitSpecificTransactionService = upbitSpecificTransactionService;
     }
 
@@ -53,7 +53,7 @@ public class UpbitApiWebSocketClient {
             webSocketClient = new StandardWebSocketClient();
 
             WebSocketSession webSocketSession =
-                    webSocketClient.doHandshake(new UpbitWebSocketHandler(upbitTransactionService, upbitTransactionV2Service, upbitSpecificTransactionService), new WebSocketHttpHeaders(), URI.create(tradeUrlProperties.getUpbitWebSockUrl())).get();
+                    webSocketClient.doHandshake(new UpbitWebSocketHandler(upbitTransactionService, upbitMarketTransactionService, upbitSpecificTransactionService), new WebSocketHttpHeaders(), URI.create(tradeUrlProperties.getUpbitWebSockUrl())).get();
 
             try {
                 TextMessage message = new TextMessage(body);
