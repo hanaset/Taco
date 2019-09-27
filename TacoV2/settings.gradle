@@ -1,0 +1,3 @@
+rootProject.name = 'taco'
+include 'taco-common'
+include 'taco-mercy'
