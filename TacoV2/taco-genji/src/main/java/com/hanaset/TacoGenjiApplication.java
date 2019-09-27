@@ -1,4 +1,4 @@
-package com.hanaset.tacomercy;
+package com.hanaset;
 
 import com.hanaset.tacocommon.config.JasyptConfig;
 import com.hanaset.tacocommon.properties.TradeKeyProperties;
@@ -20,10 +20,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import java.util.Arrays;
 
 @Slf4j
-@SpringBootApplication(scanBasePackages = {
-        "com.hanaset.tacocommon",
-        "com.hanaset.tacomercy"
-})
+@SpringBootApplication
 @Import({
         JasyptConfig.class,
         TradeUrlProperties.class,
@@ -32,23 +29,23 @@ import java.util.Arrays;
 @EnableScheduling
 @EnableAsync
 @EnableEncryptableProperties
-public class TacoMercyApplication {
+public class TacoGenjiApplication {
 
 
     private final Environment environment;
 
-    public TacoMercyApplication(Environment environment) {
+    public TacoGenjiApplication(Environment environment) {
         this.environment = environment;
     }
 
     public static void main(String[] args) {
-        SpringApplication.run(TacoMercyApplication.class, args);
+        SpringApplication.run(TacoGenjiApplication.class, args);
     }
 
     @Bean
     public TaskExecutor taskExecutor() {
         ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
-        taskExecutor.setThreadNamePrefix("mercyExecutor-");
+        taskExecutor.setThreadNamePrefix("genjiExecutor-");
         taskExecutor.setCorePoolSize(30);
         taskExecutor.setQueueCapacity(50);
         taskExecutor.setMaxPoolSize(30);

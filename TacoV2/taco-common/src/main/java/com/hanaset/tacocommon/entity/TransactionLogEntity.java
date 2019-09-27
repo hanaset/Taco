@@ -1,4 +1,4 @@
-package com.hanaset.tacomercy.entity;
+package com.hanaset.tacocommon.entity;
 
 import lombok.Builder;
 import lombok.Data;
@@ -14,8 +14,7 @@ import java.time.ZonedDateTime;
 public class TransactionLogEntity {
 
     @Id
-    @Column(name = "id")
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @Column(name = "crypto")
@@ -28,6 +27,8 @@ public class TransactionLogEntity {
     private BigDecimal profitPercent;
 
     @Column(name = "snapshot")
-    private ZonedDateTime snapshot;
+    private String snapshot;
 
+    @Column(name = "reg_dtime")
+    private ZonedDateTime regDtime;
 }

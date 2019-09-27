@@ -3,10 +3,11 @@ package com.hanaset.tacomercy.service;
 import com.hanaset.tacocommon.api.upbit.model.UpbitOrderbookItem;
 import com.hanaset.tacocommon.cache.OrderbookCached;
 import com.hanaset.tacocommon.cache.UpbitTransactionCached;
-import com.hanaset.tacomercy.entity.TransactionLogEntity;
-import com.hanaset.tacomercy.repository.TransactionLogRepository;
+import com.hanaset.tacocommon.utils.DateTimeUtils;
 import com.hanaset.tacocommon.utils.Taco2CurrencyConvert;
 import com.hanaset.tacocommon.utils.TacoPercentChecker;
+import com.hanaset.tacocommon.entity.TransactionLogEntity;
+import com.hanaset.tacocommon.repository.TransactionLogRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
@@ -21,7 +22,9 @@ public class UpbitPairSearchService {
     private Logger log = LoggerFactory.getLogger("upbit_askbid");
 
     private final TransactionLogRepository transactionLogRepository;
-    private final Double profit = 0.1;
+    private final Double profit = 0.4;
+
+
 
     public UpbitPairSearchService(TransactionLogRepository transactionLogRepository) {
         this.transactionLogRepository = transactionLogRepository;
@@ -59,6 +62,7 @@ public class UpbitPairSearchService {
                         .crypto(pair)
                         .profitAmount(BigDecimal.valueOf(Taco2CurrencyConvert.convertBidBTC2KRW(btcItem.getBid_price()) - krwItem.getAsk_price()))
                         .profitPercent(BigDecimal.valueOf((Taco2CurrencyConvert.convertBidBTC2KRW(btcItem.getBid_price()) - krwItem.getAsk_price()) / krwItem.getAsk_price() * 100))
+                        .snapshot(DateTimeUtils.getCurrentDay("Asia/Seoul"))
                         .build();
 
                 transactionLogRepository.save(entity);
@@ -85,6 +89,7 @@ public class UpbitPairSearchService {
                         .crypto(pair)
                         .profitAmount(BigDecimal.valueOf(krwItem.getBid_price() - Taco2CurrencyConvert.convertAskBTC2KRW(btcItem.getAsk_price())))
                         .profitPercent(BigDecimal.valueOf((krwItem.getBid_price() - Taco2CurrencyConvert.convertAskBTC2KRW(btcItem.getAsk_price())) / Taco2CurrencyConvert.convertAskBTC2KRW(btcItem.getAsk_price()) * 100))
+                        .snapshot(DateTimeUtils.getCurrentDay("Asia/Seoul"))
                         .build();
 
                 transactionLogRepository.save(entity);
