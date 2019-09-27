@@ -1,4 +1,4 @@
-package com.hanaset.tacocommon.entity;
+package com.hanaset.tacomercy.entity;
 
 import lombok.Builder;
 import lombok.Data;
@@ -10,6 +10,7 @@ import java.time.ZonedDateTime;
 @Builder
 @Data
 @Entity
+@Table(name = "TRANSACTION_LOG")
 public class TransactionLogEntity {
 
     @Id

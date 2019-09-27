@@ -1,11 +1,10 @@
 package com.hanaset.tacomercy.service;
 
-import com.hanaset.tacocommon.api.upbit.UpbitApiRestClient;
 import com.hanaset.tacocommon.api.upbit.model.UpbitOrderbookItem;
 import com.hanaset.tacocommon.cache.OrderbookCached;
 import com.hanaset.tacocommon.cache.UpbitTransactionCached;
-import com.hanaset.tacocommon.entity.TransactionLogEntity;
-import com.hanaset.tacocommon.repository.TransactionLogRepository;
+import com.hanaset.tacomercy.entity.TransactionLogEntity;
+import com.hanaset.tacomercy.repository.TransactionLogRepository;
 import com.hanaset.tacocommon.utils.Taco2CurrencyConvert;
 import com.hanaset.tacocommon.utils.TacoPercentChecker;
 import org.slf4j.Logger;
@@ -21,13 +20,10 @@ public class UpbitPairSearchService {
 
     private Logger log = LoggerFactory.getLogger("upbit_askbid");
 
-    private final UpbitApiRestClient upbitApiRestClient;
     private final TransactionLogRepository transactionLogRepository;
     private final Double profit = 0.1;
 
-    public UpbitPairSearchService(UpbitApiRestClient upbitApiRestClient,
-                                  TransactionLogRepository transactionLogRepository) {
-        this.upbitApiRestClient = upbitApiRestClient;
+    public UpbitPairSearchService(TransactionLogRepository transactionLogRepository) {
         this.transactionLogRepository = transactionLogRepository;
     }
 

@@ -19,6 +19,8 @@ public class UpbitMercyWebSocketService {
                                       UpbitMercyMarketService upbitMercyMarketService) {
         this.upbitMercyWebSocketClient = upbitMercyWebSocketClient;
         this.upbitMercyMarketService = upbitMercyMarketService;
+
+        System.out.println("===================");
     }
 
     @PostConstruct

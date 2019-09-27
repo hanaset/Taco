@@ -22,7 +22,7 @@ import java.util.Arrays;
 @Slf4j
 @SpringBootApplication(scanBasePackages = {
         "com.hanaset.tacocommon",
-        "com.hanaset.tacocommon.repository",
+        "com.hanaset.tacomercy"
 })
 @Import({
         JasyptConfig.class,

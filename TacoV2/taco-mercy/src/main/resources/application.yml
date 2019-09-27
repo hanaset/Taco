@@ -10,3 +10,4 @@ mercy:
   ticker:
     scheduler:
       enabled: true
+

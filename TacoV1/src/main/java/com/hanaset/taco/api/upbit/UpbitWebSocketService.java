@@ -30,7 +30,7 @@ public class UpbitWebSocketService {
 
     @Async
     @PostConstruct
-    public void trade_Connect() {
+    public void tradeConnect() {
 
 
         List<String> pairs = upbitMarketService.getPairs();

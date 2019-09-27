@@ -1,6 +1,6 @@
-package com.hanaset.tacocommon.repository;
+package com.hanaset.tacomercy.repository;
 
-import com.hanaset.tacocommon.entity.TransactionLogEntity;
+import com.hanaset.tacomercy.entity.TransactionLogEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
