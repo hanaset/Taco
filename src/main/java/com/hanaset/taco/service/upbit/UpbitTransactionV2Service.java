@@ -17,7 +17,7 @@ import java.math.BigDecimal;
 
 @Service
 @SuppressWarnings("Duplicates")
-public class UpbitMarketTransactionService {
+public class UpbitTransactionV2Service {
 
     private Logger log = LoggerFactory.getLogger("upbit_askbid");
 
@@ -25,8 +25,8 @@ public class UpbitMarketTransactionService {
     private final UpbitBalanceService upbitBalanceService;
     private final Double profit = 0.4;
 
-    public UpbitMarketTransactionService(UpbitApiRestClient upbitApiRestClient,
-                                         UpbitBalanceService upbitBalanceService) {
+    public UpbitTransactionV2Service(UpbitApiRestClient upbitApiRestClient,
+                                     UpbitBalanceService upbitBalanceService) {
         this.upbitApiRestClient = upbitApiRestClient;
         this.upbitBalanceService = upbitBalanceService;
     }
@@ -184,26 +184,10 @@ public class UpbitMarketTransactionService {
                 reset(ticket.getMarket());
             } else {
                 log.error("매도 에러: {}", askResponse.errorBody().byteString().toString());
-                UpbitTransactionCached.COUNT++;
+                //UpbitTransactionCached.COUNT++;
             }
         } catch (IOException e) {
             log.error("IOException: {}", e.getMessage());
-        }
-
-        if (UpbitTransactionCached.COUNT >= 3) {
-
-            try {
-                Response<UpbitOrderResponse> deleteResponse = orderDeleting(ticket.getUuid());
-
-                if (deleteResponse.isSuccessful()) {
-                    log.info("매수 취소: {}", deleteResponse.body().toString());
-                } else {
-                    log.error("매수 취소 에러 :{}", deleteResponse.errorBody().byteString().toString());
-                }
-            } catch (IOException e) {
-                log.error("매수 취소 IOException: {}", e.getMessage());
-            }
-            reset(ticket.getMarket());
         }
     }
 
@@ -268,12 +252,33 @@ public class UpbitMarketTransactionService {
                 UpbitTransactionCached.TICKET.setUuid(askResponse.body().getUuid());
                 reset(ticket.getMarket());
             } else {
+
                 log.error("매도 에러: {}", askResponse.errorBody().byteString().toString());
-                UpbitTransactionCached.COUNT++;
+                BigDecimal enableAmount = BigDecimal.valueOf(ticket.getAskOrderbookItem().getBid_size()).subtract(ticket.getAmount());
+                if (enableAmount.compareTo(ticket.getAmount()) < 0) { // 구매 취소
+                    // 판매 가능 수량 - 판매가 일어난 수량 >= 내가 판매할 수량 (즉시 판매)
+                    // 판매 가능 수량 - 판매가 일어난 수량 < 내가 판매할 수량 (대기) -> 구매 취소
+                    try {
+                        Response<UpbitOrderResponse> deleteResponse = orderDeleting(ticket.getUuid());
+
+                        if (deleteResponse.isSuccessful()) {
+                            log.info("매수 취소: {}", deleteResponse.body().toString());
+                        } else {
+                            log.error("매수 취소 에러 :{}", deleteResponse.errorBody().byteString().toString());
+                        }
+                    } catch (IOException e) {
+                        log.error("매수 취소 에러: {}", e.getMessage());
+                    }
+                    reset(ticket.getMarket());
+                } else {
+                    // 판매 가능 수량이 남아 있을 경우 담에 다시 비교 할 수 있도록 저장
+                    ticket.setBid_amount(enableAmount);
+                }
             }
         } catch (IOException e) {
             log.error("IOException: {}", e.getMessage());
         }
+
 
         if (UpbitTransactionCached.COUNT >= 3) {
 
