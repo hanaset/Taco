@@ -160,25 +160,6 @@ public class UpbitTransactionService {
             askProfit(upbitTrade);
         }
 
-        if(UpbitTransactionCached.COUNT >= 7) {
-
-            UpbitTicket ticket = UpbitTransactionCached.TICKET;
-
-            try {
-                Response<UpbitOrderResponse> deleteResponse = orderDeleting(ticket.getUuid());
-
-                if (deleteResponse.isSuccessful()) {
-                    log.info("매수 취소: {}", deleteResponse.body().toString());
-                } else {
-                    log.error("매수 취소 에러 :{}", deleteResponse.errorBody().byteString().toString());
-                }
-            } catch (IOException e) {
-                log.error("매수 취소 IOException: {}", e.getMessage());
-            }
-            UpbitTransactionCached.reset();
-
-        }
-
     }
 
     @Async

@@ -7,6 +7,7 @@ import com.hanaset.taco.api.upbit.model.UpbitOrderbookItem;
 import com.hanaset.taco.api.upbit.model.UpbitTrade;
 import com.hanaset.taco.cache.OrderbookCached;
 import com.hanaset.taco.service.upbit.UpbitMarketTransactionService;
+import com.hanaset.taco.service.upbit.UpbitSpecificTransactionService;
 import com.hanaset.taco.service.upbit.UpbitTransactionService;
 import com.hanaset.taco.utils.Taco2UpbitConvert;
 import lombok.extern.slf4j.Slf4j;
@@ -27,11 +28,14 @@ public class UpbitWebSocketHandler extends BinaryWebSocketHandler {
 
     private UpbitTransactionService upbitTransactionService;
     private UpbitMarketTransactionService upbitMarketTransactionService;
+    private UpbitSpecificTransactionService upbitSpecificTransactionService;
 
     public UpbitWebSocketHandler(UpbitTransactionService upbitTransactionService,
-                                 UpbitMarketTransactionService upbitMarketTransactionService) {
+                                 UpbitMarketTransactionService upbitMarketTransactionService,
+                                 UpbitSpecificTransactionService upbitSpecificTransactionService) {
         this.upbitTransactionService = upbitTransactionService;
         this.upbitMarketTransactionService = upbitMarketTransactionService;
+        this.upbitSpecificTransactionService = upbitSpecificTransactionService;
     }
 
     @Override
@@ -61,8 +65,10 @@ public class UpbitWebSocketHandler extends BinaryWebSocketHandler {
                     //System.out.println(upbitOrderBook);
                     //upbitTransactionService.checkProfit(Taco2UpbitConvert.convertPair(upbitOrderBook.getCode()));
                     upbitMarketTransactionService.checkProfit(Taco2UpbitConvert.convertPair(upbitOrderBook.getCode()));
+                    //upbitSpecificTransactionService.checkProfit(Taco2UpbitConvert.convertPair(upbitOrderBook.getCode()));
                 }
-            }else if(jsonObject.get("type").equals("trade")) {
+            }
+            else if(jsonObject.get("type").equals("trade")) {
 
                 UpbitTrade upbitTrade = objectMapper.readValue(charBuffer.toString(), UpbitTrade.class);
                 //upbitTransactionService.orderProfit(upbitTrade);

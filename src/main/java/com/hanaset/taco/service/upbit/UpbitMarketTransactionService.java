@@ -65,7 +65,6 @@ public class UpbitMarketTransactionService {
                         Taco2CurrencyConvert.convertBidBTC2KRW(btcItem.getBid_price()) - krwItem.getAsk_price(),
                         (Taco2CurrencyConvert.convertBidBTC2KRW(btcItem.getBid_price()) - krwItem.getAsk_price()) / krwItem.getAsk_price() * 100);
 
-                //Response<UpbitOrderResponse> bidResponse = bidingMarket(krwItem, BigDecimal.valueOf(amount), "KRW-" + pair);
                 Response<UpbitOrderResponse> bidResponse = biding(krwItem, BigDecimal.valueOf(amount), "KRW-" + pair);
 
                 if (bidResponse.isSuccessful()) {
@@ -173,28 +172,18 @@ public class UpbitMarketTransactionService {
         System.out.println(upbitTrade);
 
         BigDecimal myBalance = upbitBalanceService.getUpbitMarketAccount(ticket.getMarket());
+        BigDecimal askAmount = myBalance.compareTo(ticket.getAmount()) >= 0 ? myBalance : ticket.getAmount();
+
 
         try {
-            Response<UpbitOrderResponse> askResponse, balanceAskResponse;
-
-//            if (ticket.getAsk_market().contains("KRW")) {
-//                askResponse = askingMarket(ticket.getAskOrderbookItem(), ticket.getAmount(), ticket.getAsk_market());
-//                balanceAskResponse = askingMarket(ticket.getAskOrderbookItem(), myBalance, ticket.getAsk_market());
-//            } else {
-                askResponse = asking(ticket.getAskOrderbookItem(), ticket.getAmount(), ticket.getAsk_market());
-                balanceAskResponse = asking(ticket.getAskOrderbookItem(), myBalance, ticket.getAsk_market());
-//            }
+            Response<UpbitOrderResponse> askResponse = asking(ticket.getAskOrderbookItem(), askAmount, ticket.getAsk_market());
 
             if (askResponse.isSuccessful()) {
                 log.info("매도:{}", askResponse.body());
                 UpbitTransactionCached.TICKET.setUuid(askResponse.body().getUuid());
                 reset(ticket.getMarket());
-            } else if (balanceAskResponse.isSuccessful()) {
-                log.info("매도:{}", balanceAskResponse.body());
-                UpbitTransactionCached.TICKET.setUuid(balanceAskResponse.body().getUuid());
-                reset(ticket.getMarket());
             } else {
-                log.error("매도 에러: {}/{}", askResponse.errorBody().byteString().toString(), balanceAskResponse.errorBody().byteString().toString());
+                log.error("매도 에러: {}", askResponse.errorBody().byteString().toString());
                 UpbitTransactionCached.COUNT++;
             }
         } catch (IOException e) {
@@ -268,31 +257,18 @@ public class UpbitMarketTransactionService {
         System.out.println(upbitTrade);
 
         BigDecimal myBalance = upbitBalanceService.getUpbitMarketAccount(ticket.getMarket());
+        BigDecimal askAmount = myBalance.compareTo(ticket.getAmount()) >= 0 ? myBalance : ticket.getAmount();
 
         try {
 
-            Response<UpbitOrderResponse> askResponse, balanceAskResponse;
-
-
-//            if (ticket.getAsk_market().contains("KRW")) {
-//                askResponse = askingMarket(ticket.getAskOrderbookItem(), ticket.getAmount(), ticket.getAsk_market());
-//                balanceAskResponse = askingMarket(ticket.getAskOrderbookItem(), myBalance, ticket.getAsk_market());
-//            } else {
-                askResponse = asking(ticket.getAskOrderbookItem(), ticket.getAmount(), ticket.getAsk_market());
-                balanceAskResponse = asking(ticket.getAskOrderbookItem(), myBalance, ticket.getAsk_market());
-//            }
-
+            Response<UpbitOrderResponse> askResponse = asking(ticket.getAskOrderbookItem(), askAmount, ticket.getAsk_market());
 
             if (askResponse.isSuccessful()) {
                 log.info("매도:{}", askResponse.body());
                 UpbitTransactionCached.TICKET.setUuid(askResponse.body().getUuid());
                 reset(ticket.getMarket());
-            } else if (balanceAskResponse.isSuccessful()) {
-                log.info("매도:{}", balanceAskResponse.body());
-                UpbitTransactionCached.TICKET.setUuid(balanceAskResponse.body().getUuid());
-                reset(ticket.getMarket());
             } else {
-                log.error("매도 에러: {}/{}", askResponse.errorBody().byteString().toString(), balanceAskResponse.errorBody().byteString().toString());
+                log.error("매도 에러: {}", askResponse.errorBody().byteString().toString());
                 UpbitTransactionCached.COUNT++;
             }
         } catch (IOException e) {
@@ -312,7 +288,6 @@ public class UpbitMarketTransactionService {
             } catch (IOException e) {
                 log.error("매수 취소 IOException: {}", e.getMessage());
             }
-            //UpbitTransactionCached.reset();
             reset(ticket.getMarket());
         }
 
@@ -390,18 +365,18 @@ public class UpbitMarketTransactionService {
         try {
             System.out.println("Sleep before");
             Thread.sleep(1000 * 5);
-            System.out.println("매수 취소");
-            orderDeleting(UpbitTransactionCached.TICKET.getUuid());
-            BigDecimal myBalance = upbitBalanceService.getUpbitMarketAccount(pair);
-            Response<UpbitOrderResponse> askResponse = askingMarket(null, myBalance, "KRW-" + pair);
-
-            if (askResponse.isSuccessful()) {
-                log.info("잔액 처리 성공");
-            } else {
-                //log.info("정상 처리 성공");
-            }
-        } catch (IOException e) {
-            log.error("reset error");
+//            System.out.println("매수 취소");
+//            orderDeleting(UpbitTransactionCached.TICKET.getUuid());
+//            BigDecimal myBalance = upbitBalanceService.getUpbitMarketAccount(pair);
+//            Response<UpbitOrderResponse> askResponse = askingMarket(null, myBalance, "KRW-" + pair);
+//
+//            if (askResponse.isSuccessful()) {
+//                log.info("잔액 처리 성공");
+//            } else {
+//                //log.info("정상 처리 성공");
+//            }
+//        } catch (IOException e) {
+//            log.error("reset error");
         } catch (InterruptedException e) {
             log.error("reset Sleep error");
         }
