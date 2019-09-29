@@ -5,7 +5,6 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.time.ZonedDateTime;
 
 @Builder
 @Data
@@ -28,7 +27,4 @@ public class TransactionLogEntity {
 
     @Column(name = "snapshot")
     private String snapshot;
-
-    @Column(name = "reg_dtime")
-    private ZonedDateTime regDtime;
 }

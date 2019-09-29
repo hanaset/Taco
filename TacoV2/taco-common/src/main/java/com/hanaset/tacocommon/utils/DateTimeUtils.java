@@ -4,6 +4,8 @@ import org.springframework.util.StringUtils;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -44,5 +46,17 @@ public class DateTimeUtils {
         DateFormat dateFormat = createSdf("yyyy-MM-dd", timeZone);
 
         return dateFormat.format(new Date());
+    }
+
+
+    public static String getCurrentBeforeNDay(String format, String timeZone, int nday) {
+        if (StringUtils.isEmpty(timeZone))
+            timeZone = "UTC";
+
+        DateFormat dateFormat = createSdf(format, timeZone);
+
+        Date date = Date.from(Instant.now().minus(Duration.ofDays(nday)));
+
+        return dateFormat.format(date);
     }
 }

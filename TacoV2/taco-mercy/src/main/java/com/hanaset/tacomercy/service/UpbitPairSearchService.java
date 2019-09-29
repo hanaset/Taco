@@ -60,7 +60,7 @@ public class UpbitPairSearchService {
 
                 TransactionLogEntity entity = TransactionLogEntity.builder()
                         .crypto(pair)
-                        .profitAmount(BigDecimal.valueOf(Taco2CurrencyConvert.convertBidBTC2KRW(btcItem.getBid_price()) - krwItem.getAsk_price()))
+                        .profitAmount(BigDecimal.valueOf(Taco2CurrencyConvert.convertBidBTC2KRW(btcItem.getBid_price()) - krwItem.getAsk_price()).multiply(BigDecimal.valueOf(base_amount)))
                         .profitPercent(BigDecimal.valueOf((Taco2CurrencyConvert.convertBidBTC2KRW(btcItem.getBid_price()) - krwItem.getAsk_price()) / krwItem.getAsk_price() * 100))
                         .snapshot(DateTimeUtils.getCurrentDay("Asia/Seoul"))
                         .build();
@@ -87,7 +87,7 @@ public class UpbitPairSearchService {
 
                 TransactionLogEntity entity = TransactionLogEntity.builder()
                         .crypto(pair)
-                        .profitAmount(BigDecimal.valueOf(krwItem.getBid_price() - Taco2CurrencyConvert.convertAskBTC2KRW(btcItem.getAsk_price())))
+                        .profitAmount(BigDecimal.valueOf(krwItem.getBid_price() - Taco2CurrencyConvert.convertAskBTC2KRW(btcItem.getAsk_price())).multiply(BigDecimal.valueOf(base_amount)))
                         .profitPercent(BigDecimal.valueOf((krwItem.getBid_price() - Taco2CurrencyConvert.convertAskBTC2KRW(btcItem.getAsk_price())) / Taco2CurrencyConvert.convertAskBTC2KRW(btcItem.getAsk_price()) * 100))
                         .snapshot(DateTimeUtils.getCurrentDay("Asia/Seoul"))
                         .build();
