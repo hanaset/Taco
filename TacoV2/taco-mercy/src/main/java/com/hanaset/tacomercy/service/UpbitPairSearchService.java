@@ -3,11 +3,11 @@ package com.hanaset.tacomercy.service;
 import com.hanaset.tacocommon.api.upbit.model.UpbitOrderbookItem;
 import com.hanaset.tacocommon.cache.OrderbookCached;
 import com.hanaset.tacocommon.cache.UpbitTransactionCached;
+import com.hanaset.tacocommon.entity.TransactionLogEntity;
+import com.hanaset.tacocommon.repository.TransactionLogRepository;
 import com.hanaset.tacocommon.utils.DateTimeUtils;
 import com.hanaset.tacocommon.utils.Taco2CurrencyConvert;
 import com.hanaset.tacocommon.utils.TacoPercentChecker;
-import com.hanaset.tacocommon.entity.TransactionLogEntity;
-import com.hanaset.tacocommon.repository.TransactionLogRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
@@ -23,7 +23,6 @@ public class UpbitPairSearchService {
 
     private final TransactionLogRepository transactionLogRepository;
     private final Double profit = 0.4;
-
 
 
     public UpbitPairSearchService(TransactionLogRepository transactionLogRepository) {
@@ -47,6 +46,16 @@ public class UpbitPairSearchService {
 
                 if (amount * btcItem.getBid_price() <= 0.0005 || amount * krwItem.getAsk_price() <= 10000) {
                     return;
+                }
+
+                if (UpbitTransactionCached.PAIR == null) {
+                    UpbitTransactionCached.PAIR = pair;
+                } else {
+                    if (UpbitTransactionCached.PAIR.equals(pair)) {
+                        return;
+                    } else {
+                        UpbitTransactionCached.PAIR = pair;
+                    }
                 }
 
                 log.info("==================================================================");
@@ -74,6 +83,16 @@ public class UpbitPairSearchService {
 
                 if (amount * btcItem.getAsk_price() <= 0.0005 || amount * krwItem.getBid_price() <= 10000) {
                     return;
+                }
+
+                if (UpbitTransactionCached.PAIR == null) {
+                    UpbitTransactionCached.PAIR = pair;
+                } else {
+                    if (UpbitTransactionCached.PAIR.equals(pair)) {
+                        return;
+                    } else {
+                        UpbitTransactionCached.PAIR = pair;
+                    }
                 }
 
                 log.info("==================================================================");

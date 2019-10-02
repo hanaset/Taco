@@ -5,7 +5,7 @@ import com.google.gson.Gson;
 import com.hanaset.tacocommon.api.upbit.model.body.Ticket;
 import com.hanaset.tacocommon.api.upbit.model.body.Type;
 import com.hanaset.tacocommon.properties.TradeUrlProperties;
-import com.hanaset.tacogenji.service.CryptoSelectService;
+import com.hanaset.tacogenji.service.TransactionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
@@ -14,6 +14,7 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.client.WebSocketClient;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 
@@ -22,9 +23,14 @@ import java.util.List;
 public class UpbitGenjiWebSocketClient {
 
     private final TradeUrlProperties tradeUrlProperties;
+    private final TransactionService transactionService;
 
-    public UpbitGenjiWebSocketClient(TradeUrlProperties tradeUrlProperties) {
+    private WebSocketSession webSocketSession;
+
+    public UpbitGenjiWebSocketClient(TradeUrlProperties tradeUrlProperties,
+                                     TransactionService transactionService) {
         this.tradeUrlProperties = tradeUrlProperties;
+        this.transactionService = transactionService;
     }
 
     public void connect(Ticket ticket, Type type) {
@@ -41,8 +47,8 @@ public class UpbitGenjiWebSocketClient {
         try {
             webSocketClient = new StandardWebSocketClient();
 
-            WebSocketSession webSocketSession =
-                    webSocketClient.doHandshake(new UpbitGenjiWebSocketHandler(), new WebSocketHttpHeaders(), URI.create(tradeUrlProperties.getUpbitWebSockUrl())).get();
+            webSocketSession =
+                    webSocketClient.doHandshake(new UpbitGenjiWebSocketHandler(transactionService), new WebSocketHttpHeaders(), URI.create(tradeUrlProperties.getUpbitWebSockUrl())).get();
 
             try {
                 TextMessage message = new TextMessage(body);
@@ -55,6 +61,16 @@ public class UpbitGenjiWebSocketClient {
         } catch (Exception e) {
             log.error("Exception while accessing websockets", e);
         }
+    }
+
+    public void disconnect() {
+
+        try {
+            webSocketSession.close();
+        } catch (IOException e) {
+            log.error("WebSocket Close Error");
+        }
+
     }
 
 }

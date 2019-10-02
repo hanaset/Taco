@@ -14,20 +14,15 @@ import javax.annotation.PostConstruct;
 public class UpbitGenjiWebSocketService {
 
     private final UpbitGenjiWebSocketClient upbitGenjiWebSocketClient;
-    private final CryptoSelectService cryptoSelectService;
 
-    public UpbitGenjiWebSocketService(UpbitGenjiWebSocketClient upbitGenjiWebSocketClient,
-                                      CryptoSelectService cryptoSelectService) {
+    public UpbitGenjiWebSocketService(UpbitGenjiWebSocketClient upbitGenjiWebSocketClient) {
         this.upbitGenjiWebSocketClient = upbitGenjiWebSocketClient;
-        this.cryptoSelectService = cryptoSelectService;
     }
 
-    @PostConstruct
-    public void orderbook_Connect() {
+    //@PostConstruct
+    public void orderbookConnect(String pair) {
 
         System.out.println("WebSocket Connecting ~ =============>");
-
-        String pair = cryptoSelectService.getPair(DateTimeUtils.getCurrentBeforeNDay("yyyy-MM-DD", "Asia/Seoul", 3), DateTimeUtils.getCurrentDay("Asia/Seoul"));
 
         Ticket ticket = Ticket.builder()
                 .ticket("UPBIT_ORDERBOOK")
@@ -40,5 +35,11 @@ public class UpbitGenjiWebSocketService {
 
 
         upbitGenjiWebSocketClient.connect(ticket, type);
+    }
+
+    public void orderbookDisconnect() {
+
+        upbitGenjiWebSocketClient.disconnect();
+
     }
 }

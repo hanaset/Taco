@@ -10,6 +10,8 @@ public class UpbitTransactionCached {
 
     public static int COUNT = 0;
 
+    public static String PAIR = null;
+
     public static Boolean LOCK = false;
 
     public static void reset() {
