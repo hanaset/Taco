@@ -5,12 +5,13 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 
 @Builder
 @Data
 @Entity
-@Table(name = "TRANSACTION_LOG")
-public class TransactionLogEntity {
+@Table(name = "tb_pair")
+public class PairEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,4 +28,7 @@ public class TransactionLogEntity {
 
     @Column(name = "snapshot")
     private String snapshot;
+
+    @Column(name = "reg_dtime")
+    private Timestamp regDtime;
 }

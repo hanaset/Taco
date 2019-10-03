@@ -8,6 +8,7 @@ import com.hanaset.tacocommon.cache.OrderbookCached;
 import com.hanaset.tacocommon.cache.UpbitTransactionCached;
 import com.hanaset.tacocommon.utils.Taco2CurrencyConvert;
 import com.hanaset.tacocommon.utils.TacoPercentChecker;
+import com.hanaset.tacocommon.utils.UpbitStandard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
@@ -24,7 +25,6 @@ public class TransactionService {
 
     private final UpbitApiRestClient upbitApiRestClient;
     private final UpbitBalanceService upbitBalanceService;
-    private final Double profit = 0.4;
 
     public TransactionService(UpbitApiRestClient upbitApiRestClient,
                                            UpbitBalanceService upbitBalanceService) {
@@ -46,10 +46,10 @@ public class TransactionService {
             if (btcItem == null || krwItem == null)
                 return;
 
-            if (TacoPercentChecker.profitCheck(Taco2CurrencyConvert.convertBidBTC2KRW(btcItem.getBid_price()), krwItem.getAsk_price(), profit)) {
+            if (TacoPercentChecker.profitCheck(Taco2CurrencyConvert.convertBidBTC2KRW(btcItem.getBid_price()), krwItem.getAsk_price(), UpbitStandard.PROFITPERCENT)) {
 
                 Double base_amount = btcItem.getBid_size() > krwItem.getAsk_size() ? krwItem.getAsk_size() : btcItem.getBid_size();
-                Double amount = base_amount / 10.f;
+                Double amount = base_amount / UpbitStandard.ASKPERCENT;
 
                 if (amount * btcItem.getBid_price() <= 0.0005 || amount * krwItem.getAsk_price() <= 5000) {
                     return;
@@ -69,12 +69,12 @@ public class TransactionService {
                 Response<UpbitOrderResponse> askResponse = asking(btcItem, BigDecimal.valueOf(amount), "BTC-" + pair);
                 Response<UpbitOrderResponse> bidResponse = biding(krwItem, BigDecimal.valueOf(amount), "KRW-" + pair);
 
-                reset(pair);
+                reset("BTC");
 
-            } else if (TacoPercentChecker.profitCheck(krwItem.getBid_price(), Taco2CurrencyConvert.convertAskBTC2KRW(btcItem.getAsk_price()), profit)) {
+            } else if (TacoPercentChecker.profitCheck(krwItem.getBid_price(), Taco2CurrencyConvert.convertAskBTC2KRW(btcItem.getAsk_price()), UpbitStandard.PROFITPERCENT)) {
 
                 Double base_amount = krwItem.getBid_size() > btcItem.getAsk_size() ? btcItem.getAsk_size() : krwItem.getBid_size();
-                Double amount = base_amount / 10.f;
+                Double amount = base_amount / UpbitStandard.ASKPERCENT;
 
                 if (amount * btcItem.getAsk_price() <= 0.0005 || amount * krwItem.getBid_price() <= 5000) {
                     return;
@@ -94,7 +94,7 @@ public class TransactionService {
                 Response<UpbitOrderResponse> askResponse = asking(krwItem, BigDecimal.valueOf(amount), "KRW-" + pair);
                 Response<UpbitOrderResponse> bidResponse = biding(btcItem, BigDecimal.valueOf(amount), "BTC-" + pair);
 
-                reset(pair);
+                reset("KRW");
 
 
             }
@@ -106,7 +106,8 @@ public class TransactionService {
     }
 
 
-    private Response<UpbitOrderResponse> biding(UpbitOrderbookItem askitem, BigDecimal amount, String pair) throws IOException {
+    @Async
+    public Response<UpbitOrderResponse> biding(UpbitOrderbookItem askitem, BigDecimal amount, String pair) throws IOException {
 
         // 매수
         UpbitOrderRequest request = UpbitOrderRequest.builder()
@@ -129,7 +130,8 @@ public class TransactionService {
 
     }
 
-    private Response<UpbitOrderResponse> asking(UpbitOrderbookItem biditem, BigDecimal amount, String pair) throws IOException {
+    @Async
+    public Response<UpbitOrderResponse> asking(UpbitOrderbookItem biditem, BigDecimal amount, String pair) throws IOException {
 
         // 매도
         UpbitOrderRequest request = UpbitOrderRequest.builder()
@@ -156,7 +158,7 @@ public class TransactionService {
         return upbitApiRestClient.deleteOrder(uuid).execute();
     }
 
-    private void reset(String pair) {
+    private void reset(String type) {
 
         try {
             System.out.println("Sleep before");
@@ -165,35 +167,8 @@ public class TransactionService {
             log.error("reset Sleep error");
         }
 
-        exchangeProfit();
+        upbitBalanceService.exchangeResult(type);
         System.out.println("Sleep after");
     }
 
-    public void exchangeProfit() {
-
-        BigDecimal myBalance = upbitBalanceService.getUpbitMarketAccount("BTC");
-
-        UpbitOrderbookItem converItem = new UpbitOrderbookItem();
-        converItem.setAsk_price(OrderbookCached.UPBIT_BTC.get("ask").doubleValue());
-        converItem.setBid_price(OrderbookCached.UPBIT_BTC.get("bid").doubleValue());
-
-        if (myBalance.compareTo(BigDecimal.valueOf(0.005)) == 1) {
-
-            try {
-                Response<UpbitOrderResponse> exchangeResponse = asking(converItem, myBalance.subtract(BigDecimal.valueOf(0.01)), "KRW-BTC");
-
-            } catch (IOException e) {
-                log.error("환전 에러:{}", e.getMessage());
-            }
-        } else if (myBalance.compareTo(BigDecimal.valueOf(0.005)) == -1) {
-
-            try {
-                Response<UpbitOrderResponse> exchangeResponse = biding(converItem, BigDecimal.valueOf(0.01).subtract(myBalance), "KRW-BTC");
-
-            } catch (IOException e) {
-                log.error("환전 에러:{}", e.getMessage());
-            }
-        }
-
-    }
 }

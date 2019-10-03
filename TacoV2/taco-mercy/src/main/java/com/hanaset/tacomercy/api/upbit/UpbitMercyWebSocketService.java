@@ -19,14 +19,10 @@ public class UpbitMercyWebSocketService {
                                       UpbitMercyMarketService upbitMercyMarketService) {
         this.upbitMercyWebSocketClient = upbitMercyWebSocketClient;
         this.upbitMercyMarketService = upbitMercyMarketService;
-
-        System.out.println("===================");
     }
 
     @PostConstruct
     public void orderbook_Connect() {
-
-        System.out.println("WebSocket Connecting ~ =============>");
 
         List<String> pairs = upbitMercyMarketService.getPairs();
         if(pairs.isEmpty())

@@ -19,10 +19,9 @@ public class UpbitGenjiWebSocketService {
         this.upbitGenjiWebSocketClient = upbitGenjiWebSocketClient;
     }
 
-    //@PostConstruct
     public void orderbookConnect(String pair) {
 
-        System.out.println("WebSocket Connecting ~ =============>");
+        System.out.println("<============= WebSocket Connecting =============>");
 
         Ticket ticket = Ticket.builder()
                 .ticket("UPBIT_ORDERBOOK")
