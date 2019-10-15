@@ -20,6 +20,18 @@ public class PairEntity {
     @Column(name = "crypto")
     private String crypto;
 
+    @Column(name = "ask_price")
+    private BigDecimal askPirce;
+
+    @Column(name = "bid_price")
+    private BigDecimal bidPrice;
+
+    @Column(name = "ask_amount")
+    private BigDecimal askAmount;
+
+    @Column(name = "bid_amount")
+    private BigDecimal bidAmount;
+
     @Column(name = "profit_amount")
     private BigDecimal profitAmount;
 

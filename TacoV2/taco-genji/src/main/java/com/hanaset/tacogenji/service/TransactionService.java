@@ -48,14 +48,23 @@ public class TransactionService {
 
             if (TacoPercentChecker.profitCheck(Taco2CurrencyConvert.convertBidBTC2KRW(btcItem.getBid_price()), krwItem.getAsk_price(), UpbitStandard.PROFITPERCENT)) {
 
-                Double base_amount = btcItem.getBid_size() > krwItem.getAsk_size() ? krwItem.getAsk_size() : btcItem.getBid_size();
-                Double amount = base_amount / UpbitStandard.ASKPERCENT;
+                Double amount = btcItem.getBid_size() > krwItem.getAsk_size() ? krwItem.getAsk_size() : btcItem.getBid_size();
 
-                if (amount * btcItem.getBid_price() <= 0.0005 || amount * krwItem.getAsk_price() <= 5000) {
+                if (amount * btcItem.getBid_price() <= 0.0005 || amount * krwItem.getAsk_price() <= 10000) {
                     return;
+                } else if ( amount > UpbitTransactionCached.pairAmount.doubleValue()) {
+                    amount = UpbitTransactionCached.pairAmount.doubleValue();
                 }
 
                 UpbitTransactionCached.LOCK = true;
+
+                if(btcItem.getBid_size() > krwItem.getAsk_size()) {
+                    biding(krwItem, BigDecimal.valueOf(amount), "KRW-" + pair);
+                    asking(btcItem, BigDecimal.valueOf(amount), "BTC-" + pair);
+                }else {
+                    asking(btcItem, BigDecimal.valueOf(amount), "BTC-" + pair);
+                    biding(krwItem, BigDecimal.valueOf(amount), "KRW-" + pair);
+                }
 
                 log.info("==================================================================");
 
@@ -66,21 +75,25 @@ public class TransactionService {
                         Taco2CurrencyConvert.convertBidBTC2KRW(btcItem.getBid_price()) - krwItem.getAsk_price(),
                         (Taco2CurrencyConvert.convertBidBTC2KRW(btcItem.getBid_price()) - krwItem.getAsk_price()) / krwItem.getAsk_price() * 100);
 
-                Response<UpbitOrderResponse> askResponse = asking(btcItem, BigDecimal.valueOf(amount), "BTC-" + pair);
-                Response<UpbitOrderResponse> bidResponse = biding(krwItem, BigDecimal.valueOf(amount), "KRW-" + pair);
-
                 reset("BTC");
 
             } else if (TacoPercentChecker.profitCheck(krwItem.getBid_price(), Taco2CurrencyConvert.convertAskBTC2KRW(btcItem.getAsk_price()), UpbitStandard.PROFITPERCENT)) {
 
-                Double base_amount = krwItem.getBid_size() > btcItem.getAsk_size() ? btcItem.getAsk_size() : krwItem.getBid_size();
-                Double amount = base_amount / UpbitStandard.ASKPERCENT;
+                Double amount = krwItem.getBid_size() > btcItem.getAsk_size() ? btcItem.getAsk_size() : krwItem.getBid_size();
 
-                if (amount * btcItem.getAsk_price() <= 0.0005 || amount * krwItem.getBid_price() <= 5000) {
+                if (amount * btcItem.getAsk_price() <= 0.0005 || amount * krwItem.getBid_price() <= 10000) {
                     return;
+                } else if ( amount > UpbitTransactionCached.pairAmount.doubleValue()) {
+                    amount = UpbitTransactionCached.pairAmount.doubleValue();
                 }
 
-                UpbitTransactionCached.LOCK = true;
+                if(krwItem.getBid_size() > btcItem.getAsk_size()) {
+                    biding(btcItem, BigDecimal.valueOf(amount), "BTC-" + pair);
+                    asking(krwItem, BigDecimal.valueOf(amount), "KRW-" + pair);
+                }else {
+                    asking(krwItem, BigDecimal.valueOf(amount), "KRW-" + pair);
+                    biding(btcItem, BigDecimal.valueOf(amount), "BTC-" + pair);
+                }
 
                 log.info("==================================================================");
 
@@ -91,11 +104,7 @@ public class TransactionService {
                         krwItem.getBid_price() - Taco2CurrencyConvert.convertAskBTC2KRW(btcItem.getAsk_price()),
                         (krwItem.getBid_price() - Taco2CurrencyConvert.convertAskBTC2KRW(btcItem.getAsk_price())) / Taco2CurrencyConvert.convertAskBTC2KRW(btcItem.getAsk_price()) * 100);
 
-                Response<UpbitOrderResponse> askResponse = asking(krwItem, BigDecimal.valueOf(amount), "KRW-" + pair);
-                Response<UpbitOrderResponse> bidResponse = biding(btcItem, BigDecimal.valueOf(amount), "BTC-" + pair);
-
                 reset("KRW");
-
 
             }
 
@@ -168,6 +177,7 @@ public class TransactionService {
         }
 
         upbitBalanceService.exchangeResult(type);
+        UpbitTransactionCached.LOCK = false;
         System.out.println("Sleep after");
     }
 

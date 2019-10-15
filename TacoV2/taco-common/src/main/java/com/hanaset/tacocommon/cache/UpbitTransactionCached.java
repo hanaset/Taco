@@ -16,6 +16,8 @@ public class UpbitTransactionCached {
 
     public static BigDecimal btcAmount;
 
+    public static BigDecimal pairAmount;
+
     public static void reset() {
         TICKET = null;
         LOCK = false;

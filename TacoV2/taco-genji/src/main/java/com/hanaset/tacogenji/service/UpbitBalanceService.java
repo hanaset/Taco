@@ -57,7 +57,8 @@ public class UpbitBalanceService {
         for (UpbitAccount account : upbitLists) {
             if(account.getCurrency().equals("BTC")) {
                 UpbitTransactionCached.btcAmount = account.getBalance();
-                break;
+            }else if(!account.getCurrency().equals("KRW") && !account.getCurrency().equals("BTC")) {
+                UpbitTransactionCached.pairAmount = account.getBalance();
             }
         }
     }
@@ -86,8 +87,8 @@ public class UpbitBalanceService {
             for (UpbitAccount account : upbitLists) {
                 if (account.getCurrency().equals("KRW")) {
                     balanceRepository.save(BalanceEntity.builder().amount(account.getBalance()).build());
-                    bidingMarket(account.getBalance().divide(BigDecimal.valueOf(3), 0, RoundingMode.HALF_UP), "KRW-" + pair);
-                    bidingMarket(account.getBalance().divide(BigDecimal.valueOf(3), 0, RoundingMode.HALF_UP), "KRW-BTC");
+                    bidingMarket(account.getBalance().divide(BigDecimal.valueOf(3), 0, RoundingMode.HALF_UP).subtract(BigDecimal.valueOf(10000)), "KRW-" + pair);
+                    bidingMarket(account.getBalance().divide(BigDecimal.valueOf(3), 0, RoundingMode.HALF_UP).add(BigDecimal.valueOf(5000)), "KRW-BTC");
                 }
             }
 
@@ -152,9 +153,9 @@ public class UpbitBalanceService {
         BigDecimal btcAmount = getUpbitMarketAccount("BTC");
         try {
             if (type.equals("KRW")) { // PAIR를 원화로 매도하고 BTC로 매수한 경우
-                askingMarket(UpbitTransactionCached.btcAmount.subtract(btcAmount), "KRW-BTC");
-            } else if (type.equals("BTC")) { // 반대
                 bidingMarket(btcAmount.subtract(UpbitTransactionCached.btcAmount), "KRW-BTC");
+            } else if (type.equals("BTC")) { // 반대
+                askingMarket(UpbitTransactionCached.btcAmount.subtract(btcAmount), "KRW-BTC");
             }
         }catch (IOException e) {
             log.error("exchangeResult Error : {}", e.getMessage());
