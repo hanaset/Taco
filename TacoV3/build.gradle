@@ -1,0 +1,59 @@
+buildscript {
+    ext {
+        springBootVersion = '2.0.7.RELEASE'
+        APACHE_COMMONS_LANG = 3.7
+        APACHE_COMMONS_IO = 2.5
+        APACHE_COMMONS_CODEC = 1.9
+        APACHE_COMMONS_COLLECTIONS = 4.1
+        APACHE_COMMONS_CMATH = 3.0
+    }
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'idea'
+    apply plugin: 'eclipse'
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
+
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+
+    jar {
+        manifest.attributes provider: 'gradle'
+    }
+
+    configurations.all {
+        exclude group: "org.slf4j", module: "slf4j-log4j12"
+        exclude group: "log4j", module: "log4j"
+    }
+
+    dependencies {
+        compile group: 'com.google.guava', name: 'guava', version: '27.0.1-jre'
+        compile group: 'org.apache.commons', name: 'commons-math3', version: '3.0'
+
+        compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.9.8'
+
+        //apache coomon
+        implementation "org.apache.commons:commons-lang3:${APACHE_COMMONS_LANG}"
+        implementation "commons-io:commons-io:${APACHE_COMMONS_IO}"
+        implementation "commons-codec:commons-codec:${APACHE_COMMONS_CODEC}"
+        implementation "org.apache.commons:commons-collections4:${APACHE_COMMONS_COLLECTIONS}"
+//        implementation "org.apache.commons:commons-cmath3:${APACHE_COMMONS_CMATH}"
+
+        compileOnly('org.projectlombok:lombok')
+        testCompile("org.springframework.boot:spring-boot-starter-test")
+    }
+    
+}

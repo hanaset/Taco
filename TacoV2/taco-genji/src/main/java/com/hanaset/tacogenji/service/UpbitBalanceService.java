@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -87,8 +88,8 @@ public class UpbitBalanceService {
             for (UpbitAccount account : upbitLists) {
                 if (account.getCurrency().equals("KRW")) {
                     balanceRepository.save(BalanceEntity.builder().amount(account.getBalance()).build());
-                    bidingMarket(account.getBalance().divide(BigDecimal.valueOf(3), 0, RoundingMode.HALF_UP).subtract(BigDecimal.valueOf(10000)), "KRW-" + pair);
-                    bidingMarket(account.getBalance().divide(BigDecimal.valueOf(3), 0, RoundingMode.HALF_UP).add(BigDecimal.valueOf(5000)), "KRW-BTC");
+                    bidingMarket(account.getBalance().divide(BigDecimal.valueOf(3), 0, RoundingMode.HALF_UP).subtract(BigDecimal.valueOf(1000)), "KRW-" + pair);
+                    bidingMarket(account.getBalance().divide(BigDecimal.valueOf(3), 0, RoundingMode.HALF_UP).add(BigDecimal.valueOf(500)), "KRW-BTC");
                 }
             }
 
@@ -99,6 +100,13 @@ public class UpbitBalanceService {
         }catch (InterruptedException e) {
             log.error("startBalance Error : {}", e.getMessage());
         }
+    }
+
+    private List saveBalance() {
+        List<UpbitAccount> upbitAccounts = upbitApiRestClient.getAccount("amount").blockingGet();
+        return upbitAccounts.stream().filter(upbitAccount -> upbitAccount.getCurrency().equals("KRW"))
+                .map(upbitAccount -> balanceRepository.save(BalanceEntity.builder().amount(upbitAccount.getBalance()).build()))
+                .collect(Collectors.toList());
     }
 
     private Response<UpbitOrderResponse> bidingMarket(BigDecimal price, String pair) throws IOException {

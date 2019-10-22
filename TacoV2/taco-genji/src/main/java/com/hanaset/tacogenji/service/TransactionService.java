@@ -50,7 +50,7 @@ public class TransactionService {
 
                 Double amount = btcItem.getBid_size() > krwItem.getAsk_size() ? krwItem.getAsk_size() : btcItem.getBid_size();
 
-                if (amount * btcItem.getBid_price() <= 0.0005 || amount * krwItem.getAsk_price() <= 10000) {
+                if (amount * btcItem.getBid_price() <= 0.0005 || amount * krwItem.getAsk_price() <= 5000) {
                     return;
                 } else if ( amount > UpbitTransactionCached.pairAmount.doubleValue()) {
                     amount = UpbitTransactionCached.pairAmount.doubleValue();
@@ -81,7 +81,7 @@ public class TransactionService {
 
                 Double amount = krwItem.getBid_size() > btcItem.getAsk_size() ? btcItem.getAsk_size() : krwItem.getBid_size();
 
-                if (amount * btcItem.getAsk_price() <= 0.0005 || amount * krwItem.getBid_price() <= 10000) {
+                if (amount * btcItem.getAsk_price() <= 0.0005 || amount * krwItem.getBid_price() <= 5000) {
                     return;
                 } else if ( amount > UpbitTransactionCached.pairAmount.doubleValue()) {
                     amount = UpbitTransactionCached.pairAmount.doubleValue();
