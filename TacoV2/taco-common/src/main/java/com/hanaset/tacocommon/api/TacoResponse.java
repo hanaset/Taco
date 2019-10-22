@@ -11,7 +11,7 @@ public class TacoResponse {
 
     public static void response(Response response, String code, String msg) {
 
-        if(!response.isSuccessful()) {
+        if (!response.isSuccessful()) {
             throw new TacoResponseException(code, msg);
         }
     }

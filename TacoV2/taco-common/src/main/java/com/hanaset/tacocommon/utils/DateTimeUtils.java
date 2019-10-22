@@ -22,7 +22,7 @@ public class DateTimeUtils {
     }
 
     public static String getTimezoneDateStr(String dateStr, String fromTimeZone, String toTimeZone) {
-        String currentTimeStr="";
+        String currentTimeStr = "";
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         dateFormat.setTimeZone(TimeZone.getTimeZone(fromTimeZone));
 

@@ -2,13 +2,18 @@ package com.hanaset.tacomercy.service;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.hanaset.tacocommon.api.TacoResponse;
 import com.hanaset.tacocommon.api.upbit.UpbitApiRestClient;
 import com.hanaset.tacocommon.api.upbit.model.UpbitMarket;
+import com.hanaset.tacocommon.model.TacoErrorCode;
 import com.hanaset.tacocommon.utils.Taco2UpbitConvert;
 import org.springframework.stereotype.Service;
+import retrofit2.Response;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class UpbitMercyMarketService {
@@ -22,29 +27,26 @@ public class UpbitMercyMarketService {
 
     private void setPairs() {
 
-        List<UpbitMarket> marketList = upbitApiRestClient.getMarket().blockingGet();
-        Map<String, Integer> pairMap = Maps.newHashMap();
+        try {
+            Response<List<UpbitMarket>> marketList = upbitApiRestClient.getMarket().execute();
 
-        for(UpbitMarket market : marketList) {
-            if(market.getMarket().contains("KRW") || market.getMarket().contains("BTC")) {
+            TacoResponse.response(marketList, TacoErrorCode.API_ERROR, "UPBIT API ERROR");
+            Map<String, Integer> pairMap = marketList.body().stream().filter(upbitMarket -> upbitMarket.getMarket().contains("KRW") || upbitMarket.getMarket().contains("BTC"))
+                    .collect(Collectors.toMap(upbitMarket -> Taco2UpbitConvert.convertPair(upbitMarket.getMarket()), upbitMarket -> 1, (v1, v2) -> v1 + v2));
 
-                String key = Taco2UpbitConvert.convertPair(market.getMarket());
-                if(pairMap.containsKey(key)) {
-                    pairMap.replace(key, pairMap.get(key)+1);
-                }else {
-                    pairMap.put(key, 1);
+
+            pairMap.forEach((k, v) -> {
+                if (v == 2) {
+                    pairs.add("KRW-" + k);
+                    pairs.add("BTC-" + k);
                 }
-            }
+            });
+
+            pairs.add("KRW-BTC");
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
-        pairMap.forEach((k, v) ->{
-            if(v == 2) {
-                pairs.add("KRW-"+k);
-                pairs.add("BTC-"+k);
-            }
-        });
-
-        pairs.add("KRW-BTC");
     }
 
     public List initPairs() {

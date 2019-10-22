@@ -8,7 +8,7 @@ import org.json.simple.parser.ParseException;
 @Slf4j
 public class Taco2JsonConvert {
 
-    public static JSONObject convertJSONObject (String data) {
+    public static JSONObject convertJSONObject(String data) {
         JSONParser jsonParser = new JSONParser();
         try {
             Object object = jsonParser.parse(data);
@@ -16,7 +16,7 @@ public class Taco2JsonConvert {
 
             return jsonObject;
 
-        }catch (ParseException e) {
+        } catch (ParseException e) {
             log.error("parser error -> {}", e.getMessage());
         }
 

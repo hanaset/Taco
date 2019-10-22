@@ -89,7 +89,7 @@ public class UpbitBalanceService {
             upbitLists.body().stream().filter(upbitAccount -> !upbitAccount.getCurrency().equals("KRW"))
                     .forEach(upbitAccount -> askingMarket(upbitAccount.getBalance(), "KRW-" + upbitAccount.getCurrency()));
 
-        }catch (IOException e) {
+        } catch (IOException e) {
             log.error(e.getMessage());
         }
 
@@ -115,7 +115,7 @@ public class UpbitBalanceService {
             } catch (InterruptedException e) {
                 log.error("Start Balance Error : {}", e.getMessage());
             }
-        }catch (IOException e) {
+        } catch (IOException e) {
             log.error(e.getMessage());
         }
     }
@@ -131,7 +131,7 @@ public class UpbitBalanceService {
             return upbitAccounts.body().stream().filter(upbitAccount -> upbitAccount.getCurrency().equals("KRW"))
                     .map(upbitAccount -> balanceRepository.save(BalanceEntity.builder().amount(upbitAccount.getBalance()).build()))
                     .collect(Collectors.toList());
-        }catch (IOException e) {
+        } catch (IOException e) {
             log.error(e.getMessage());
             throw new TacoResponseException(TacoErrorCode.IO_ERROR, "IOException");
         }

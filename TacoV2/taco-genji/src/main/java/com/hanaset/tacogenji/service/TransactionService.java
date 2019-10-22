@@ -27,7 +27,7 @@ public class TransactionService {
     private final UpbitBalanceService upbitBalanceService;
 
     public TransactionService(UpbitApiRestClient upbitApiRestClient,
-                                           UpbitBalanceService upbitBalanceService) {
+                              UpbitBalanceService upbitBalanceService) {
         this.upbitApiRestClient = upbitApiRestClient;
         this.upbitBalanceService = upbitBalanceService;
     }
@@ -52,16 +52,16 @@ public class TransactionService {
 
                 if (amount * btcItem.getBid_price() <= 0.0005 || amount * krwItem.getAsk_price() <= 5000) {
                     return;
-                } else if ( amount > UpbitTransactionCached.pairAmount.doubleValue()) {
+                } else if (amount > UpbitTransactionCached.pairAmount.doubleValue()) {
                     amount = UpbitTransactionCached.pairAmount.doubleValue();
                 }
 
                 UpbitTransactionCached.LOCK = true;
 
-                if(btcItem.getBid_size() > krwItem.getAsk_size()) {
+                if (btcItem.getBid_size() > krwItem.getAsk_size()) {
                     biding(krwItem, BigDecimal.valueOf(amount), "KRW-" + pair);
                     asking(btcItem, BigDecimal.valueOf(amount), "BTC-" + pair);
-                }else {
+                } else {
                     asking(btcItem, BigDecimal.valueOf(amount), "BTC-" + pair);
                     biding(krwItem, BigDecimal.valueOf(amount), "KRW-" + pair);
                 }
@@ -83,14 +83,14 @@ public class TransactionService {
 
                 if (amount * btcItem.getAsk_price() <= 0.0005 || amount * krwItem.getBid_price() <= 5000) {
                     return;
-                } else if ( amount > UpbitTransactionCached.pairAmount.doubleValue()) {
+                } else if (amount > UpbitTransactionCached.pairAmount.doubleValue()) {
                     amount = UpbitTransactionCached.pairAmount.doubleValue();
                 }
 
-                if(krwItem.getBid_size() > btcItem.getAsk_size()) {
+                if (krwItem.getBid_size() > btcItem.getAsk_size()) {
                     biding(btcItem, BigDecimal.valueOf(amount), "BTC-" + pair);
                     asking(krwItem, BigDecimal.valueOf(amount), "KRW-" + pair);
-                }else {
+                } else {
                     asking(krwItem, BigDecimal.valueOf(amount), "KRW-" + pair);
                     biding(btcItem, BigDecimal.valueOf(amount), "BTC-" + pair);
                 }

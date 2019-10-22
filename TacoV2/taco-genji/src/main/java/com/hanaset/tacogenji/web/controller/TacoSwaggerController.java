@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class TacoSwaggerController extends TacoControllerSupport {
 
     @GetMapping("/swagger")
-    public String redirect() {return redirect("/swagger-ui.html");}
+    public String redirect() {
+        return redirect("/swagger-ui.html");
+    }
 
 }

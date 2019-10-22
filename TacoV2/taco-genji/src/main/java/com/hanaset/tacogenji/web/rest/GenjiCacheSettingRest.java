@@ -16,7 +16,7 @@ import java.math.BigDecimal;
 public class GenjiCacheSettingRest extends GenjiApiRestSupport {
 
     @ApiOperation(value =
-        "페어에 대한 물량을 수정"
+            "페어에 대한 물량을 수정"
     )
     @PostMapping("/pair")
     public ResponseEntity settingPairAmount(Double amount) {
@@ -25,7 +25,7 @@ public class GenjiCacheSettingRest extends GenjiApiRestSupport {
     }
 
     @ApiOperation(value =
-        "비트코인에 대한 물량을 수정"
+            "비트코인에 대한 물량을 수정"
     )
     @PostMapping("/btc")
     public ResponseEntity settingBtcAmount(Double amount) {
@@ -34,7 +34,7 @@ public class GenjiCacheSettingRest extends GenjiApiRestSupport {
     }
 
     @ApiOperation(value =
-        "페어와 비트코인에 대한 물량 수정"
+            "페어와 비트코인에 대한 물량 수정"
     )
     @PostMapping()
     public ResponseEntity setting(@RequestParam Double pair, @RequestParam Double btc) {

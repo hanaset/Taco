@@ -5,7 +5,6 @@ import com.hanaset.tacocommon.api.huobi.model.HuobiAccounts;
 import com.hanaset.tacocommon.api.huobi.model.HuobiDepth;
 import com.hanaset.tacocommon.api.huobi.model.HuobiResponse;
 import com.hanaset.tacocommon.properties.TradeKeyProperties;
-import com.hanaset.tacocommon.properties.TradeUrlProperties;
 import lombok.extern.slf4j.Slf4j;
 import retrofit2.Call;
 
@@ -14,19 +13,16 @@ import java.util.List;
 @Slf4j
 public class HuobiApiRestClient {
 
-    private final TradeUrlProperties tradeUrlProperties;
     private final TradeKeyProperties tradeKeyProperties;
     private final HuobiApiRestService huobiApiRestService;
     private final HuobiApiRestServiceGenerator huobiApiRestServiceGenerator;
 
-    public HuobiApiRestClient(TradeKeyProperties tradeKeyProperties,
-                              TradeUrlProperties tradeUrlProperties) {
+    public HuobiApiRestClient(TradeKeyProperties tradeKeyProperties) {
         this.tradeKeyProperties = tradeKeyProperties;
-        this.tradeUrlProperties = tradeUrlProperties;
 
-        this.huobiApiRestServiceGenerator = new HuobiApiRestServiceGenerator();
+        huobiApiRestServiceGenerator = new HuobiApiRestServiceGenerator();
 
-        huobiApiRestService = huobiApiRestServiceGenerator.createService(HuobiApiRestService.class, tradeKeyProperties.getHuobiAccessKey(), tradeKeyProperties.getHuobiSecretKey());
+        this.huobiApiRestService = huobiApiRestServiceGenerator.createService(HuobiApiRestService.class, tradeKeyProperties.getHuobiAccessKey(), tradeKeyProperties.getHuobiSecretKey());
     }
 
     public Call<HuobiDepth> getDepth(String symbol, String type) {

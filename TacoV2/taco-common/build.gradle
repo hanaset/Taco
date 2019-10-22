@@ -22,9 +22,9 @@ dependencies {
     compile group: 'ca.pjer', name: 'logback-awslogs-appender', version: '1.1.0' // aws cloudwatch
 
     compile group: 'org.apache.clerezza.ext', name: 'org.json.simple', version: '0.4' // JSONObject
-    
+
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-websocket', version: '2.0.7.RELEASE'
-    
+
     compile 'com.google.code.gson:gson:2.6.2' // gson
 
     compile group: 'com.github.ulisesbocchio', name: 'jasypt-spring-boot-starter', version: '2.1.0' // Jasypt

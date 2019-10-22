@@ -6,9 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 public class SleepHelper {
 
     public static void Sleep(int time) {
-        try{
+        try {
             Thread.sleep(time);
-        }catch (InterruptedException e) {
+        } catch (InterruptedException e) {
             log.error("time error");
         }
     }

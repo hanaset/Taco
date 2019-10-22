@@ -50,7 +50,7 @@ public class GenjiBalanceControllerRest extends GenjiApiRestSupport {
     }
 
     @ApiOperation(value =
-        "로직 시작 = 하루동안 가장 많은 이윤을 남긴 페어를 선탁하여 원화 1/3, 비트코인 1/3, 페어 1/3를 구매 후 로직 시작"
+            "로직 시작 = 하루동안 가장 많은 이윤을 남긴 페어를 선탁하여 원화 1/3, 비트코인 1/3, 페어 1/3를 구매 후 로직 시작"
     )
     @PostMapping("/current_start")
     public ResponseEntity currentStart() {
@@ -61,7 +61,7 @@ public class GenjiBalanceControllerRest extends GenjiApiRestSupport {
     }
 
     @ApiOperation(value =
-        "페어 선택 = 직접 페어를 선택하여 로직을 시작"
+            "페어 선택 = 직접 페어를 선택하여 로직을 시작"
     )
     @PostMapping("/pair_start")
     public ResponseEntity pairStart(@RequestParam String pair) {
@@ -72,7 +72,7 @@ public class GenjiBalanceControllerRest extends GenjiApiRestSupport {
 
 
     @ApiOperation(value =
-        "오더북 연결 = 해당 페어에 대해 오더북을 연결시킨다."
+            "오더북 연결 = 해당 페어에 대해 오더북을 연결시킨다."
     )
     @PostMapping("/orderbook_connect")
     public ResponseEntity orderbookConnect(@RequestParam String pair) {

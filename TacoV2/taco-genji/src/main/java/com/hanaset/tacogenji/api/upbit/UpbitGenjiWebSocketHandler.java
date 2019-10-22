@@ -41,7 +41,7 @@ public class UpbitGenjiWebSocketHandler extends BinaryWebSocketHandler {
 
         try {
 
-            if(jsonObject.get("type").equals("orderbook")) {
+            if (jsonObject.get("type").equals("orderbook")) {
 
                 UpbitOrderBook upbitOrderBook = objectMapper.readValue(charBuffer.toString(), UpbitOrderBook.class);
 

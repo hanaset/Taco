@@ -71,6 +71,7 @@ public class HuobiSessionInterceptor implements Interceptor {
         }
 
         System.out.println("query : " + httpUrl.encodedQuery());
+        System.out.println("result : " + httpUrl.toString());
 
         Request.Builder builder = request
                 .newBuilder()

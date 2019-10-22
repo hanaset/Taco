@@ -9,5 +9,7 @@ public class TacoResponseException extends RuntimeException {
         this.code = code;
     }
 
-    public String getCode() { return this.code; }
+    public String getCode() {
+        return this.code;
+    }
 }

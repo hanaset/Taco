@@ -9,7 +9,7 @@ import java.util.List;
 public class CryptoPairs {
 
     public static final List<String> UPBIT_PAIRS =
-            Lists.newArrayList( "KRW-BTC",
+            Lists.newArrayList("KRW-BTC",
                     "KRW-LOOM", "BTC-LOOM",
                     "KRW-XLM", "BTC-XLM"
 

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GenjiApiRestAdvice extends GenjiApiRestSupport {
 
     @ExceptionHandler(TacoResponseException.class)
-    public ResponseEntity handleSkyResponseException(TacoResponseException ex){
+    public ResponseEntity handleSkyResponseException(TacoResponseException ex) {
         return skyResponseException(ex.getCode(), ex.getMessage());
     }
 

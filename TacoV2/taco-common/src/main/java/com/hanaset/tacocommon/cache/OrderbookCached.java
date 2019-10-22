@@ -18,7 +18,7 @@ public class OrderbookCached {
 
     public static Map<String, Boolean> UPBIT_LOCKS = Maps.newHashMap();
 
-    public static synchronized void lock_chage(Boolean lock){
+    public static synchronized void lock_chage(Boolean lock) {
         UPBIT_LOCK = lock;
     }
 
