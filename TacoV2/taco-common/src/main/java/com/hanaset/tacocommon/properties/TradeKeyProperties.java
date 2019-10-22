@@ -18,4 +18,10 @@ public class TradeKeyProperties {
     @Value("${upbit.secretKey}")
     private String upbitSecretKey;
 
+    @Value("${probit.clientId}")
+    private String probitClientId;
+
+    @Value("${probit.secretKey}")
+    private String probitSecretKey;
+
 }
