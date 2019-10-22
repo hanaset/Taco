@@ -1,4 +1,4 @@
-package com.hanaset.tacogenji.web.rest;
+package com.hanaset.tacoreaper.web.rest;
 
 import com.hanaset.tacocommon.api.huobi.HuobiApiRestClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,11 +9,11 @@ import java.io.IOException;
 
 @RestController
 @RequestMapping("/test")
-public class GenjiTestRest {
+public class ReaperTestRest {
 
     private final HuobiApiRestClient huobiApiRestClient;
 
-    public GenjiTestRest(HuobiApiRestClient huobiApiRestClient) {
+    public ReaperTestRest(HuobiApiRestClient huobiApiRestClient) {
         this.huobiApiRestClient = huobiApiRestClient;
     }
 

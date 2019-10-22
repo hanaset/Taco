@@ -1,4 +1,3 @@
 rootProject.name = 'taco'
 include 'taco-common'
-include 'taco-mercy'
-include 'taco-genji'
+include 'taco-reaper'

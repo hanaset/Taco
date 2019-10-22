@@ -1,4 +1,4 @@
-package com.hanaset.tacogenji.service;
+package com.hanaset.tacoreaper.service;
 
 import com.hanaset.tacocommon.api.huobi.HuobiApiRestClient;
 import com.hanaset.tacocommon.api.huobi.model.HuobiDepth;
@@ -10,11 +10,11 @@ import java.io.IOException;
 
 @Slf4j
 @Service
-public class GenjiHuobiOrderbookService {
+public class ReaperHuobiOrderbookService {
 
     private final HuobiApiRestClient huobiApiRestClient;
 
-    public GenjiHuobiOrderbookService(HuobiApiRestClient huobiApiRestClient) {
+    public ReaperHuobiOrderbookService(HuobiApiRestClient huobiApiRestClient) {
         this.huobiApiRestClient = huobiApiRestClient;
     }
 

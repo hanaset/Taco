@@ -29,23 +29,23 @@ import java.util.Arrays;
 @EnableScheduling
 @EnableAsync
 @EnableEncryptableProperties
-public class TacoGenjiApplication {
+public class TacoReaperApplication {
 
 
     private final Environment environment;
 
-    public TacoGenjiApplication(Environment environment) {
+    public TacoReaperApplication(Environment environment) {
         this.environment = environment;
     }
 
     public static void main(String[] args) {
-        SpringApplication.run(TacoGenjiApplication.class, args);
+        SpringApplication.run(TacoReaperApplication.class, args);
     }
 
     @Bean
     public TaskExecutor taskExecutor() {
         ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
-        taskExecutor.setThreadNamePrefix("genjiExecutor-");
+        taskExecutor.setThreadNamePrefix("reaperExecutor-");
         taskExecutor.setCorePoolSize(30);
         taskExecutor.setQueueCapacity(50);
         taskExecutor.setMaxPoolSize(30);

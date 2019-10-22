@@ -21,19 +21,16 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootApplication
 @ContextConfiguration(classes = {
         PairRepository.class,
-        CryptoSelectService.class,
         JasyptConfig.class,
         TradeKeyProperties.class,
         TradeUrlProperties.class
 })
 @ActiveProfiles("local")
-public class TacoGenjiApplicationTests {
+public class TacoReaperApplicationTests {
 
     @Autowired
     PairRepository pairRepository;
 
-    @Autowired
-    CryptoSelectService cryptoSelectService;
 
     @Test
     public void getCrypto() {
