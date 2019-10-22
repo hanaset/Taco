@@ -176,7 +176,7 @@ public class TransactionService {
             log.error("reset Sleep error");
         }
 
-        upbitBalanceService.exchangeResult(type);
+        //upbitBalanceService.exchangeResult(type);
         UpbitTransactionCached.LOCK = false;
         System.out.println("Sleep after");
     }

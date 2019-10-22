@@ -67,8 +67,11 @@ public class UpbitGenjiWebSocketClient {
 
         try {
             webSocketSession.close();
+            log.info("<======================== WebSocket Closed =======================>");
         } catch (IOException e) {
             log.error("WebSocket Close Error");
+        } catch (NullPointerException e) {
+            log.error("Not Connect WebSocket");
         }
 
     }

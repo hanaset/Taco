@@ -5,11 +5,13 @@ import com.hanaset.tacocommon.api.upbit.model.body.Ticket;
 import com.hanaset.tacocommon.api.upbit.model.body.Type;
 import com.hanaset.tacocommon.utils.DateTimeUtils;
 import com.hanaset.tacogenji.service.CryptoSelectService;
+import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 
+@Slf4j
 @Service
 public class UpbitGenjiWebSocketService {
 
@@ -21,7 +23,7 @@ public class UpbitGenjiWebSocketService {
 
     public void orderbookConnect(String pair) {
 
-        System.out.println("<============= WebSocket Connecting =============>");
+        log.info("<======================== WebSocket Connecting =======================>");
 
         Ticket ticket = Ticket.builder()
                 .ticket("UPBIT_ORDERBOOK")

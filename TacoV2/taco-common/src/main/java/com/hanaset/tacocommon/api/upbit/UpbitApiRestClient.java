@@ -41,12 +41,12 @@ public class UpbitApiRestClient {
         this.upbitApiRestService = retrofit.create(UpbitApiRestService.class);
     }
 
-    public Single<List<UpbitMarket>> getMarket() {
+    public Call<List<UpbitMarket>> getMarket() {
         return upbitApiRestService.getMarket();
     }
 
 
-    public Single<List<UpbitAccount>> getAccount(String query) {
+    public Call<List<UpbitAccount>> getAccount(String query) {
         return upbitApiRestService.getAccount(createToken(query));
     }
 
