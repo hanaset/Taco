@@ -11,7 +11,7 @@ import java.time.ZonedDateTime;
 public class ZonedDateTimeConverter implements AttributeConverter<ZonedDateTime, Timestamp> {
 
     @Override
-    public java.sql.Timestamp convertToDatabaseColumn(ZonedDateTime entityValue) {
+    public Timestamp convertToDatabaseColumn(ZonedDateTime entityValue) {
         if (entityValue == null)
             entityValue = ZonedDateTime.now(ZoneId.of("UTC"));
 
@@ -23,7 +23,7 @@ public class ZonedDateTimeConverter implements AttributeConverter<ZonedDateTime,
     }
 
     @Override
-    public ZonedDateTime convertToEntityAttribute(java.sql.Timestamp databaseValue) {
+    public ZonedDateTime convertToEntityAttribute(Timestamp databaseValue) {
         if (databaseValue == null)
             return ZonedDateTime.now(ZoneId.systemDefault());
 

@@ -28,19 +28,13 @@ public class MldConfigEntity {
     private BigDecimal baseAssetBalance;
 
     @Column(name = "min_trading_volume")
-    private Integer minTradingVolume;
+    private BigDecimal minTradingVolume;
 
     @Column(name = "max_order_amount")
-    private Integer maxOrderAmount;
+    private BigDecimal maxOrderAmount;
 
     @Column(name = "interval")
     private Integer interval;
-
-    @Column(name = "bid_fee_rate")
-    private BigDecimal bidFeeRate;
-
-    @Column(name = "ask_fee_rate")
-    private BigDecimal askFeeRate;
 
     @Column(name = "reg_dtime", updatable = false)
     @Convert(converter = ZonedDateTimeConverter.class)
