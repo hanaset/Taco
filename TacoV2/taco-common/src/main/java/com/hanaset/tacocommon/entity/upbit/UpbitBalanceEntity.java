@@ -1,4 +1,4 @@
-package com.hanaset.tacocommon.entity;
+package com.hanaset.tacocommon.entity.upbit;
 
 import lombok.Builder;
 import lombok.Data;
@@ -11,7 +11,7 @@ import java.sql.Timestamp;
 @Data
 @Builder
 @Table(name = "TB_BALANCE")
-public class BalanceEntity {
+public class UpbitBalanceEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

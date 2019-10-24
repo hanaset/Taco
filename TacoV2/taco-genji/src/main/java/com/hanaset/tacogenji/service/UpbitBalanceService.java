@@ -6,10 +6,10 @@ import com.hanaset.tacocommon.api.upbit.model.UpbitAccount;
 import com.hanaset.tacocommon.api.upbit.model.UpbitOrderRequest;
 import com.hanaset.tacocommon.api.upbit.model.UpbitOrderResponse;
 import com.hanaset.tacocommon.cache.upbit.UpbitTransactionCached;
-import com.hanaset.tacocommon.entity.BalanceEntity;
+import com.hanaset.tacocommon.entity.upbit.UpbitBalanceEntity;
 import com.hanaset.tacocommon.exception.TacoResponseException;
 import com.hanaset.tacocommon.model.TacoErrorCode;
-import com.hanaset.tacocommon.repository.BalanceRepository;
+import com.hanaset.tacocommon.repository.upbit.UpbitBalanceRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import retrofit2.Response;
@@ -25,12 +25,12 @@ import java.util.stream.Collectors;
 public class UpbitBalanceService {
 
     private final UpbitApiRestClient upbitApiRestClient;
-    private final BalanceRepository balanceRepository;
+    private final UpbitBalanceRepository upbitBalanceRepository;
 
     public UpbitBalanceService(UpbitApiRestClient upbitApiRestClient,
-                               BalanceRepository balanceRepository) {
+                               UpbitBalanceRepository upbitBalanceRepository) {
         this.upbitApiRestClient = upbitApiRestClient;
-        this.balanceRepository = balanceRepository;
+        this.upbitBalanceRepository = upbitBalanceRepository;
     }
 
 //    public Response<List<UpbitAccount>> getUpbitBalance() throws IOException{
@@ -105,7 +105,7 @@ public class UpbitBalanceService {
 
             upbitLists.body().stream().filter(upbitAccount -> upbitAccount.getCurrency().equals("KRW"))
                     .forEach(upbitAccount -> {
-                        balanceRepository.save(BalanceEntity.builder().amount(upbitAccount.getBalance()).build());
+                        upbitBalanceRepository.save(UpbitBalanceEntity.builder().amount(upbitAccount.getBalance()).build());
                         bidingMarket(upbitAccount.getBalance().divide(BigDecimal.valueOf(3), 0, RoundingMode.HALF_UP).subtract(BigDecimal.valueOf(1000)), "KRW-" + pair);
                         bidingMarket(upbitAccount.getBalance().divide(BigDecimal.valueOf(3), 0, RoundingMode.HALF_UP).add(BigDecimal.valueOf(500)), "KRW-BTC");
                     });
@@ -129,7 +129,7 @@ public class UpbitBalanceService {
             TacoResponse.response(upbitAccounts, TacoErrorCode.API_ERROR, "업비트 API 통신 에러");
 
             return upbitAccounts.body().stream().filter(upbitAccount -> upbitAccount.getCurrency().equals("KRW"))
-                    .map(upbitAccount -> balanceRepository.save(BalanceEntity.builder().amount(upbitAccount.getBalance()).build()))
+                    .map(upbitAccount -> upbitBalanceRepository.save(UpbitBalanceEntity.builder().amount(upbitAccount.getBalance()).build()))
                     .collect(Collectors.toList());
         } catch (IOException e) {
             log.error(e.getMessage());

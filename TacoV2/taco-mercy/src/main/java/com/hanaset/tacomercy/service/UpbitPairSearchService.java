@@ -3,8 +3,8 @@ package com.hanaset.tacomercy.service;
 import com.hanaset.tacocommon.api.upbit.model.UpbitOrderbookItem;
 import com.hanaset.tacocommon.cache.OrderbookCached;
 import com.hanaset.tacocommon.cache.upbit.UpbitTransactionCached;
-import com.hanaset.tacocommon.entity.PairEntity;
-import com.hanaset.tacocommon.repository.PairRepository;
+import com.hanaset.tacocommon.entity.upbit.UpbitPairEntity;
+import com.hanaset.tacocommon.repository.upbit.UpbitPairRepository;
 import com.hanaset.tacocommon.utils.DateTimeUtils;
 import com.hanaset.tacocommon.utils.Taco2CurrencyConvert;
 import com.hanaset.tacocommon.utils.TacoPercentChecker;
@@ -21,10 +21,10 @@ import java.math.BigDecimal;
 public class UpbitPairSearchService {
 
     private Logger log = LoggerFactory.getLogger("upbit_askbid");
-    private final PairRepository pairRepository;
+    private final UpbitPairRepository upbitPairRepository;
 
-    public UpbitPairSearchService(PairRepository pairRepository) {
-        this.pairRepository = pairRepository;
+    public UpbitPairSearchService(UpbitPairRepository upbitPairRepository) {
+        this.upbitPairRepository = upbitPairRepository;
     }
 
     @Async
@@ -65,7 +65,7 @@ public class UpbitPairSearchService {
                         Taco2CurrencyConvert.convertBidBTC2KRW(btcItem.getBid_price()) - krwItem.getAsk_price(),
                         (Taco2CurrencyConvert.convertBidBTC2KRW(btcItem.getBid_price()) - krwItem.getAsk_price()) / krwItem.getAsk_price() * 100);
 
-                PairEntity entity = PairEntity.builder()
+                UpbitPairEntity entity = UpbitPairEntity.builder()
                         .crypto(pair)
                         .bidPrice(BigDecimal.valueOf(Taco2CurrencyConvert.convertBidBTC2KRW(btcItem.getBid_price())))
                         .askPirce(BigDecimal.valueOf(krwItem.getAsk_price()))
@@ -76,7 +76,7 @@ public class UpbitPairSearchService {
                         .snapshot(DateTimeUtils.getCurrentDay("Asia/Seoul"))
                         .build();
 
-                pairRepository.save(entity);
+                upbitPairRepository.save(entity);
 
             } else if (TacoPercentChecker.profitCheck(krwItem.getBid_price(), Taco2CurrencyConvert.convertAskBTC2KRW(btcItem.getAsk_price()), UpbitStandard.PROFITPERCENT)) {
 
@@ -106,7 +106,7 @@ public class UpbitPairSearchService {
                         krwItem.getBid_price() - Taco2CurrencyConvert.convertAskBTC2KRW(btcItem.getAsk_price()),
                         (krwItem.getBid_price() - Taco2CurrencyConvert.convertAskBTC2KRW(btcItem.getAsk_price())) / Taco2CurrencyConvert.convertAskBTC2KRW(btcItem.getAsk_price()) * 100);
 
-                PairEntity entity = PairEntity.builder()
+                UpbitPairEntity entity = UpbitPairEntity.builder()
                         .crypto(pair)
                         .bidPrice(BigDecimal.valueOf(krwItem.getBid_price()))
                         .askPirce(BigDecimal.valueOf(Taco2CurrencyConvert.convertAskBTC2KRW(btcItem.getAsk_price())))
@@ -117,7 +117,7 @@ public class UpbitPairSearchService {
                         .snapshot(DateTimeUtils.getCurrentDay("Asia/Seoul"))
                         .build();
 
-                pairRepository.save(entity);
+                upbitPairRepository.save(entity);
             }
 
         } catch (Exception e) {

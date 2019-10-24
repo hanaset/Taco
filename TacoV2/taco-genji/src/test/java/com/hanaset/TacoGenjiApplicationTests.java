@@ -3,7 +3,7 @@ package com.hanaset;
 import com.hanaset.tacocommon.config.JasyptConfig;
 import com.hanaset.tacocommon.properties.TradeKeyProperties;
 import com.hanaset.tacocommon.properties.TradeUrlProperties;
-import com.hanaset.tacocommon.repository.PairRepository;
+import com.hanaset.tacocommon.repository.upbit.UpbitPairRepository;
 import com.hanaset.tacogenji.service.CryptoSelectService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,7 +21,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootConfiguration
 @SpringBootApplication
 @ContextConfiguration(classes = {
-        PairRepository.class,
+        UpbitPairRepository.class,
         CryptoSelectService.class,
         JasyptConfig.class,
         TradeKeyProperties.class,
@@ -31,7 +31,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class TacoGenjiApplicationTests {
 
     @Autowired
-    PairRepository pairRepository;
+    UpbitPairRepository upbitPairRepository;
 
     @Autowired
     CryptoSelectService cryptoSelectService;

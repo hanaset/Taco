@@ -1,6 +1,6 @@
-package com.hanaset.tacocommon.repository;
+package com.hanaset.tacocommon.repository.upbit;
 
-import com.hanaset.tacocommon.entity.PairEntity;
+import com.hanaset.tacocommon.entity.upbit.UpbitPairEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface PairRepository extends JpaRepository<PairEntity, Integer> {
+public interface UpbitPairRepository extends JpaRepository<UpbitPairEntity, Integer> {
 
     @Query(value = "select t.crypto from tb_pair t where snapshot between ?1 and ?2 group by t.crypto order by sum(t.profit_amount) desc ", nativeQuery = true)
     List<String> getCryptoOfSumAmountAndCount(String start, String end);
