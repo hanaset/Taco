@@ -1,11 +1,11 @@
-package com.hanaset.tacogenji.web.rest.support;
+package com.hanaset.tacoreaper.web.rest.support;
 
 import com.google.common.collect.ImmutableMap;
 import org.json.simple.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-public class GenjiApiRestSupport {
+public class ReaperApiRestSupport {
 
     protected static <T> ResponseEntity<?> success(T data) {
         return ResponseEntity.ok(
@@ -25,7 +25,7 @@ public class GenjiApiRestSupport {
         );
     }
 
-    protected static <T> ResponseEntity<?> genjiResponseException(String code, String msg) {
+    protected static <T> ResponseEntity<?> reaperResponseException(String code, String msg) {
         return new ResponseEntity<>(
                 ImmutableMap.of(
                         "code", code,

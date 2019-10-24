@@ -16,24 +16,24 @@ public class UpbitReaperWebSocketService {
         this.upbitReaperWebSocketClient = upbitReaperWebSocketClient;
     }
 
-    public void orderbookConnect(String pair) {
+    public void conncentTrade(String pair) {
 
         log.info("<======================== WebSocket Connecting =======================>");
 
         Ticket ticket = Ticket.builder()
-                .ticket("UPBIT_ORDERBOOK")
+                .ticket("UPBIT_TRADE")
                 .build();
 
         Type type = Type.builder()
-                .type("orderbook")
-                .codes(Lists.newArrayList("KRW-" + pair, "BTC-" + pair, "KRW-BTC"))
+                .type("trade")
+                .codes(Lists.newArrayList(pair))
                 .build();
 
 
         upbitReaperWebSocketClient.connect(ticket, type);
     }
 
-    public void orderbookDisconnect() {
+    public void disconncetTrade() {
 
         upbitReaperWebSocketClient.disconnect();
 

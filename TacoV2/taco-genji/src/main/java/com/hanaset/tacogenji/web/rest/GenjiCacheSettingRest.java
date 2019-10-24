@@ -1,7 +1,7 @@
 package com.hanaset.tacogenji.web.rest;
 
 import com.google.common.collect.Lists;
-import com.hanaset.tacocommon.cache.UpbitTransactionCached;
+import com.hanaset.tacocommon.cache.upbit.UpbitTransactionCached;
 import com.hanaset.tacogenji.web.rest.support.GenjiApiRestSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

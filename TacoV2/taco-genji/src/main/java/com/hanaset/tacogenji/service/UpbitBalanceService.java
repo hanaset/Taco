@@ -5,7 +5,7 @@ import com.hanaset.tacocommon.api.upbit.UpbitApiRestClient;
 import com.hanaset.tacocommon.api.upbit.model.UpbitAccount;
 import com.hanaset.tacocommon.api.upbit.model.UpbitOrderRequest;
 import com.hanaset.tacocommon.api.upbit.model.UpbitOrderResponse;
-import com.hanaset.tacocommon.cache.UpbitTransactionCached;
+import com.hanaset.tacocommon.cache.upbit.UpbitTransactionCached;
 import com.hanaset.tacocommon.entity.BalanceEntity;
 import com.hanaset.tacocommon.exception.TacoResponseException;
 import com.hanaset.tacocommon.model.TacoErrorCode;

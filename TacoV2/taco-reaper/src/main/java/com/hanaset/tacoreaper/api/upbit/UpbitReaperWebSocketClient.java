@@ -5,7 +5,9 @@ import com.google.gson.Gson;
 import com.hanaset.tacocommon.api.upbit.model.body.Ticket;
 import com.hanaset.tacocommon.api.upbit.model.body.Type;
 import com.hanaset.tacocommon.properties.TradeUrlProperties;
+import com.hanaset.tacoreaper.service.ReaperProbitTradeService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketHttpHeaders;
@@ -22,13 +24,16 @@ import java.util.List;
 public class UpbitReaperWebSocketClient {
 
     private final TradeUrlProperties tradeUrlProperties;
-
+    private final ReaperProbitTradeService reaperProbitTradeService;
     private WebSocketSession webSocketSession;
 
-    public UpbitReaperWebSocketClient(TradeUrlProperties tradeUrlProperties) {
+    public UpbitReaperWebSocketClient(TradeUrlProperties tradeUrlProperties,
+                                      ReaperProbitTradeService reaperProbitTradeService) {
         this.tradeUrlProperties = tradeUrlProperties;
+        this.reaperProbitTradeService = reaperProbitTradeService;
     }
 
+    @Async
     public void connect(Ticket ticket, Type type) {
 
         log.info("Connecting to Upbit Web Socket Server...");
@@ -44,7 +49,7 @@ public class UpbitReaperWebSocketClient {
             webSocketClient = new StandardWebSocketClient();
 
             webSocketSession =
-                    webSocketClient.doHandshake(new UpbitReaperWebSocketHandler(), new WebSocketHttpHeaders(), URI.create(tradeUrlProperties.getUpbitWebSockUrl())).get();
+                    webSocketClient.doHandshake(new UpbitReaperWebSocketHandler(reaperProbitTradeService), new WebSocketHttpHeaders(), URI.create(tradeUrlProperties.getUpbitWebSockUrl())).get();
 
             try {
                 TextMessage message = new TextMessage(body);

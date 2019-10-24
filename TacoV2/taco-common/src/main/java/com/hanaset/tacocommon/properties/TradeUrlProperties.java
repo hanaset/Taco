@@ -24,4 +24,10 @@ public class TradeUrlProperties {
     @Value("${coinone.public}")
     private String coinonePublicUrl;
 
+    @Value("${probit.public}")
+    private String probitPublicUrl;
+
+    @Value("${probit.auth}")
+    private String probitAuthUrl;
+
 }

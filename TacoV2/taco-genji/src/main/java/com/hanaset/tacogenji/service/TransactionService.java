@@ -5,7 +5,7 @@ import com.hanaset.tacocommon.api.upbit.model.UpbitOrderRequest;
 import com.hanaset.tacocommon.api.upbit.model.UpbitOrderResponse;
 import com.hanaset.tacocommon.api.upbit.model.UpbitOrderbookItem;
 import com.hanaset.tacocommon.cache.OrderbookCached;
-import com.hanaset.tacocommon.cache.UpbitTransactionCached;
+import com.hanaset.tacocommon.cache.upbit.UpbitTransactionCached;
 import com.hanaset.tacocommon.utils.Taco2CurrencyConvert;
 import com.hanaset.tacocommon.utils.TacoPercentChecker;
 import com.hanaset.tacocommon.utils.UpbitStandard;

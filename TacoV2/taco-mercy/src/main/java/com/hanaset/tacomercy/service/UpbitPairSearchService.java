@@ -2,7 +2,7 @@ package com.hanaset.tacomercy.service;
 
 import com.hanaset.tacocommon.api.upbit.model.UpbitOrderbookItem;
 import com.hanaset.tacocommon.cache.OrderbookCached;
-import com.hanaset.tacocommon.cache.UpbitTransactionCached;
+import com.hanaset.tacocommon.cache.upbit.UpbitTransactionCached;
 import com.hanaset.tacocommon.entity.PairEntity;
 import com.hanaset.tacocommon.repository.PairRepository;
 import com.hanaset.tacocommon.utils.DateTimeUtils;

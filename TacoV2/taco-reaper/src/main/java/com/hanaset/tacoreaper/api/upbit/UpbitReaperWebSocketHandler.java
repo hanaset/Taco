@@ -4,8 +4,11 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hanaset.tacocommon.api.upbit.model.UpbitOrderBook;
 import com.hanaset.tacocommon.api.upbit.model.UpbitOrderbookItem;
+import com.hanaset.tacocommon.api.upbit.model.UpbitTicket;
+import com.hanaset.tacocommon.api.upbit.model.UpbitTrade;
 import com.hanaset.tacocommon.cache.OrderbookCached;
 import com.hanaset.tacocommon.utils.Taco2UpbitConvert;
+import com.hanaset.tacoreaper.service.ReaperProbitTradeService;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -21,10 +24,12 @@ import java.nio.CharBuffer;
 import java.nio.charset.StandardCharsets;
 
 @Slf4j
-@Component
 public class UpbitReaperWebSocketHandler extends BinaryWebSocketHandler {
 
-    public UpbitReaperWebSocketHandler() {
+    private final ReaperProbitTradeService reaperProbitTradeService;
+
+    public UpbitReaperWebSocketHandler(ReaperProbitTradeService reaperProbitTradeService) {
+        this.reaperProbitTradeService = reaperProbitTradeService;
     }
 
     @Override
@@ -37,24 +42,10 @@ public class UpbitReaperWebSocketHandler extends BinaryWebSocketHandler {
 
         try {
 
-            if (jsonObject.get("type").equals("orderbook")) {
+            if (jsonObject.get("type").equals("trade")) {
 
-                UpbitOrderBook upbitOrderBook = objectMapper.readValue(charBuffer.toString(), UpbitOrderBook.class);
-
-                if (upbitOrderBook.getCode().equals("KRW-BTC")) {
-                    OrderbookCached.UPBIT_BTC.put("bid", BigDecimal.valueOf(upbitOrderBook.getOrderbook_units().get(0).getBid_price()));
-                    OrderbookCached.UPBIT_BTC.put("ask", BigDecimal.valueOf(upbitOrderBook.getOrderbook_units().get(0).getAsk_price()));
-                    return;
-                }
-
-                if (!OrderbookCached.UPBIT_BTC.isEmpty()) {
-
-                    UpbitOrderbookItem item = upbitOrderBook.getOrderbook_units().get(0);
-                    OrderbookCached.UPBIT.put(upbitOrderBook.getCode(), item);
-
-//                    transactionService.checkProfit(Taco2UpbitConvert.convertPair(upbitOrderBook.getCode()));
-
-                }
+                UpbitTrade upbitTrade = objectMapper.readValue(charBuffer.toString(), UpbitTrade.class);
+                reaperProbitTradeService.updateUpbitData(upbitTrade);
             }
 
         } catch (JsonParseException e) {

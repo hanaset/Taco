@@ -1,4 +1,4 @@
-package com.hanaset.tacocommon.cache;
+package com.hanaset.tacocommon.cache.upbit;
 
 import com.hanaset.tacocommon.api.upbit.model.UpbitTicket;
 import lombok.Data;
