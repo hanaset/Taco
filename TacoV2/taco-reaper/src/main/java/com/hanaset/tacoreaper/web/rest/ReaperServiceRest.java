@@ -1,6 +1,7 @@
 package com.hanaset.tacoreaper.web.rest;
 
-import com.hanaset.tacoreaper.service.ReaperProbitService;
+import com.hanaset.tacoreaper.service.okex.ReaperOkexService;
+import com.hanaset.tacoreaper.service.probit.ReaperProbitService;
 import com.hanaset.tacoreaper.web.rest.support.ReaperApiRestSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -13,9 +14,12 @@ import org.springframework.web.bind.annotation.*;
 public class ReaperServiceRest extends ReaperApiRestSupport {
 
     private final ReaperProbitService reaperProbitService;
+    private final ReaperOkexService reaperOkexService;
 
-    public ReaperServiceRest(ReaperProbitService reaperProbitService) {
+    public ReaperServiceRest(ReaperProbitService reaperProbitService,
+                             ReaperOkexService reaperOkexService) {
         this.reaperProbitService = reaperProbitService;
+        this.reaperOkexService = reaperOkexService;
     }
 
 
@@ -24,7 +28,8 @@ public class ReaperServiceRest extends ReaperApiRestSupport {
     )
     @PostMapping("/start")
     public ResponseEntity start(@RequestParam String pair) {
-        reaperProbitService.serviceStart(pair);
+        //reaperProbitService.serviceStart(pair);
+        reaperOkexService.serviceStart(pair);
         return success("OK");
     }
 
@@ -33,7 +38,8 @@ public class ReaperServiceRest extends ReaperApiRestSupport {
     )
     @PostMapping("/finish")
     public ResponseEntity finish() {
-        reaperProbitService.serviceFinish();
+        //reaperProbitService.serviceFinish();
+        reaperOkexService.serviceFinish();
         return success("OK");
     }
 
@@ -42,7 +48,8 @@ public class ReaperServiceRest extends ReaperApiRestSupport {
     )
     @GetMapping("/balance")
     public ResponseEntity getBalance() {
-        return success(reaperProbitService.getBalance());
+        //return success(reaperProbitService.getBalance());
+        return success(reaperOkexService.getAccount());
     }
 
     @ApiOperation(value =

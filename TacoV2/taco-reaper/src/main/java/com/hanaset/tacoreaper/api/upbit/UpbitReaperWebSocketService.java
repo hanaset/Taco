@@ -1,8 +1,8 @@
 package com.hanaset.tacoreaper.api.upbit;
 
 import com.google.common.collect.Lists;
-import com.hanaset.tacocommon.api.upbit.model.body.Ticket;
-import com.hanaset.tacocommon.api.upbit.model.body.Type;
+import com.hanaset.tacocommon.api.upbit.model.body.UpbitWebSocketTicket;
+import com.hanaset.tacocommon.api.upbit.model.body.UpbitWebSocketType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -20,17 +20,17 @@ public class UpbitReaperWebSocketService {
 
         log.info("<======================== WebSocket Connecting =======================>");
 
-        Ticket ticket = Ticket.builder()
-                .ticket("UPBIT_TRADE")
+        UpbitWebSocketTicket upbitWebSocketTicket = UpbitWebSocketTicket.builder()
+                .ticket("UPBIT_ORDERBOOK")
                 .build();
 
-        Type type = Type.builder()
-                .type("trade")
+        UpbitWebSocketType upbitWebSocketType = UpbitWebSocketType.builder()
+                .type("orderbook")
                 .codes(Lists.newArrayList(pair))
                 .build();
 
 
-        upbitReaperWebSocketClient.connect(ticket, type);
+        upbitReaperWebSocketClient.connect(upbitWebSocketTicket, upbitWebSocketType);
     }
 
     public void disconncetTrade() {

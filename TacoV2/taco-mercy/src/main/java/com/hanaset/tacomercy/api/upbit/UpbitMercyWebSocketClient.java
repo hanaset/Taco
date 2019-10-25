@@ -3,8 +3,8 @@ package com.hanaset.tacomercy.api.upbit;
 
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
-import com.hanaset.tacocommon.api.upbit.model.body.Ticket;
-import com.hanaset.tacocommon.api.upbit.model.body.Type;
+import com.hanaset.tacocommon.api.upbit.model.body.UpbitWebSocketTicket;
+import com.hanaset.tacocommon.api.upbit.model.body.UpbitWebSocketType;
 import com.hanaset.tacocommon.properties.TradeUrlProperties;
 import com.hanaset.tacomercy.service.UpbitPairSearchService;
 import lombok.extern.slf4j.Slf4j;
@@ -31,11 +31,11 @@ public class UpbitMercyWebSocketClient {
         this.upbitPairSearchService = upbitPairSearchService;
     }
 
-    public void connect(Ticket ticket, Type type) {
+    public void connect(UpbitWebSocketTicket upbitWebSocketTicket, UpbitWebSocketType upbitWebSocketType) {
 
         log.info("Connecting to Upbit Web Socket Server...");
 
-        List sendBody = Lists.newArrayList(ticket, type);
+        List sendBody = Lists.newArrayList(upbitWebSocketTicket, upbitWebSocketType);
         String body = new Gson().toJson(sendBody);
 
         log.info("Upbit send message: {}", body);

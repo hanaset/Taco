@@ -1,9 +1,13 @@
 package com.hanaset.tacoreaper.web.rest;
 
+import com.hanaset.tacocommon.api.okex.OkexApiRestClient;
+import com.hanaset.tacocommon.api.okex.model.OkexOrderDetail;
+import com.hanaset.tacocommon.api.okex.model.OkexOrderRequest;
+import com.hanaset.tacocommon.api.okex.model.OkexOrderResponse;
 import com.hanaset.tacocommon.api.probit.ProbitApiRestClient;
-import com.hanaset.tacocommon.api.probit.model.ProbitOrderCancelRequest;
-import com.hanaset.tacocommon.api.probit.model.ProbitOrderRequest;
-import com.hanaset.tacocommon.api.probit.model.ProbitOrderResponse;
+import com.hanaset.tacoreaper.service.okex.ReaperOkexService;
+import com.hanaset.tacoreaper.web.rest.support.ReaperApiRestSupport;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -12,41 +16,46 @@ import java.math.BigDecimal;
 
 @RestController
 @RequestMapping("/test")
-public class ReaperTest {
+public class ReaperTest extends ReaperApiRestSupport {
 
     private final ProbitApiRestClient probitApiRestClient;
+    private final OkexApiRestClient okexApiRestClient;
 
-    public ReaperTest(ProbitApiRestClient probitApiRestClient) {
+    private final ReaperOkexService reaperOkexService;
+
+    public ReaperTest(ProbitApiRestClient probitApiRestClient,
+                      OkexApiRestClient okexApiRestClient,
+                      ReaperOkexService reaperOkexService) {
         this.probitApiRestClient = probitApiRestClient;
+        this.okexApiRestClient = okexApiRestClient;
+        this.reaperOkexService = reaperOkexService;
     }
 
     @GetMapping("/order")
-    public void orderTest() {
-        ProbitOrderRequest request = ProbitOrderRequest.builder()
-                .makretId("XRP-KRW") // PROBIT의 마켓 ID는 XRP-KRW 형식이다.
+    public ResponseEntity orderTest() {
+
+        OkexOrderRequest request = OkexOrderRequest.builder()
+                .instrumentId("XRP-KRW")
                 .side("buy")
-                .type("limit")
-                .timeInForce("gtc")
-                .limitPrice("316")
-                .quantity("10")
+                .price("347")
+                .size("10")
                 .build();
 
-        ProbitOrderResponse response = probitApiRestClient.order(request);
+        OkexOrderResponse response = okexApiRestClient.order(request);
+
         System.out.println(response);
 
-        try {
-            Thread.sleep(5000);
-        }catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        OkexOrderDetail detail = okexApiRestClient.orderDetail(response.getOrderId(), request.getInstrumentId());
 
-        ProbitOrderCancelRequest orderCancelRequest = ProbitOrderCancelRequest.builder()
-                .orderId(response.getId())
-                .marketId(response.getMarketId())
-                .build();
+        System.out.println(detail);
 
-        response = probitApiRestClient.cancelOrder(orderCancelRequest);
-        System.out.println(response);
+        return success(okexApiRestClient.cancelOrder(response.getOrderId(), request));
 
+
+    }
+
+    @GetMapping("/account")
+    public ResponseEntity accountTest() {
+        return success(reaperOkexService.getAccount());
     }
 }

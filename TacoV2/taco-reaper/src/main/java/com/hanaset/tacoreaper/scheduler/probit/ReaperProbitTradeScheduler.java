@@ -1,7 +1,7 @@
-package com.hanaset.tacoreaper.scheduler;
+package com.hanaset.tacoreaper.scheduler.probit;
 
-import com.hanaset.tacocommon.utils.PairUtils;
-import com.hanaset.tacoreaper.service.ReaperProbitTradeService;
+import com.hanaset.tacoreaper.cached.ReaperTradeCached;
+import com.hanaset.tacoreaper.service.probit.ReaperProbitTradeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.Trigger;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
@@ -27,16 +27,17 @@ public class ReaperProbitTradeScheduler {
     public void startScheduler(String pair) {
         scheduler = new ThreadPoolTaskScheduler();
         scheduler.initialize();
-        reaperProbitTradeService.init();
+        reaperProbitTradeService.init(pair);
         scheduler.schedule(getRunnable(pair), getTrigger());
         log.info("<======================== Probit Scheduler Start =======================>");
     }
 
     private Runnable getRunnable(String pair) {
-        return () -> reaperProbitTradeService.tradeProbit(PairUtils.getPair(pair));
+        //return () -> reaperProbitTradeService.tradeFlashingProbit(pair);
+        return () -> reaperProbitTradeService.tradeProbit(pair);
     }
 
     private Trigger getTrigger() {
-        return new PeriodicTrigger(1, TimeUnit.SECONDS);
+        return new PeriodicTrigger(ReaperTradeCached.TRADE_CONDITION.getInterval(), TimeUnit.SECONDS);
     }
 }

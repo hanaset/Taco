@@ -4,21 +4,17 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hanaset.tacocommon.api.upbit.model.UpbitOrderBook;
 import com.hanaset.tacocommon.api.upbit.model.UpbitOrderbookItem;
-import com.hanaset.tacocommon.api.upbit.model.UpbitTicket;
-import com.hanaset.tacocommon.api.upbit.model.UpbitTrade;
 import com.hanaset.tacocommon.cache.OrderbookCached;
-import com.hanaset.tacocommon.utils.Taco2UpbitConvert;
-import com.hanaset.tacoreaper.service.ReaperProbitTradeService;
+import com.hanaset.tacoreaper.service.okex.ReaperOkexTradeService;
+import com.hanaset.tacoreaper.service.probit.ReaperProbitTradeService;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
-import org.springframework.stereotype.Component;
 import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.BinaryWebSocketHandler;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.StandardCharsets;
@@ -27,9 +23,12 @@ import java.nio.charset.StandardCharsets;
 public class UpbitReaperWebSocketHandler extends BinaryWebSocketHandler {
 
     private final ReaperProbitTradeService reaperProbitTradeService;
+    private final ReaperOkexTradeService reaperOkexTradeService;
 
-    public UpbitReaperWebSocketHandler(ReaperProbitTradeService reaperProbitTradeService) {
+    public UpbitReaperWebSocketHandler(ReaperProbitTradeService reaperProbitTradeService,
+                                       ReaperOkexTradeService reaperOkexTradeService) {
         this.reaperProbitTradeService = reaperProbitTradeService;
+        this.reaperOkexTradeService = reaperOkexTradeService;
     }
 
     @Override
@@ -42,12 +41,16 @@ public class UpbitReaperWebSocketHandler extends BinaryWebSocketHandler {
 
         try {
 
-            if (jsonObject.get("type").equals("trade")) {
+            if (jsonObject.get("type").equals("orderbook")) {
 
-                UpbitTrade upbitTrade = objectMapper.readValue(charBuffer.toString(), UpbitTrade.class);
-                reaperProbitTradeService.updateUpbitData(upbitTrade);
+                UpbitOrderBook upbitOrderBook = objectMapper.readValue(charBuffer.toString(), UpbitOrderBook.class);
+
+                UpbitOrderbookItem item = upbitOrderBook.getOrderbook_units().get(0);
+                OrderbookCached.UPBIT.put(upbitOrderBook.getCode(), item);
+
+                reaperOkexTradeService.updateUpbitData(item, upbitOrderBook.getCode());
+
             }
-
         } catch (JsonParseException e) {
             log.error(e.getMessage());
         } catch (IOException e) {

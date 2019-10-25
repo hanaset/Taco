@@ -1,4 +1,4 @@
-package com.hanaset.tacocommon.entity.mld;
+package com.hanaset.tacocommon.entity.reaper;
 
 import com.hanaset.tacocommon.common.ZonedDateTimeConverter;
 import lombok.Builder;
@@ -8,33 +8,22 @@ import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 
-@Entity
+
 @Data
+@Entity
 @Builder
-@Table(name = "TB_MLD_CONFIG")
-public class MldConfigEntity {
+@Table(name = "TB_REAPER_BALANCE")
+public class ReaperBalanceEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name")
-    private String name;
+    @Column(name = "asset")
+    private String asset;
 
-    @Column(name = "base_asset")
-    private String baseAsset;
-
-    @Column(name = "base_asset_balance")
-    private BigDecimal baseAssetBalance;
-
-    @Column(name = "min_trading_volume")
-    private BigDecimal minTradingVolume;
-
-    @Column(name = "max_order_amount")
-    private BigDecimal maxOrderAmount;
-
-    @Column(name = "interval")
-    private Integer interval;
+    @Column(name = "amount")
+    private BigDecimal amount;
 
     @Column(name = "reg_dtime", updatable = false)
     @Convert(converter = ZonedDateTimeConverter.class)
@@ -43,5 +32,4 @@ public class MldConfigEntity {
     @Column(name = "upd_dtime")
     @Convert(converter = ZonedDateTimeConverter.class)
     private ZonedDateTime updDateTime;
-
 }

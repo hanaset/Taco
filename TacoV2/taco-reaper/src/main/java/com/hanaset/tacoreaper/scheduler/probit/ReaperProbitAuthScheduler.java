@@ -1,4 +1,4 @@
-package com.hanaset.tacoreaper.scheduler;
+package com.hanaset.tacoreaper.scheduler.probit;
 
 import com.hanaset.tacocommon.api.probit.ProbitAuthRestClient;
 import com.hanaset.tacocommon.cache.probit.ProbitAuth;

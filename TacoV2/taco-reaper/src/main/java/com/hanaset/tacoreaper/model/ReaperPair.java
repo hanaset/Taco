@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 
 @Data
 @Builder
-public class ReaperProbitPair {
+public class ReaperPair {
 
     private String side;
 

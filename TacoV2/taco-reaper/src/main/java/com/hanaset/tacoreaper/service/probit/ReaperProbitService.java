@@ -1,10 +1,11 @@
-package com.hanaset.tacoreaper.service;
+package com.hanaset.tacoreaper.service.probit;
 
 import com.hanaset.tacocommon.api.probit.ProbitApiRestClient;
 import com.hanaset.tacocommon.api.probit.model.ProbitBalance;
 import com.hanaset.tacocommon.api.probit.model.ProbitMarketResponse;
+import com.hanaset.tacocommon.utils.PairUtils;
 import com.hanaset.tacoreaper.api.upbit.UpbitReaperWebSocketService;
-import com.hanaset.tacoreaper.scheduler.ReaperProbitTradeScheduler;
+import com.hanaset.tacoreaper.scheduler.probit.ReaperProbitTradeScheduler;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,7 +29,7 @@ public class ReaperProbitService {
     public void serviceStart(String pair) {
         upbitReaperWebSocketService.conncentTrade(pair);
         reaperProbitTradeScheduler = new ReaperProbitTradeScheduler(reaperProbitTradeService);
-        reaperProbitTradeScheduler.startScheduler(pair);
+        reaperProbitTradeScheduler.startScheduler(PairUtils.getPair(pair));
 
     }
 

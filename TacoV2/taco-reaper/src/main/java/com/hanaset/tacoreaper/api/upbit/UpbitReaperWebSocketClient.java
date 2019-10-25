@@ -2,10 +2,11 @@ package com.hanaset.tacoreaper.api.upbit;
 
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
-import com.hanaset.tacocommon.api.upbit.model.body.Ticket;
-import com.hanaset.tacocommon.api.upbit.model.body.Type;
+import com.hanaset.tacocommon.api.upbit.model.body.UpbitWebSocketTicket;
+import com.hanaset.tacocommon.api.upbit.model.body.UpbitWebSocketType;
 import com.hanaset.tacocommon.properties.TradeUrlProperties;
-import com.hanaset.tacoreaper.service.ReaperProbitTradeService;
+import com.hanaset.tacoreaper.service.okex.ReaperOkexTradeService;
+import com.hanaset.tacoreaper.service.probit.ReaperProbitTradeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -25,20 +26,23 @@ public class UpbitReaperWebSocketClient {
 
     private final TradeUrlProperties tradeUrlProperties;
     private final ReaperProbitTradeService reaperProbitTradeService;
+    private final ReaperOkexTradeService reaperOkexTradeService;
     private WebSocketSession webSocketSession;
 
     public UpbitReaperWebSocketClient(TradeUrlProperties tradeUrlProperties,
-                                      ReaperProbitTradeService reaperProbitTradeService) {
+                                      ReaperProbitTradeService reaperProbitTradeService,
+                                      ReaperOkexTradeService reaperOkexTradeService) {
         this.tradeUrlProperties = tradeUrlProperties;
+        this.reaperOkexTradeService = reaperOkexTradeService;
         this.reaperProbitTradeService = reaperProbitTradeService;
     }
 
     @Async
-    public void connect(Ticket ticket, Type type) {
+    public void connect(UpbitWebSocketTicket upbitWebSocketTicket, UpbitWebSocketType upbitWebSocketType) {
 
         log.info("Connecting to Upbit Web Socket Server...");
 
-        List sendBody = Lists.newArrayList(ticket, type);
+        List sendBody = Lists.newArrayList(upbitWebSocketTicket, upbitWebSocketType);
         String body = new Gson().toJson(sendBody);
 
         log.info("Upbit send message: {}", body);
@@ -49,7 +53,7 @@ public class UpbitReaperWebSocketClient {
             webSocketClient = new StandardWebSocketClient();
 
             webSocketSession =
-                    webSocketClient.doHandshake(new UpbitReaperWebSocketHandler(reaperProbitTradeService), new WebSocketHttpHeaders(), URI.create(tradeUrlProperties.getUpbitWebSockUrl())).get();
+                    webSocketClient.doHandshake(new UpbitReaperWebSocketHandler(reaperProbitTradeService, reaperOkexTradeService), new WebSocketHttpHeaders(), URI.create(tradeUrlProperties.getUpbitWebSockUrl())).get();
 
             try {
                 TextMessage message = new TextMessage(body);

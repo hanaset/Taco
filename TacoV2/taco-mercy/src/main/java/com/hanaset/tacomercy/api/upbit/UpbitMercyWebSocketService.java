@@ -1,7 +1,7 @@
 package com.hanaset.tacomercy.api.upbit;
 
-import com.hanaset.tacocommon.api.upbit.model.body.Ticket;
-import com.hanaset.tacocommon.api.upbit.model.body.Type;
+import com.hanaset.tacocommon.api.upbit.model.body.UpbitWebSocketTicket;
+import com.hanaset.tacocommon.api.upbit.model.body.UpbitWebSocketType;
 import com.hanaset.tacomercy.service.UpbitMercyMarketService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -34,15 +34,15 @@ public class UpbitMercyWebSocketService {
 
         log.info("<======================== WebSocket Connceting =======================>");
 
-        Ticket ticket = Ticket.builder()
+        UpbitWebSocketTicket upbitWebSocketTicket = UpbitWebSocketTicket.builder()
                 .ticket("UPBIT_ORDERBOOK")
                 .build();
 
-        Type type = Type.builder()
+        UpbitWebSocketType upbitWebSocketType = UpbitWebSocketType.builder()
                 .type("orderbook")
                 .codes(pairs)
                 .build();
 
-        upbitMercyWebSocketClient.connect(ticket, type);
+        upbitMercyWebSocketClient.connect(upbitWebSocketTicket, upbitWebSocketType);
     }
 }

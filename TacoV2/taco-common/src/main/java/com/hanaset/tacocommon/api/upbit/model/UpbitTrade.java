@@ -1,5 +1,7 @@
 package com.hanaset.tacocommon.api.upbit.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.gson.annotations.SerializedName;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -9,29 +11,39 @@ public class UpbitTrade {
 
     private String code;
 
-    private BigDecimal trade_volume;
+    @JsonProperty("trade_volume")
+    private BigDecimal tradeVolume;
 
-    private String trade_time;
+    @JsonProperty("trade_time")
+    private String tradeTime;
 
-    private BigDecimal trade_price;
+    @JsonProperty("trade_price")
+    private BigDecimal tradePrice;
 
-    private BigDecimal sequential_id;
+    @JsonProperty("sequential_id")
+    private BigDecimal sequentialId;
 
-    private Long trade_timestamp;
+    @JsonProperty("trade_timestamp")
+    private Long tradeTimestamp;
 
     private String change;
 
     private String type;
 
-    private String trade_date;
+    @JsonProperty("trade_date")
+    private String tradeDate;
 
-    private String stream_type;
+    @JsonProperty("stream_type")
+    private String streamType;
 
-    private BigDecimal prev_closing_price;
+    @JsonProperty("prev_closing_price")
+    private BigDecimal prevClosingPrice;
 
-    private BigDecimal change_price;
+    @JsonProperty("change_price")
+    private BigDecimal changePrice;
 
-    private String ask_bid;
+    @JsonProperty("ask_bid")
+    private String askBid;
 
     private Long timestamp;
 }

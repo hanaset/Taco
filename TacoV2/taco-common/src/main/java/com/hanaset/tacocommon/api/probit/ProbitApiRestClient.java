@@ -6,7 +6,6 @@ import com.hanaset.tacocommon.api.TacoResponse;
 import com.hanaset.tacocommon.api.probit.model.*;
 import com.hanaset.tacocommon.exception.TacoResponseException;
 import com.hanaset.tacocommon.model.TacoErrorCode;
-import com.hanaset.tacocommon.properties.TradeKeyProperties;
 import com.hanaset.tacocommon.properties.TradeUrlProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -96,6 +95,20 @@ public class ProbitApiRestClient {
         }catch (IOException e) {
             log.error("Probit CancelOrder API IOException : {}", e.getMessage());
             throw new TacoResponseException(TacoErrorCode.IO_ERROR, "Probit CancelOrder API IOException");
+        }
+    }
+
+    public ProbitOrderInfoResponse getOrder(String marketId, String orderId) {
+
+        String token = probitAuthRestClient.getToken();
+
+        try{
+            Response<ProbitResponse<List<ProbitOrderInfoResponse>>> response = probitApiRestService.getOrder(token, marketId, orderId).execute();
+            TacoResponse.response(response, TacoErrorCode.API_ERROR, "Probit getOrder API Error");
+            return response.body().getData().get(0);
+        }catch (IOException e) {
+            log.error("Probit CancelOrder API IOException : {}", e.getMessage());
+            throw new TacoResponseException(TacoErrorCode.IO_ERROR, "Probit getOrder API IOException");
         }
     }
 

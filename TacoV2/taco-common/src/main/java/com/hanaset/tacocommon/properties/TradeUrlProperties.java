@@ -30,4 +30,10 @@ public class TradeUrlProperties {
     @Value("${probit.auth}")
     private String probitAuthUrl;
 
+    @Value("${okex.websocket}")
+    private String okexWebSockUrl;
+
+    @Value("${okex.public}")
+    private String okexPublicUrl;
+
 }

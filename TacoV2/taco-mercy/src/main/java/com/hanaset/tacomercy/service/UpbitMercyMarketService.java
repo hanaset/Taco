@@ -32,7 +32,7 @@ public class UpbitMercyMarketService {
 
             TacoResponse.response(marketList, TacoErrorCode.API_ERROR, "UPBIT API ERROR");
             Map<String, Integer> pairMap = marketList.body().stream().filter(upbitMarket -> upbitMarket.getMarket().contains("KRW") || upbitMarket.getMarket().contains("BTC"))
-                    .collect(Collectors.toMap(upbitMarket -> Taco2UpbitConvert.convertPair(upbitMarket.getMarket()), upbitMarket -> 1, (v1, v2) -> v1 + v2));
+                    .collect(Collectors.toMap(upbitMarket -> Taco2UpbitConvert.convertPair(upbitMarket.getMarket()), upbitMarket -> 1, (v1, v2) -> v1 + 1));
 
 
             pairMap.forEach((k, v) -> {

@@ -1,6 +1,7 @@
 package com.hanaset.tacogenji.web.rest;
 
 import com.hanaset.tacocommon.utils.DateTimeUtils;
+import com.hanaset.tacogenji.api.okex.OkexGenjiWebSocketService;
 import com.hanaset.tacogenji.api.upbit.UpbitGenjiWebSocketService;
 import com.hanaset.tacogenji.service.CryptoSelectService;
 import com.hanaset.tacogenji.service.UpbitBalanceService;
@@ -19,13 +20,16 @@ public class GenjiBalanceControllerRest extends GenjiApiRestSupport {
     private final UpbitBalanceService upbitBalanceService;
     private final CryptoSelectService cryptoSelectService;
     private final UpbitGenjiWebSocketService upbitGenjiWebSocketService;
+    private final OkexGenjiWebSocketService okexGenjiWebSocketService;
 
     public GenjiBalanceControllerRest(UpbitBalanceService upbitBalanceService,
                                       CryptoSelectService cryptoSelectService,
-                                      UpbitGenjiWebSocketService upbitGenjiWebSocketService) {
+                                      UpbitGenjiWebSocketService upbitGenjiWebSocketService,
+                                      OkexGenjiWebSocketService okexGenjiWebSocketService) {
         this.upbitBalanceService = upbitBalanceService;
         this.cryptoSelectService = cryptoSelectService;
         this.upbitGenjiWebSocketService = upbitGenjiWebSocketService;
+        this.okexGenjiWebSocketService = okexGenjiWebSocketService;
     }
 
     @ApiOperation(value =
@@ -76,7 +80,8 @@ public class GenjiBalanceControllerRest extends GenjiApiRestSupport {
     )
     @PostMapping("/orderbook_connect")
     public ResponseEntity orderbookConnect(@RequestParam String pair) {
-        upbitGenjiWebSocketService.orderbookConnect(pair);
+        okexGenjiWebSocketService.orderbookConnect(pair);
+        //upbitGenjiWebSocketService.orderbookConnect(pair);
         return success("OK");
     }
 

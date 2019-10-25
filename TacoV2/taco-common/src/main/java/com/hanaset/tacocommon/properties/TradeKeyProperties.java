@@ -24,4 +24,13 @@ public class TradeKeyProperties {
     @Value("${probit.secretKey}")
     private String probitSecretKey;
 
+    @Value("${okex.accessKey}")
+    private String okexAccessKey;
+
+    @Value("${okex.secretKey}")
+    private String okexSecretKey;
+
+    @Value("${okex.passphrase}")
+    private String okexPass;
+
 }

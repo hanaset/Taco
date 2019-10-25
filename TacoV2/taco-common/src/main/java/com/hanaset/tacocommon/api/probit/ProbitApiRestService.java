@@ -2,10 +2,7 @@ package com.hanaset.tacocommon.api.probit;
 
 import com.hanaset.tacocommon.api.probit.model.*;
 import retrofit2.Call;
-import retrofit2.http.Body;
-import retrofit2.http.GET;
-import retrofit2.http.Header;
-import retrofit2.http.POST;
+import retrofit2.http.*;
 
 import java.util.List;
 
@@ -22,4 +19,7 @@ public interface ProbitApiRestService {
 
     @GET("/api/exchange/v1/balance")
     Call<ProbitResponse<List<ProbitBalance>>> getBalance(@Header("Authorization") String auth);
+
+    @GET("/api/exchange/v1/order")
+    Call<ProbitResponse<List<ProbitOrderInfoResponse>>> getOrder(@Header("Authorization") String auth, @Query("market_id") String marketId, @Query("order_id") String orderId);
 }

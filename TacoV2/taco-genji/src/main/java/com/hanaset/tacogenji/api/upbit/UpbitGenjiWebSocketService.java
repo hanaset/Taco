@@ -1,15 +1,10 @@
 package com.hanaset.tacogenji.api.upbit;
 
 import com.google.common.collect.Lists;
-import com.hanaset.tacocommon.api.upbit.model.body.Ticket;
-import com.hanaset.tacocommon.api.upbit.model.body.Type;
-import com.hanaset.tacocommon.utils.DateTimeUtils;
-import com.hanaset.tacogenji.service.CryptoSelectService;
+import com.hanaset.tacocommon.api.upbit.model.body.UpbitWebSocketTicket;
+import com.hanaset.tacocommon.api.upbit.model.body.UpbitWebSocketType;
 import lombok.extern.slf4j.Slf4j;
-import org.joda.time.DateTime;
 import org.springframework.stereotype.Service;
-
-import javax.annotation.PostConstruct;
 
 @Slf4j
 @Service
@@ -25,17 +20,17 @@ public class UpbitGenjiWebSocketService {
 
         log.info("<======================== WebSocket Connecting =======================>");
 
-        Ticket ticket = Ticket.builder()
+        UpbitWebSocketTicket upbitWebSocketTicket = UpbitWebSocketTicket.builder()
                 .ticket("UPBIT_ORDERBOOK")
                 .build();
 
-        Type type = Type.builder()
+        UpbitWebSocketType upbitWebSocketType = UpbitWebSocketType.builder()
                 .type("orderbook")
                 .codes(Lists.newArrayList("KRW-" + pair, "BTC-" + pair, "KRW-BTC"))
                 .build();
 
 
-        upbitGenjiWebSocketClient.connect(ticket, type);
+        upbitGenjiWebSocketClient.connect(upbitWebSocketTicket, upbitWebSocketType);
     }
 
     public void orderbookDisconnect() {
