@@ -14,3 +14,7 @@ Mercy : UPBIT 원화와 비트코인의 갭 크롤링 서버
 Genji : UPBIT 원화와 비트코인의 갮에 대한 거래 서버
 
 Reaper : UPBIT 호가 창을 따라가는 거래소들에 대한 서버
+
+### TACO V3
+
+정지
