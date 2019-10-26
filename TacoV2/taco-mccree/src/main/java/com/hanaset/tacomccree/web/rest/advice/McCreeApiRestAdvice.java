@@ -1,16 +1,16 @@
-package com.hanaset.tacoreaper.web.rest.advice;
+package com.hanaset.tacomccree.web.rest.advice;
 
 import com.hanaset.tacocommon.exception.TacoResponseException;
-import com.hanaset.tacoreaper.web.rest.support.ReaperApiRestSupport;
+import com.hanaset.tacomccree.web.rest.support.McCreeApiRestSupport;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
-public class ReaperApiRestAdvice extends ReaperApiRestSupport {
+public class McCreeApiRestAdvice extends McCreeApiRestSupport {
 
     @ExceptionHandler(TacoResponseException.class)
-    public ResponseEntity handleReaperResponseException(TacoResponseException ex) {
+    public ResponseEntity handleMcCreeResponseException(TacoResponseException ex) {
         return reaperResponseException(ex.getCode(), ex.getMessage());
     }
 

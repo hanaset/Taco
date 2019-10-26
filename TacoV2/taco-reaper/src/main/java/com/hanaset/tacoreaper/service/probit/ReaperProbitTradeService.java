@@ -112,6 +112,7 @@ public class ReaperProbitTradeService {
         probitApiRestClient.cancelOrder(probitOrderCancelRequest);
     }
 
+    @Synchronized
     public void tradeProbit(String pair) {
 
         List<ProbitBalance> balances = probitApiRestClient.getBalance();

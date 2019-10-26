@@ -129,7 +129,13 @@ public class ReaperOkexTradeService {
                 }
             }
 
-            ReaperTradeCached.OKEX_RESPONSE.put(pair, okexApiRestClient.order(request));
+            OkexOrderResponse response = okexApiRestClient.order(request);
+
+            if(response.getResult())
+                ReaperTradeCached.OKEX_RESPONSE.put(pair, response);
+            else {
+                System.out.println(response);
+            }
 
         } else { // 주문내역이 있을 경우
 
