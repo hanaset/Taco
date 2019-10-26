@@ -14,7 +14,6 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.BinaryWebSocketHandler;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.StandardCharsets;
@@ -41,11 +40,8 @@ public class UpbitMcCreeiWebSocketHandler extends BinaryWebSocketHandler {
 
                 UpbitOrderBook upbitOrderBook = objectMapper.readValue(charBuffer.toString(), UpbitOrderBook.class);
 
-
-                    UpbitOrderbookItem item = upbitOrderBook.getOrderbook_units().get(0);
-                    OrderbookCached.UPBIT.put(upbitOrderBook.getCode(), item);
-
-                System.out.println(item);
+                UpbitOrderbookItem item = upbitOrderBook.getOrderbook_units().get(0);
+                OrderbookCached.UPBIT.put(upbitOrderBook.getCode(), item);
             }
 
         } catch (JsonParseException e) {

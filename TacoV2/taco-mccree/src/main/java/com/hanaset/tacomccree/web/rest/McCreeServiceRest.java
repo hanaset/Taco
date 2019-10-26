@@ -1,6 +1,6 @@
 package com.hanaset.tacomccree.web.rest;
 
-import com.hanaset.tacomccree.service.McCreeUpbitService;
+import com.hanaset.tacomccree.service.upbit.McCreeUpbitService;
 import com.hanaset.tacomccree.web.rest.support.McCreeApiRestSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

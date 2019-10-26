@@ -1,10 +1,10 @@
-package com.hanaset.tacomccree.service;
+package com.hanaset.tacomccree.service.upbit;
 
 import com.hanaset.tacocommon.entity.mccree.McCreeAssetEntity;
 import com.hanaset.tacocommon.repository.mccree.McCreeAssetRepository;
-import com.hanaset.tacomccree.api.upbit.UpbitMcCreeWebSocketClient;
 import com.hanaset.tacomccree.api.upbit.UpbitMcCreeWebSocketService;
 import com.hanaset.tacomccree.config.PairConfig;
+import com.hanaset.tacomccree.scheduler.upbit.McCreeUpbitTradeScheduler;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,11 +15,15 @@ public class McCreeUpbitService {
 
     private final McCreeAssetRepository mcCreeAssetRepository;
     private final UpbitMcCreeWebSocketService upbitMcCreeWebSocketService;
+    private final McCreeUpbitTradeService mcCreeUpbitTradeService;
+    private List<McCreeUpbitTradeScheduler> mcCreeUpbitTradeSchedulers;
 
     public McCreeUpbitService(McCreeAssetRepository mcCreeAssetRepository,
-                              UpbitMcCreeWebSocketService upbitMcCreeWebSocketService) {
+                              UpbitMcCreeWebSocketService upbitMcCreeWebSocketService,
+                              McCreeUpbitTradeService mcCreeUpbitTradeService) {
         this.mcCreeAssetRepository = mcCreeAssetRepository;
         this.upbitMcCreeWebSocketService = upbitMcCreeWebSocketService;
+        this.mcCreeUpbitTradeService = mcCreeUpbitTradeService;
     }
 
     private List<PairConfig> setting() {
@@ -36,6 +40,7 @@ public class McCreeUpbitService {
                     .askPrice(mcCreeAssetEntity.getAskPrice())
                     .bidPrice(mcCreeAssetEntity.getBidPrice())
                     .fee(mcCreeAssetEntity.getFee())
+                    .interval(mcCreeAssetEntity.getInterval())
                     .volume(mcCreeAssetEntity.getVolume())
                     .build()
         ).collect(Collectors.toList());
@@ -44,11 +49,20 @@ public class McCreeUpbitService {
     }
 
     public void startService() {
-        List<String> pairs = setting().stream().map(pairConfig -> pairConfig.getBaseAsset() + "-" + pairConfig.getAsset()).collect(Collectors.toList());
+
+        List<PairConfig> pairConfigs = setting();
+        List<String> pairs = pairConfigs.stream().map(pairConfig -> pairConfig.getBaseAsset() + "-" + pairConfig.getAsset()).collect(Collectors.toList());
         upbitMcCreeWebSocketService.orderbookConnect(pairs);
+
+        mcCreeUpbitTradeSchedulers =  pairConfigs.stream().map(pairConfig -> {
+            McCreeUpbitTradeScheduler scheduler = new McCreeUpbitTradeScheduler(mcCreeUpbitTradeService);
+            scheduler.startScheduler(pairConfig);
+            return scheduler;
+        }).collect(Collectors.toList());
     }
 
     public void finishService() {
         upbitMcCreeWebSocketService.orderbookDisconnect();
+        mcCreeUpbitTradeSchedulers.stream().forEach(McCreeUpbitTradeScheduler::stopScheduler);
     }
 }

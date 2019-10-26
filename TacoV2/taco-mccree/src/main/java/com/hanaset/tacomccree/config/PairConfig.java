@@ -19,6 +19,8 @@ public class PairConfig {
 
     private BigDecimal fee;
 
+    private Integer interval;
+
     private BigDecimal askPrice; // 추가적으로 더 싸게 살지
 
     private BigDecimal bidPrice; // 추가적으로 더 비싸게 팔지

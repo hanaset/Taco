@@ -38,6 +38,8 @@ public class McCreeAssetEntity {
 
     private Boolean enable;
 
+    private Integer interval;
+
     @Column(name = "reg_dtime", updatable = false)
     @Convert(converter = ZonedDateTimeConverter.class)
     private ZonedDateTime regDateTime;
