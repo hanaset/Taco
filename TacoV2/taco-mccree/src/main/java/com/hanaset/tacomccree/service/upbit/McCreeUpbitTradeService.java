@@ -8,7 +8,9 @@ import com.hanaset.tacocommon.api.upbit.model.UpbitOrderRequest;
 import com.hanaset.tacocommon.api.upbit.model.UpbitOrderResponse;
 import com.hanaset.tacocommon.api.upbit.model.UpbitOrderbookItem;
 import com.hanaset.tacocommon.cache.OrderbookCached;
+import com.hanaset.tacocommon.entity.mccree.McCreeTransactionEntity;
 import com.hanaset.tacocommon.model.TacoErrorCode;
+import com.hanaset.tacocommon.repository.mccree.McCreeTransactionRepository;
 import com.hanaset.tacomccree.config.PairConfig;
 import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
@@ -29,9 +31,12 @@ import java.util.stream.Collectors;
 public class McCreeUpbitTradeService {
 
     private final UpbitApiRestClient upbitApiRestClient;
+    private final McCreeTransactionRepository mcCreeTransactionRepository;
 
-    public McCreeUpbitTradeService(UpbitApiRestClient upbitApiRestClient) {
+    public McCreeUpbitTradeService(UpbitApiRestClient upbitApiRestClient,
+                                   McCreeTransactionRepository mcCreeTransactionRepository) {
         this.upbitApiRestClient = upbitApiRestClient;
+        this.mcCreeTransactionRepository = mcCreeTransactionRepository;
     }
 
     public void init(PairConfig pairConfig) {
@@ -180,11 +185,41 @@ public class McCreeUpbitTradeService {
                 });
                 bDelete = true;
             }
+
+        } else if (BigDecimal.valueOf(item.getAsk_price() * item.getAsk_size()).compareTo(pairConfig.getLimitPrice()) > 0 && orderList.size() != 0) {
+            List<UpbitOrderResponse> deleteList = orderList.stream()
+                    .filter(upbitOrderResponse -> upbitOrderResponse.getSide().equals("ask") && !upbitOrderResponse.getPrice().equals(item.getAsk_price()))
+                    .collect(Collectors.toList());
+
+            if (deleteList.size() != 0) {
+                log.info("[{} 매도 주문 내역 삭제 => {}, {}]", pairConfig.getMarket(), item.getAsk_size(), item.getAsk_price() * item.getAsk_size());
+                deleteList = orderList.stream().filter(upbitOrderResponse -> upbitOrderResponse.getSide().equals("ask")).collect(Collectors.toList());
+                deleteList.forEach(upbitOrderResponse -> {
+                    System.out.println(upbitOrderResponse);
+                    orderDeleting(upbitOrderResponse.getUuid());
+                });
+                bDelete = true;
+            }
         }
 
         if (BigDecimal.valueOf(item.getBid_price() * item.getBid_size()).compareTo(pairConfig.getLimitPrice()) <= 0 && orderList.size() != 0) {
             List<UpbitOrderResponse> deleteList = orderList.stream()
                     .filter(upbitOrderResponse -> upbitOrderResponse.getSide().equals("bid") && upbitOrderResponse.getPrice().equals(item.getBid_price()))
+                    .collect(Collectors.toList());
+
+            if (deleteList.size() != 0) {
+                log.info("[{} 매수 주문 내역 삭제 => {}, {}]", pairConfig.getMarket(), item.getBid_size(), item.getBid_price() * item.getBid_size());
+                deleteList = orderList.stream().filter(upbitOrderResponse -> upbitOrderResponse.getSide().equals("bid")).collect(Collectors.toList());
+                deleteList.forEach(upbitOrderResponse -> {
+                    System.out.println(upbitOrderResponse);
+                    orderDeleting(upbitOrderResponse.getUuid());
+                });
+                bDelete = true;
+            }
+
+        } else if(BigDecimal.valueOf(item.getBid_price() * item.getBid_size()).compareTo(pairConfig.getLimitPrice()) > 0 && orderList.size() != 0) {
+            List<UpbitOrderResponse> deleteList = orderList.stream()
+                    .filter(upbitOrderResponse -> upbitOrderResponse.getSide().equals("bid") && !upbitOrderResponse.getPrice().equals(item.getBid_price()))
                     .collect(Collectors.toList());
 
             if (deleteList.size() != 0) {
@@ -221,17 +256,44 @@ public class McCreeUpbitTradeService {
 
             asking(item, getInitAskVolume(pairConfig, account), pairConfig);
             bidding(item, getInitBidVolume(pairConfig, account), pairConfig);
-        } else if(pairConfig.getVolume().multiply(BigDecimal.valueOf(2)).compareTo(BigDecimal.valueOf(askingAmount + biddingAmount)) != 0){
 
-            if (askingAmount.compareTo(pairConfig.getVolume().doubleValue()) != 0) {
+        } else if (pairConfig.getVolume().multiply(BigDecimal.valueOf(2)).compareTo(BigDecimal.valueOf(askingAmount + biddingAmount)) != 0) {
+
+            if (askingAmount.compareTo(pairConfig.getVolume().doubleValue()) != 0 && askingAmount > 0) {
                 asking(item, pairConfig.getVolume().subtract(BigDecimal.valueOf(askingAmount)), pairConfig);
                 bidding(item, pairConfig.getVolume().subtract(BigDecimal.valueOf(askingAmount)), pairConfig);
+
+                // 거래 내역 기록
             }
 
-            if (biddingAmount.compareTo(pairConfig.getVolume().doubleValue()) != 0) {
+            if (biddingAmount.compareTo(pairConfig.getVolume().doubleValue()) != 0 && biddingAmount > 0) {
                 asking(item, pairConfig.getVolume().subtract(BigDecimal.valueOf(biddingAmount)), pairConfig);
                 bidding(item, pairConfig.getVolume().subtract(BigDecimal.valueOf(biddingAmount)), pairConfig);
+
+                // 거래 내역 기록
             }
+
+            List<McCreeTransactionEntity> mcCreeTransactionEntities = orderList.stream().filter(upbitOrderResponse -> upbitOrderResponse.getExecuted_volume() != 0).map(upbitOrderResponse ->
+                    McCreeTransactionEntity.builder()
+                        .uuid(upbitOrderResponse.getUuid())
+                        .sid(upbitOrderResponse.getSide())
+                        .ordType(upbitOrderResponse.getOrd_type())
+                        .price(BigDecimal.valueOf(upbitOrderResponse.getPrice()))
+                        .avgPrice(BigDecimal.valueOf(upbitOrderResponse.getAvg_price()))
+                        .sid(upbitOrderResponse.getState())
+                        .market(upbitOrderResponse.getMarket())
+                        .createAt(upbitOrderResponse.getCreated_at())
+                        .volume(BigDecimal.valueOf(upbitOrderResponse.getVolume()))
+                        .remainingVolume(BigDecimal.valueOf(upbitOrderResponse.getRemaining_volume()))
+                        .reservedFee(BigDecimal.valueOf(upbitOrderResponse.getReserved_fee()))
+                        .paidFee(BigDecimal.valueOf(upbitOrderResponse.getPaid_fee()))
+                        .locked(BigDecimal.valueOf(upbitOrderResponse.getLocked()))
+                        .executedVolume(BigDecimal.valueOf(upbitOrderResponse.getExecuted_volume()))
+                        .build()
+
+            ).collect(Collectors.toList());
+
+            mcCreeTransactionRepository.saveAll(mcCreeTransactionEntities);
         }
 
         OrderbookCached.UPBIT_LOCKS.put(pairConfig.getMarket(), false);
