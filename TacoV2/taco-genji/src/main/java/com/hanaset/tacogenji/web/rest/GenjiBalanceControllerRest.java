@@ -1,16 +1,17 @@
 package com.hanaset.tacogenji.web.rest;
 
 import com.hanaset.tacocommon.utils.DateTimeUtils;
-import com.hanaset.tacogenji.api.okex.OkexGenjiWebSocketService;
 import com.hanaset.tacogenji.api.upbit.UpbitGenjiWebSocketService;
 import com.hanaset.tacogenji.service.CryptoSelectService;
 import com.hanaset.tacogenji.service.UpbitBalanceService;
 import com.hanaset.tacogenji.web.rest.support.GenjiApiRestSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @Api(tags = "Controller API", value = "데이터 설정")
 @RestController
@@ -20,16 +21,13 @@ public class GenjiBalanceControllerRest extends GenjiApiRestSupport {
     private final UpbitBalanceService upbitBalanceService;
     private final CryptoSelectService cryptoSelectService;
     private final UpbitGenjiWebSocketService upbitGenjiWebSocketService;
-    private final OkexGenjiWebSocketService okexGenjiWebSocketService;
 
     public GenjiBalanceControllerRest(UpbitBalanceService upbitBalanceService,
                                       CryptoSelectService cryptoSelectService,
-                                      UpbitGenjiWebSocketService upbitGenjiWebSocketService,
-                                      OkexGenjiWebSocketService okexGenjiWebSocketService) {
+                                      UpbitGenjiWebSocketService upbitGenjiWebSocketService) {
         this.upbitBalanceService = upbitBalanceService;
         this.cryptoSelectService = cryptoSelectService;
         this.upbitGenjiWebSocketService = upbitGenjiWebSocketService;
-        this.okexGenjiWebSocketService = okexGenjiWebSocketService;
     }
 
     @ApiOperation(value =
@@ -80,8 +78,8 @@ public class GenjiBalanceControllerRest extends GenjiApiRestSupport {
     )
     @PostMapping("/orderbook_connect")
     public ResponseEntity orderbookConnect(@RequestParam String pair) {
-        okexGenjiWebSocketService.orderbookConnect(pair);
-        //upbitGenjiWebSocketService.orderbookConnect(pair);
+        //okexGenjiWebSocketService.orderbookConnect(pair);
+        upbitGenjiWebSocketService.orderbookConnect(pair);
         return success("OK");
     }
 

@@ -3,6 +3,7 @@ package com.hanaset.tacocommon.entity.mccree;
 import com.hanaset.tacocommon.common.ZonedDateTimeConverter;
 import lombok.Builder;
 import lombok.Data;
+import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -34,7 +35,14 @@ public class McCreeAssetEntity {
     @Column(name = "bid_price")
     private BigDecimal bidPrice; // 추가적으로 더 비싸게 팔지
 
+    @Column(name = "limit_price")
+    private BigDecimal limitPrice;
+
+    private BigDecimal rate;
+
     private BigDecimal fee;
+
+    private BigDecimal unit;
 
     private Boolean enable;
 

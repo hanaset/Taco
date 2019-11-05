@@ -27,7 +27,7 @@ public class McCreeServiceRest extends McCreeApiRestSupport {
     )
     @PostMapping("/start")
     public ResponseEntity start() {
-        mcCreeUpbitService.startService();
+        mcCreeUpbitService.schedulerStartService();
         return success("OK");
     }
 
@@ -36,9 +36,29 @@ public class McCreeServiceRest extends McCreeApiRestSupport {
     )
     @PostMapping("/finish")
     public ResponseEntity finish() {
-        mcCreeUpbitService.finishService();
+        mcCreeUpbitService.schedulerFinishService();
         return success("OK");
     }
+
+    @ApiOperation(value =
+            "서비스 시작"
+    )
+    @PostMapping("/webStart")
+    public ResponseEntity webSocketStart() {
+        mcCreeUpbitService.webSocketStartService();
+        return success("OK");
+    }
+
+    @ApiOperation(value =
+            "서비스 종료"
+    )
+    @PostMapping("/webFinish")
+    public ResponseEntity webSocketFinish() {
+        mcCreeUpbitService.webSocketFinishService();
+        return success("OK");
+    }
+
+
 
 //    @ApiOperation(value =
 //            "잔고 조회"

@@ -14,6 +14,8 @@ public class OrderbookCached {
 
     public static Map<String, UpbitOrderbookItem> UPBIT = Maps.newHashMap();
 
+    public static Map<String, Boolean> UPBIT_CHANGE = Maps.newHashMap();
+
     public static boolean UPBIT_LOCK = false;
 
     public static Map<String, Boolean> UPBIT_LOCKS = Maps.newHashMap();

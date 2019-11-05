@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.Trigger;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.support.PeriodicTrigger;
-import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
 
@@ -23,6 +22,7 @@ public class McCreeUpbitTradeScheduler {
 
     public void stopScheduler() {
         scheduler.shutdown();
+        mcCreeUpbitTradeService.init(pairConfig);
         log.info("<======================== Upbit {} Scheduler Shutdown =======================>", pairConfig.getAsset());
     }
 
@@ -30,6 +30,7 @@ public class McCreeUpbitTradeScheduler {
         this.pairConfig = pairConfig;
         scheduler = new ThreadPoolTaskScheduler();
         scheduler.initialize();
+        mcCreeUpbitTradeService.init(pairConfig);
         scheduler.schedule(getRunnable(pairConfig), getTrigger(pairConfig));
         log.info("<======================== Upbit {} Scheduler Start =======================>", pairConfig.getAsset());
         return scheduler;

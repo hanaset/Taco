@@ -1,9 +1,6 @@
 package com.hanaset.tacocommon.api.upbit;
 
-import com.hanaset.tacocommon.api.upbit.model.UpbitAccount;
-import com.hanaset.tacocommon.api.upbit.model.UpbitMarket;
-import com.hanaset.tacocommon.api.upbit.model.UpbitOrderRequest;
-import com.hanaset.tacocommon.api.upbit.model.UpbitOrderResponse;
+import com.hanaset.tacocommon.api.upbit.model.*;
 import io.reactivex.Single;
 import retrofit2.Call;
 import retrofit2.http.*;
@@ -23,5 +20,11 @@ public interface UpbitApiRestService {
 
     @GET("/v1/market/all")
     Call<List<UpbitMarket>> getMarket();
+
+    @GET("/v1/orders")
+    Call<List<UpbitOrderResponse>> getOrders(@Header("Authorization") String token, @Query("market") String market);
+
+    @GET("/v1/order")
+    Call<UpbitOrderResponse> getOrder(@Header("Authorization") String token, @Query("uuid") String uuid);
 
 }

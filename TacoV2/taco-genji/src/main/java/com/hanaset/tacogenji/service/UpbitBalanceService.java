@@ -56,7 +56,7 @@ public class UpbitBalanceService {
     public void cacheSaveBalance() {
 
         try {
-            Response<List<UpbitAccount>> upbitLists = upbitApiRestClient.getAccount("amount").execute();
+            Response<List<UpbitAccount>> upbitLists = upbitApiRestClient.getAccount().execute();
 
             TacoResponse.response(upbitLists, TacoErrorCode.API_ERROR, "업비트 API 통신 에러");
 
@@ -82,7 +82,7 @@ public class UpbitBalanceService {
 
         try {
 
-            Response<List<UpbitAccount>> upbitLists = upbitApiRestClient.getAccount("amount").execute();
+            Response<List<UpbitAccount>> upbitLists = upbitApiRestClient.getAccount().execute();
 
             TacoResponse.response(upbitLists, TacoErrorCode.API_ERROR, "업비트 API 통신 에러");
 
@@ -99,7 +99,7 @@ public class UpbitBalanceService {
 
         try {
 
-            Response<List<UpbitAccount>> upbitLists = upbitApiRestClient.getAccount("amount").execute();
+            Response<List<UpbitAccount>> upbitLists = upbitApiRestClient.getAccount().execute();
 
             TacoResponse.response(upbitLists, TacoErrorCode.API_ERROR, "업비트 API 통신 에러");
 
@@ -124,7 +124,7 @@ public class UpbitBalanceService {
 
         try {
 
-            Response<List<UpbitAccount>> upbitAccounts = upbitApiRestClient.getAccount("amount").execute();
+            Response<List<UpbitAccount>> upbitAccounts = upbitApiRestClient.getAccount().execute();
 
             TacoResponse.response(upbitAccounts, TacoErrorCode.API_ERROR, "업비트 API 통신 에러");
 

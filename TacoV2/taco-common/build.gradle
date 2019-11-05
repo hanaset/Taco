@@ -46,6 +46,4 @@ dependencies {
     compile("com.squareup.okhttp3:okhttp-urlconnection:3.9.0") {
         exclude group: 'com.squareup.okhttp3', module: 'okhttp'
     }
-
-    compile group: 'org.knowm.xchange', name: 'xchange-okcoin', version: '4.4.0'
 }

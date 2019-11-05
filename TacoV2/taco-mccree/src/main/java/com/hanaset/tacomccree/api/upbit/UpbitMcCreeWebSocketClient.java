@@ -5,6 +5,8 @@ import com.google.gson.Gson;
 import com.hanaset.tacocommon.api.upbit.model.body.UpbitWebSocketTicket;
 import com.hanaset.tacocommon.api.upbit.model.body.UpbitWebSocketType;
 import com.hanaset.tacocommon.properties.TradeUrlProperties;
+import com.hanaset.tacomccree.config.PairConfig;
+import com.hanaset.tacomccree.service.upbit.McCreeUpbitTradeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
@@ -16,20 +18,24 @@ import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Component
 public class UpbitMcCreeWebSocketClient {
 
     private final TradeUrlProperties tradeUrlProperties;
+    private final McCreeUpbitTradeService mcCreeUpbitTradeService;
 
     private WebSocketSession webSocketSession;
 
-    public UpbitMcCreeWebSocketClient(TradeUrlProperties tradeUrlProperties) {
+    public UpbitMcCreeWebSocketClient(TradeUrlProperties tradeUrlProperties,
+                                      McCreeUpbitTradeService mcCreeUpbitTradeService) {
         this.tradeUrlProperties = tradeUrlProperties;
+        this.mcCreeUpbitTradeService = mcCreeUpbitTradeService;
     }
 
-    public void connect(UpbitWebSocketTicket upbitWebSocketTicket, UpbitWebSocketType upbitWebSocketType) {
+    public void connect(UpbitWebSocketTicket upbitWebSocketTicket, UpbitWebSocketType upbitWebSocketType, Map<String, PairConfig> pairConfigs) {
 
         log.info("Connecting to Upbit Web Socket Server...");
 
@@ -44,7 +50,7 @@ public class UpbitMcCreeWebSocketClient {
             webSocketClient = new StandardWebSocketClient();
 
             webSocketSession =
-                    webSocketClient.doHandshake(new UpbitMcCreeiWebSocketHandler(), new WebSocketHttpHeaders(), URI.create(tradeUrlProperties.getUpbitWebSockUrl())).get();
+                    webSocketClient.doHandshake(new UpbitMcCreeWebSocketHandler(mcCreeUpbitTradeService, pairConfigs), new WebSocketHttpHeaders(), URI.create(tradeUrlProperties.getUpbitWebSockUrl())).get();
 
             try {
                 TextMessage message = new TextMessage(body);

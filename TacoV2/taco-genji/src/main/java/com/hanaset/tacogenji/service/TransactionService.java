@@ -35,10 +35,6 @@ public class TransactionService {
     @Async
     public void checkProfit(String pair) {
 
-        if (UpbitTransactionCached.LOCK) {
-            return;
-        }
-
         try {
             UpbitOrderbookItem btcItem = OrderbookCached.UPBIT.getOrDefault("BTC-" + pair, null);
             UpbitOrderbookItem krwItem = OrderbookCached.UPBIT.getOrDefault("KRW-" + pair, null);
@@ -56,6 +52,9 @@ public class TransactionService {
                     amount = UpbitTransactionCached.pairAmount.doubleValue();
                 }
 
+                if (UpbitTransactionCached.LOCK) {
+                    return;
+                }
                 UpbitTransactionCached.LOCK = true;
 
                 if (btcItem.getBid_size() > krwItem.getAsk_size()) {

@@ -1,11 +1,13 @@
 package com.hanaset.tacocommon.api.upbit.model;
 
 import com.google.gson.annotations.SerializedName;
+import lombok.Builder;
 import lombok.Data;
 
 import java.math.BigDecimal;
 
 @Data
+@Builder
 public class UpbitAccount {
 
     @SerializedName("currency")

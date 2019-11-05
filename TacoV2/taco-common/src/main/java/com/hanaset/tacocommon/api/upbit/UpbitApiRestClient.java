@@ -3,10 +3,7 @@ package com.hanaset.tacocommon.api.upbit;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.hanaset.tacocommon.api.upbit.model.UpbitAccount;
-import com.hanaset.tacocommon.api.upbit.model.UpbitMarket;
-import com.hanaset.tacocommon.api.upbit.model.UpbitOrderRequest;
-import com.hanaset.tacocommon.api.upbit.model.UpbitOrderResponse;
+import com.hanaset.tacocommon.api.upbit.model.*;
 import com.hanaset.tacocommon.properties.TradeKeyProperties;
 import com.hanaset.tacocommon.properties.TradeUrlProperties;
 import io.reactivex.Single;
@@ -46,8 +43,8 @@ public class UpbitApiRestClient {
     }
 
 
-    public Call<List<UpbitAccount>> getAccount(String query) {
-        return upbitApiRestService.getAccount(createToken(query));
+    public Call<List<UpbitAccount>> getAccount() {
+        return upbitApiRestService.getAccount(createToken(null));
     }
 
     public Call<UpbitOrderResponse> createOrder(UpbitOrderRequest request) {
@@ -114,4 +111,17 @@ public class UpbitApiRestClient {
     }
 
 
+    public Call<List<UpbitOrderResponse>> getOrders(String market) {
+
+        String query = "market=" + market;
+
+        return upbitApiRestService.getOrders(createToken(query), market);
+    }
+
+    public Call<UpbitOrderResponse> getOrder(String uuid) {
+
+        String query = "uuid=" + uuid;
+
+        return upbitApiRestService.getOrder(createToken(query), uuid);
+    }
 }
