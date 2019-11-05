@@ -169,36 +169,31 @@ public class McCreeUpbitTradeService {
             return;
         }
 
-        Boolean bDelete = false;
-
         if (BigDecimal.valueOf(item.getAsk_price() * item.getAsk_size()).compareTo(pairConfig.getLimitPrice()) <= 0 && orderList.size() != 0) {
             List<UpbitOrderResponse> deleteList = orderList.stream()
                     .filter(upbitOrderResponse -> upbitOrderResponse.getSide().equals("ask") && upbitOrderResponse.getPrice().equals(item.getAsk_price()))
                     .collect(Collectors.toList());
 
             if (deleteList.size() != 0) {
-                log.info("[{} 매도 주문 내역 삭제 => {}, {}]", pairConfig.getMarket(), item.getAsk_size(), item.getAsk_price() * item.getAsk_size());
+                log.info("[{} 매도 주문 내역 삭제 => {}, {}]", pairConfig.getMarket(), item.getAsk_size(), BigDecimal.valueOf(item.getAsk_price() * item.getAsk_size()).toPlainString());
                 deleteList = orderList.stream().filter(upbitOrderResponse -> upbitOrderResponse.getSide().equals("ask")).collect(Collectors.toList());
                 deleteList.forEach(upbitOrderResponse -> {
                     System.out.println(upbitOrderResponse);
                     orderDeleting(upbitOrderResponse.getUuid());
                 });
-                bDelete = true;
             }
 
         } else if (BigDecimal.valueOf(item.getAsk_price() * item.getAsk_size()).compareTo(pairConfig.getLimitPrice()) > 0 && orderList.size() != 0) {
             List<UpbitOrderResponse> deleteList = orderList.stream()
-                    .filter(upbitOrderResponse -> upbitOrderResponse.getSide().equals("ask") && !upbitOrderResponse.getPrice().equals(item.getAsk_price()))
-                    .collect(Collectors.toList());
+                    .filter(upbitOrderResponse -> upbitOrderResponse.getSide().equals("ask") && !upbitOrderResponse.getPrice().equals(item.getAsk_price())).collect(Collectors.toList());
 
             if (deleteList.size() != 0) {
-                log.info("[{} 매도 주문 내역 삭제 => {}, {}]", pairConfig.getMarket(), item.getAsk_size(), item.getAsk_price() * item.getAsk_size());
+                log.info("[{} 매도 주문 내역 삭제 => {}, {}]", pairConfig.getMarket(), item.getAsk_size(), BigDecimal.valueOf(item.getAsk_price() * item.getAsk_size()).toPlainString());
                 deleteList = orderList.stream().filter(upbitOrderResponse -> upbitOrderResponse.getSide().equals("ask")).collect(Collectors.toList());
                 deleteList.forEach(upbitOrderResponse -> {
                     System.out.println(upbitOrderResponse);
                     orderDeleting(upbitOrderResponse.getUuid());
                 });
-                bDelete = true;
             }
         }
 
@@ -208,34 +203,26 @@ public class McCreeUpbitTradeService {
                     .collect(Collectors.toList());
 
             if (deleteList.size() != 0) {
-                log.info("[{} 매수 주문 내역 삭제 => {}, {}]", pairConfig.getMarket(), item.getBid_size(), item.getBid_price() * item.getBid_size());
+                log.info("[{} 매수 주문 내역 삭제 => {}, {}]", pairConfig.getMarket(), item.getBid_size(), BigDecimal.valueOf(item.getBid_price() * item.getBid_size()).toPlainString());
                 deleteList = orderList.stream().filter(upbitOrderResponse -> upbitOrderResponse.getSide().equals("bid")).collect(Collectors.toList());
                 deleteList.forEach(upbitOrderResponse -> {
                     System.out.println(upbitOrderResponse);
                     orderDeleting(upbitOrderResponse.getUuid());
                 });
-                bDelete = true;
             }
 
         } else if(BigDecimal.valueOf(item.getBid_price() * item.getBid_size()).compareTo(pairConfig.getLimitPrice()) > 0 && orderList.size() != 0) {
             List<UpbitOrderResponse> deleteList = orderList.stream()
-                    .filter(upbitOrderResponse -> upbitOrderResponse.getSide().equals("bid") && !upbitOrderResponse.getPrice().equals(item.getBid_price()))
-                    .collect(Collectors.toList());
+                    .filter(upbitOrderResponse -> upbitOrderResponse.getSide().equals("bid") && !upbitOrderResponse.getPrice().equals(item.getBid_price())).collect(Collectors.toList());
 
             if (deleteList.size() != 0) {
-                log.info("[{} 매수 주문 내역 삭제 => {}, {}]", pairConfig.getMarket(), item.getBid_size(), item.getBid_price() * item.getBid_size());
+                log.info("[{} 매수 주문 내역 삭제 => {}, {}]", pairConfig.getMarket(), item.getBid_size(), BigDecimal.valueOf(item.getBid_price() * item.getBid_size()).toPlainString());
                 deleteList = orderList.stream().filter(upbitOrderResponse -> upbitOrderResponse.getSide().equals("bid")).collect(Collectors.toList());
                 deleteList.forEach(upbitOrderResponse -> {
                     System.out.println(upbitOrderResponse);
                     orderDeleting(upbitOrderResponse.getUuid());
                 });
-                bDelete = true;
             }
-        }
-
-        if (bDelete) {
-            OrderbookCached.UPBIT_LOCKS.put(pairConfig.getMarket(), false);
-            return;
         }
 
 
